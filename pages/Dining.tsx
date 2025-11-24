@@ -45,8 +45,8 @@ const Dining: React.FC = () => {
     // 2. Filter by Village
     if (selectedVillage !== 'Tous') {
       data = data.filter(place => 
-        place.address.includes(selectedVillage) || 
-        place.tags.some(tag => tag.includes(selectedVillage))
+        place.address.toLowerCase().includes(selectedVillage.toLowerCase()) || 
+        place.tags.some(tag => tag.toLowerCase().includes(selectedVillage.toLowerCase()))
       );
     }
 

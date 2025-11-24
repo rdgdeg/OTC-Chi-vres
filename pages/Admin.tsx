@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useData } from '../contexts/DataContext';
-import { Plus, Trash2, Edit, Save, LogIn, RefreshCw, Image as ImageIcon, ExternalLink, FileText, Layers } from 'lucide-react';
+import { Plus, Trash2, Edit, Save, LogIn, RefreshCw, Image as ImageIcon, ExternalLink, FileText, Layers, Upload, Check, AlertCircle, Database } from 'lucide-react';
 import { PageContent } from '../types';
 
 const Admin: React.FC = () => {
@@ -13,10 +13,11 @@ const Admin: React.FC = () => {
   // Edit page content
   const [editingPageId, setEditingPageId] = useState<string | null>(null);
   const [tempPageContent, setTempPageContent] = useState<PageContent | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { 
     museums, restaurants, accommodation, merchants, walks, experiences, events, products, pageContent,
-    updateItem, addItem, deleteItem, updatePageContent, resetData 
+    updateItem, addItem, deleteItem, updatePageContent, syncMockDataToSupabase, isLoading 
   } = useData();
 
   const handleLogin = (e: React.FormEvent) => {
@@ -47,25 +48,55 @@ const Admin: React.FC = () => {
       { id: 'bulletin', label: 'Page Bulletin' },
   ];
 
-  const handleSaveItem = (e: React.FormEvent) => {
+  const handleSaveItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (editingItem) {
       if (editingItem.isNew) {
         const { isNew, ...itemToSave } = editingItem;
-        addItem(collections[activeTab].type, { ...itemToSave, id: Date.now().toString() });
+        await addItem(collections[activeTab].type, { ...itemToSave }); // ID generated in DataContext if needed
       } else {
-        updateItem(collections[activeTab].type, editingItem);
+        await updateItem(collections[activeTab].type, editingItem);
       }
       setEditingItem(null);
     }
   };
 
-  const handleSavePageContent = (e: React.FormEvent) => {
+  const handleSavePageContent = async (e: React.FormEvent) => {
       e.preventDefault();
       if(editingPageId && tempPageContent) {
-          updatePageContent(editingPageId, tempPageContent);
+          await updatePageContent(editingPageId, tempPageContent);
           alert('Contenu de la page mis à jour !');
       }
+  };
+
+  const handleSync = async () => {
+    if(window.confirm("Cela va envoyer toutes les données par défaut vers votre base de données Supabase. Utile pour la première initialisation. Continuer ?")) {
+        await syncMockDataToSupabase();
+    }
+  };
+
+  // --- IMAGE UPLOAD LOGIC ---
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, fieldName: string, isPageContext: boolean = false) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Limit file size to 2MB (Base64 in DB limit suggestion)
+    if (file.size > 2 * 1024 * 1024) {
+        alert("Attention : L'image est trop volumineuse (> 2Mo). Veuillez la compresser avant de l'uploader.");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+        const base64String = reader.result as string;
+        
+        if (isPageContext && tempPageContent) {
+            setTempPageContent({ ...tempPageContent, [fieldName]: base64String });
+        } else if (!isPageContext && editingItem) {
+            setEditingItem({ ...editingItem, [fieldName]: base64String });
+        }
+    };
+    reader.readAsDataURL(file);
   };
 
   if (!isAuthenticated) {
@@ -97,14 +128,17 @@ const Admin: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       <div className="bg-slate-900 text-white py-12">
-        <div className="container mx-auto px-4 flex justify-between items-center">
+        <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
                 <h1 className="text-3xl font-serif font-bold">Tableau de Bord</h1>
-                <p className="text-slate-400">Gérez le contenu du site VisitChièvres.be</p>
+                <p className="text-slate-400">Gérez le contenu du site VisitChièvres.be via Supabase</p>
             </div>
-            <button onClick={resetData} className="flex items-center px-4 py-2 bg-red-600 rounded hover:bg-red-700 text-xs uppercase font-bold tracking-wider">
-                <RefreshCw size={16} className="mr-2" /> Réinitialiser les données
-            </button>
+            <div className="flex space-x-4">
+                <button onClick={handleSync} disabled={isLoading} className="flex items-center px-4 py-2 bg-green-600 rounded hover:bg-green-700 text-xs uppercase font-bold tracking-wider disabled:opacity-50">
+                    <Database size={16} className={`mr-2 ${isLoading ? 'animate-pulse' : ''}`} /> 
+                    {isLoading ? 'Chargement...' : 'Initialiser DB'}
+                </button>
+            </div>
         </div>
       </div>
 
@@ -200,15 +234,39 @@ const Admin: React.FC = () => {
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Image de fond (URL)</label>
-                                            <input 
-                                                type="text" 
-                                                className="w-full p-3 border border-slate-300 rounded-lg font-mono text-sm"
-                                                value={tempPageContent.heroImage || ''}
-                                                onChange={e => setTempPageContent({...tempPageContent, heroImage: e.target.value})}
-                                            />
+                                            <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Image de fond</label>
+                                            <div className="flex flex-col space-y-3">
+                                                {/* File Upload */}
+                                                <label className="flex items-center justify-center w-full p-4 border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors group">
+                                                    <div className="flex flex-col items-center">
+                                                        <Upload className="text-slate-400 group-hover:text-secondary mb-1" />
+                                                        <span className="text-xs text-slate-500 font-bold uppercase">Télécharger une image</span>
+                                                    </div>
+                                                    <input 
+                                                        type="file" 
+                                                        accept="image/*" 
+                                                        className="hidden" 
+                                                        onChange={(e) => handleFileUpload(e, 'heroImage', true)} 
+                                                    />
+                                                </label>
+                                                
+                                                <div className="flex items-center space-x-2">
+                                                    <span className="text-xs text-slate-400 font-bold">OU URL :</span>
+                                                    <input 
+                                                        type="text" 
+                                                        className="flex-grow p-2 border border-slate-300 rounded-lg font-mono text-sm"
+                                                        value={tempPageContent.heroImage || ''}
+                                                        onChange={e => setTempPageContent({...tempPageContent, heroImage: e.target.value})}
+                                                        placeholder="https://..."
+                                                    />
+                                                </div>
+                                            </div>
+
                                             {tempPageContent.heroImage && (
-                                                <img src={tempPageContent.heroImage} className="mt-2 h-32 w-full object-cover rounded-lg opacity-80" alt="Preview"/>
+                                                <div className="mt-3 relative h-32 w-full rounded-lg overflow-hidden border border-slate-200">
+                                                    <img src={tempPageContent.heroImage} className="w-full h-full object-cover" alt="Preview"/>
+                                                    <div className="absolute top-2 right-2 bg-green-500 text-white p-1 rounded-full"><Check size={12}/></div>
+                                                </div>
                                             )}
                                         </div>
                                     </div>
@@ -254,13 +312,27 @@ const Admin: React.FC = () => {
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Image Extra (URL)</label>
-                                            <input 
-                                                type="text" 
-                                                className="w-full p-3 border border-slate-300 rounded-lg font-mono text-sm"
-                                                value={tempPageContent.extraImage || ''}
-                                                onChange={e => setTempPageContent({...tempPageContent, extraImage: e.target.value})}
-                                            />
+                                            <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Image Extra</label>
+                                            
+                                            <div className="flex flex-col space-y-2">
+                                                <label className="flex items-center justify-center w-full p-2 border border-dashed border-slate-300 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors">
+                                                    <Upload size={16} className="text-slate-400 mr-2" />
+                                                    <span className="text-xs text-slate-500 font-bold">Uploader</span>
+                                                    <input 
+                                                        type="file" 
+                                                        accept="image/*" 
+                                                        className="hidden" 
+                                                        onChange={(e) => handleFileUpload(e, 'extraImage', true)} 
+                                                    />
+                                                </label>
+                                                <input 
+                                                    type="text" 
+                                                    className="w-full p-2 border border-slate-300 rounded-lg font-mono text-xs"
+                                                    value={tempPageContent.extraImage || ''}
+                                                    onChange={e => setTempPageContent({...tempPageContent, extraImage: e.target.value})}
+                                                    placeholder="Ou URL image..."
+                                                />
+                                            </div>
                                         </div>
                                         <div className="md:col-span-2">
                                             <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Texte Extra</label>
@@ -335,12 +407,36 @@ const Admin: React.FC = () => {
                             <div className="bg-white p-4 rounded-lg border border-slate-200">
                                 <div className="flex justify-between items-center mb-2">
                                     <label className="block text-xs font-bold uppercase text-slate-500 flex items-center">
-                                    <ImageIcon size={14} className="mr-1"/> Image URL (Photo)
+                                    <ImageIcon size={14} className="mr-1"/> Image (Photo)
                                     </label>
-                                    <span className="text-[10px] bg-blue-100 text-blue-800 px-2 py-1 rounded flex items-center">
-                                    <ExternalLink size={10} className="mr-1" /> Copiez le lien d'une image web
-                                    </span>
+                                    <div className="flex items-center text-[10px] text-slate-400">
+                                        <AlertCircle size={10} className="mr-1"/> Max 2Mo recommandé
+                                    </div>
                                 </div>
+                                
+                                {/* Upload Box */}
+                                <div className="mb-3">
+                                    <label className="cursor-pointer flex flex-col items-center justify-center border-2 border-dashed border-slate-300 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 rounded-lg p-6 transition-all group">
+                                        <div className="bg-white p-2 rounded-full mb-2 shadow-sm group-hover:scale-110 transition-transform">
+                                            <Upload className="text-blue-500" size={20} />
+                                        </div>
+                                        <span className="text-sm font-bold text-slate-600 group-hover:text-blue-600">Cliquez pour uploader une image</span>
+                                        <span className="text-xs text-slate-400 mt-1">PNG, JPG (sera converti en Base64)</span>
+                                        <input 
+                                            type="file" 
+                                            accept="image/*"
+                                            className="hidden" 
+                                            onChange={(e) => handleFileUpload(e, 'imageUrl')}
+                                        />
+                                    </label>
+                                </div>
+
+                                <div className="relative flex items-center mb-2">
+                                     <div className="flex-grow border-t border-slate-200"></div>
+                                     <span className="flex-shrink-0 mx-4 text-slate-400 text-xs font-bold uppercase">Ou via URL</span>
+                                     <div className="flex-grow border-t border-slate-200"></div>
+                                </div>
+
                                 <input 
                                     type="text" 
                                     value={editingItem.imageUrl || ''} 
@@ -351,6 +447,7 @@ const Admin: React.FC = () => {
                                 {editingItem.imageUrl && (
                                     <div className="relative h-48 rounded-lg overflow-hidden border border-slate-200 bg-slate-100 shadow-sm group">
                                     <img src={editingItem.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                                    <div className="absolute top-2 right-2 bg-green-500 text-white p-1 rounded-full shadow-md"><Check size={14}/></div>
                                     </div>
                                 )}
                             </div>
