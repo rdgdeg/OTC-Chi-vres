@@ -16,7 +16,6 @@ import Shop from './pages/Shop';
 import Admin from './pages/Admin';
 import Crossage from './pages/Crossage';
 import Bulletin from './pages/Bulletin';
-import AiAssistant from './components/AiAssistant';
 import { DataProvider } from './contexts/DataContext';
 
 function App() {
@@ -43,7 +42,6 @@ function App() {
             <Route path="*" element={<Home />} />
           </Routes>
         </Layout>
-        <AiAssistant />
       </Router>
     </DataProvider>
   );
