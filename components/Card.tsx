@@ -1,0 +1,115 @@
+import React from 'react';
+import { Place } from '../types';
+import { MapPin, Star, Phone, Globe, Timer, Footprints, Mountain } from 'lucide-react';
+
+interface CardProps {
+  place: Place;
+}
+
+const Card: React.FC<CardProps> = ({ place }) => {
+  const getTypeLabel = (type: string) => {
+    switch(type) {
+      case 'shop': return 'Commerce';
+      case 'restaurant': return 'Resto';
+      case 'hotel': return 'Logement';
+      case 'walk': return 'Balade';
+      default: return 'Musée';
+    }
+  };
+
+  const getTypeColor = (type: string) => {
+    switch(type) {
+      case 'walk': return 'text-green-600';
+      case 'museum': return 'text-primary';
+      case 'restaurant': return 'text-orange-600';
+      default: return 'text-primary';
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden border border-slate-100 flex flex-col h-full group">
+      <div className="relative h-56 overflow-hidden">
+        <img 
+          src={place.imageUrl} 
+          alt={place.name} 
+          className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+        />
+        <div className="absolute top-4 right-4">
+            <span className={`bg-white/95 backdrop-blur-sm ${getTypeColor(place.type)} text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-sm`}>
+                {getTypeLabel(place.type)}
+            </span>
+        </div>
+        {place.difficulty && (
+           <div className="absolute bottom-4 left-4">
+            <span className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-sm ${
+              place.difficulty === 'Facile' ? 'bg-green-100 text-green-700' : 
+              place.difficulty === 'Moyen' ? 'bg-yellow-100 text-yellow-700' : 
+              'bg-red-100 text-red-700'
+            }`}>
+                {place.difficulty}
+            </span>
+        </div>
+        )}
+      </div>
+      
+      <div className="p-6 flex-grow flex flex-col">
+        <div className="flex justify-between items-start mb-3">
+            <h3 className="text-xl font-serif font-bold text-slate-800 leading-tight">{place.name}</h3>
+            {place.rating && (
+                <div className="flex items-center text-secondary bg-yellow-50 px-2 py-1 rounded shrink-0 ml-2">
+                    <Star size={14} fill="currentColor" />
+                    <span className="ml-1 text-sm font-bold">{place.rating}</span>
+                </div>
+            )}
+        </div>
+
+        {/* Walk Specifics */}
+        {place.type === 'walk' && (
+          <div className="flex space-x-4 mb-4 text-slate-600 text-sm bg-slate-50 p-3 rounded-lg">
+            <div className="flex items-center">
+              <Footprints size={16} className="mr-1.5 text-primary" />
+              <span className="font-medium">{place.distance}</span>
+            </div>
+            <div className="flex items-center">
+              <Timer size={16} className="mr-1.5 text-primary" />
+              <span className="font-medium">{place.duration}</span>
+            </div>
+          </div>
+        )}
+        
+        <p className="text-slate-600 text-sm mb-6 flex-grow leading-relaxed">
+          {place.description}
+        </p>
+
+        <div className="space-y-2 mt-auto border-t border-slate-100 pt-4">
+            <div className="flex items-start text-slate-500 text-sm">
+                <MapPin size={16} className="mr-2 mt-0.5 shrink-0 text-secondary" />
+                <span>{place.address}</span>
+            </div>
+            {place.phone && (
+                <div className="flex items-center text-slate-500 text-sm">
+                    <Phone size={16} className="mr-2 shrink-0 text-secondary" />
+                    <a href={`tel:${place.phone}`} className="hover:text-primary transition-colors">{place.phone}</a>
+                </div>
+            )}
+            {place.website && (
+                <div className="flex items-center text-slate-500 text-sm">
+                    <Globe size={16} className="mr-2 shrink-0 text-secondary" />
+                    <a href={place.website} target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">Visiter le site web</a>
+                </div>
+            )}
+        </div>
+
+        <div className="mt-5 flex flex-wrap gap-2">
+            {place.tags.map(tag => (
+                <span key={tag} className="bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded hover:bg-primary hover:text-white transition-colors cursor-default">
+                    #{tag}
+                </span>
+            ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Card;
