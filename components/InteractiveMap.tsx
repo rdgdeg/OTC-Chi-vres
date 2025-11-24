@@ -14,14 +14,20 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({ items, height = '400px'
   const markers = useRef<mapboxgl.Marker[]>([]);
   const [mapError, setMapError] = useState(false);
 
-  // Token Mapbox fourni
-  const MAPBOX_TOKEN = 'pk.eyJ1IjoicmRnZGVnIiwiYSI6ImNtaWJ1dTR4NTA1d3gybHF6OTRqd3R1ZHYifQ.C8-jjFMIF80CPjH9wtGbOQ';
+  // Token Mapbox (from env or hardcoded fallback)
+  const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN || 'pk.eyJ1IjoicmRnZGVnIiwiYSI6ImNtaWJ1dTR4NTA1d3gybHF6OTRqd3R1ZHYifQ.C8-jjFMIF80CPjH9wtGbOQ';
 
   useEffect(() => {
     if (map.current) return; // initialize map only once
     if (!mapContainer.current) return;
 
     try {
+        if (!MAPBOX_TOKEN || MAPBOX_TOKEN === 'your_mapbox_token_here') {
+          console.error("Mapbox token is missing or invalid");
+          setMapError(true);
+          return;
+        }
+
         mapboxgl.accessToken = MAPBOX_TOKEN;
 
         map.current = new mapboxgl.Map({
@@ -43,6 +49,12 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({ items, height = '400px'
             map.current?.resize();
         });
         resizeObserver.observe(mapContainer.current);
+
+        // Gestion des erreurs de chargement
+        map.current.on('error', (e) => {
+            console.error('Mapbox error:', e);
+            setMapError(true);
+        });
 
         return () => {
             resizeObserver.disconnect();
