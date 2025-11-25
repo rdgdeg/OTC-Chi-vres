@@ -14,20 +14,20 @@ const NAV_ITEMS: NavItem[] = [
     ]
   },
   { 
-    label: 'Vivre & Bouger', 
-    children: [
-      { label: 'Expériences', path: '/experiences' },
-      { label: 'Agenda', path: '/agenda' },
-      { label: 'Nos Commerçants', path: '/commercants' },
-    ]
-  },
-  { 
     label: 'Séjourner', 
     children: [
       { label: 'Où manger ? (Restaurants)', path: '/restaurants?type=restaurant' },
       { label: 'Se désaltérer (Cafés)', path: '/restaurants?type=cafe' },
       { label: 'Terroir & Producteurs', path: '/restaurants?type=producer' },
       { label: 'Où dormir ?', path: '/hebergement' },
+    ]
+  },
+  { 
+    label: 'Vivre & Bouger', 
+    children: [
+      { label: 'Expériences', path: '/experiences' },
+      { label: 'Agenda', path: '/agenda' },
+      { label: 'Nos Commerçants', path: '/commercants' },
     ]
   },
   { 

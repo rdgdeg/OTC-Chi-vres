@@ -8,7 +8,7 @@ import { useData } from '../contexts/DataContext';
 
 const Home: React.FC = () => {
   // Use CMS Data for text content
-  const { pageContent } = useData();
+  const { pageContent, events } = useData();
   const content = pageContent['home'] || {};
 
   return (
@@ -131,19 +131,41 @@ const Home: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {EVENTS.map((event) => (
-              <div key={event.id} className="bg-white border border-slate-100 rounded-xl p-6 hover:shadow-lg transition-all cursor-pointer group flex flex-col">
-                <div className="flex items-center text-secondary mb-4 bg-secondary/10 w-fit px-3 py-1 rounded-full">
-                  <Calendar size={16} className="mr-2" />
-                  <span className="text-xs font-bold uppercase">Prochainement</span>
-                </div>
-                <h3 className="text-lg font-bold text-slate-800 mb-2 group-hover:text-primary transition-colors">{event.title}</h3>
-                <p className="text-slate-500 text-sm line-clamp-2 mb-4 flex-grow">
-                  {event.description}
-                </p>
-                <div className="flex items-center justify-between border-t border-slate-100 pt-4 mt-2">
-                    <span className="text-xs text-slate-400 font-medium">{event.date}</span>
-                    <span className="text-xs text-primary font-bold uppercase">En savoir plus</span>
+            {events.slice(0, 3).map((event) => (
+              <div key={event.id} className="bg-white border border-slate-100 rounded-xl overflow-hidden hover:shadow-lg transition-all cursor-pointer group flex flex-col">
+                {/* Image de l'événement */}
+                {event.imageUrl && (
+                  <div className="relative h-48 w-full overflow-hidden">
+                    <img 
+                      src={event.imageUrl} 
+                      alt={event.title}
+                      className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                    <div className="absolute top-4 left-4 bg-white rounded-lg shadow-md overflow-hidden">
+                      <div className="bg-primary text-white text-center px-3 py-1">
+                        <span className="text-xs font-bold uppercase">{event.month}</span>
+                      </div>
+                      <div className="bg-white text-slate-800 text-center px-3 py-2">
+                        <span className="text-2xl font-bold">{event.day}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="p-6 flex flex-col flex-grow">
+                  <div className="flex items-center text-secondary mb-3 bg-secondary/10 w-fit px-3 py-1 rounded-full">
+                    <Calendar size={14} className="mr-2" />
+                    <span className="text-xs font-bold uppercase">{event.category}</span>
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-800 mb-2 group-hover:text-primary transition-colors">{event.title}</h3>
+                  <p className="text-slate-500 text-sm line-clamp-2 mb-4 flex-grow">
+                    {event.description}
+                  </p>
+                  <div className="flex items-center justify-between border-t border-slate-100 pt-4 mt-2">
+                      <span className="text-xs text-slate-400 font-medium">{event.date}</span>
+                      <span className="text-xs text-primary font-bold uppercase">En savoir plus</span>
+                  </div>
                 </div>
               </div>
             ))}
