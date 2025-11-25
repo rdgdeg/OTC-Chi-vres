@@ -3,6 +3,7 @@ import React, { useState, useRef } from 'react';
 import { useData } from '../contexts/DataContext';
 import { Plus, Trash2, Edit, Save, LogIn, RefreshCw, Image as ImageIcon, ExternalLink, FileText, Layers, Upload, Check, AlertCircle, Database } from 'lucide-react';
 import { PageContent } from '../types';
+import ImageUploader from '../components/ImageUploader';
 
 const Admin: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -17,7 +18,7 @@ const Admin: React.FC = () => {
 
   const { 
     museums, restaurants, accommodation, merchants, walks, experiences, events, products, pageContent,
-    updateItem, addItem, deleteItem, updatePageContent, syncMockDataToSupabase, isLoading 
+    updateItem, addItem, deleteItem, updatePageContent, syncMockDataToSupabase, isLoading, refreshData 
   } = useData();
 
   const handleLogin = (e: React.FormEvent) => {
@@ -133,8 +134,21 @@ const Admin: React.FC = () => {
                 <h1 className="text-3xl font-serif font-bold">Tableau de Bord</h1>
                 <p className="text-slate-400">Gérez le contenu du site VisitChièvres.be via Supabase</p>
             </div>
-            <div className="flex space-x-4">
-                <button onClick={handleSync} disabled={isLoading} className="flex items-center px-4 py-2 bg-green-600 rounded hover:bg-green-700 text-xs uppercase font-bold tracking-wider disabled:opacity-50">
+            <div className="flex space-x-3">
+                <button 
+                    onClick={refreshData} 
+                    disabled={isLoading} 
+                    className="flex items-center px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 text-xs uppercase font-bold tracking-wider disabled:opacity-50 transition-colors"
+                    title="Rafraîchir les données depuis la base"
+                >
+                    <RefreshCw size={16} className={`mr-2 ${isLoading ? 'animate-spin' : ''}`} /> 
+                    {isLoading ? 'Chargement...' : 'Rafraîchir'}
+                </button>
+                <button 
+                    onClick={handleSync} 
+                    disabled={isLoading} 
+                    className="flex items-center px-4 py-2 bg-green-600 rounded hover:bg-green-700 text-xs uppercase font-bold tracking-wider disabled:opacity-50"
+                >
                     <Database size={16} className={`mr-2 ${isLoading ? 'animate-pulse' : ''}`} /> 
                     {isLoading ? 'Chargement...' : 'Initialiser DB'}
                 </button>
@@ -568,15 +582,17 @@ const Admin: React.FC = () => {
                                             </div>
 
                                             <div className="bg-white p-4 rounded-lg border border-slate-200">
-                                                <label className="block text-xs font-bold uppercase text-slate-500 mb-2">Galerie d'images (URLs séparées par des virgules)</label>
-                                                <textarea 
-                                                    rows={3}
-                                                    value={Array.isArray(editingItem.galleryImages) ? editingItem.galleryImages.join(', ') : ''} 
-                                                    onChange={e => setEditingItem({...editingItem, galleryImages: e.target.value.split(',').map((url: string) => url.trim()).filter((url: string) => url)})}
-                                                    className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none font-mono text-sm"
-                                                    placeholder="https://image1.jpg, https://image2.jpg, ..."
+                                                <ImageUploader
+                                                    currentImages={editingItem.galleryImages || []}
+                                                    onImagesChange={(images) => setEditingItem({...editingItem, galleryImages: images})}
+                                                    maxImages={10}
+                                                    folder="museums"
+                                                    label="Galerie d'images"
                                                 />
-                                                <p className="text-xs text-slate-500 mt-2 italic">* Ajoutez plusieurs URLs d'images séparées par des virgules pour créer une galerie</p>
+                                                <p className="text-xs text-slate-500 mt-2 italic">
+                                                    💡 Astuce : La première image sera utilisée comme image principale dans la galerie. 
+                                                    Vous pouvez uploader jusqu'à 10 images.
+                                                </p>
                                             </div>
                                         </>
                                     )}
@@ -604,7 +620,41 @@ const Admin: React.FC = () => {
                                                     placeholder="Ex: €€ (15-30€) ou Menu du jour: 15€"
                                                 />
                                             </div>
+
+                                            <div className="bg-white p-4 rounded-lg border border-slate-200">
+                                                <ImageUploader
+                                                    currentImages={editingItem.galleryImages || []}
+                                                    onImagesChange={(images) => setEditingItem({...editingItem, galleryImages: images})}
+                                                    maxImages={8}
+                                                    folder="restaurants"
+                                                    label="Galerie d'images"
+                                                />
+                                            </div>
                                         </>
+                                    )}
+
+                                    {collections[activeTab].type === 'hotel' && (
+                                        <div className="bg-white p-4 rounded-lg border border-slate-200">
+                                            <ImageUploader
+                                                currentImages={editingItem.galleryImages || []}
+                                                onImagesChange={(images) => setEditingItem({...editingItem, galleryImages: images})}
+                                                maxImages={10}
+                                                folder="accommodation"
+                                                label="Galerie d'images"
+                                            />
+                                        </div>
+                                    )}
+
+                                    {collections[activeTab].type === 'shop' && (
+                                        <div className="bg-white p-4 rounded-lg border border-slate-200">
+                                            <ImageUploader
+                                                currentImages={editingItem.galleryImages || []}
+                                                onImagesChange={(images) => setEditingItem({...editingItem, galleryImages: images})}
+                                                maxImages={6}
+                                                folder="merchants"
+                                                label="Galerie d'images"
+                                            />
+                                        </div>
                                     )}
                                 </>
                             )}

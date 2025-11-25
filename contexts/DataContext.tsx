@@ -21,6 +21,7 @@ interface DataContextType {
   deleteItem: (type: string, id: string) => Promise<void>;
   updatePageContent: (id: string, content: PageContent) => Promise<void>;
   syncMockDataToSupabase: () => Promise<void>;
+  refreshData: () => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -39,7 +40,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [pageContent, setPageContent] = useState<Record<string, PageContent>>({});
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchData = async () => {
+  const fetchData = async (forceRefresh: boolean = false) => {
     setIsLoading(true);
     try {
       // 1. Fetch Places (Museums, Restos, etc.)
@@ -249,11 +250,15 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const refreshData = async () => {
+    await fetchData(true);
+  };
+
   return (
     <DataContext.Provider value={{
       museums, restaurants, accommodation, merchants, walks, experiences, events, articles, products, pageContent,
       isLoading,
-      updateItem, addItem, deleteItem, updatePageContent, syncMockDataToSupabase
+      updateItem, addItem, deleteItem, updatePageContent, syncMockDataToSupabase, refreshData
     }}>
       {children}
     </DataContext.Provider>

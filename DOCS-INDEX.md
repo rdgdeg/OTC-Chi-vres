@@ -47,6 +47,11 @@
 ├── 📝 .env.example                     ← Template de configuration
 ├── 📚 DOCS-INDEX.md                    ← Ce fichier
 │
+├── 📸 Galerie d'Images (NOUVEAU!)
+│   ├── ⚡ QUICK-GALLERY-GUIDE.md      ← Guide rapide (5 étapes)
+│   ├── 📖 GUIDE-GALERIE-IMAGES.md     ← Guide complet
+│   └── 🔄 GUIDE-RAFRAICHISSEMENT.md   ← Voir vos modifications
+│
 └── 📱 Mobile (NOUVEAU!)
     ├── 🎯 MOBILE-OPTIMIZATIONS.md      ← Guide complet des optimisations
     ├── 🧪 MOBILE-TESTING-GUIDE.md      ← Checklist de tests mobile

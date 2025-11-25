@@ -1,5 +1,61 @@
 # 📝 Changelog - VisitChièvres.be
 
+## [2.1.0] - 2025-11-25 - 📸 Galerie d'Images par Upload
+
+### ✨ Ajouté
+
+#### Système de Galerie Complet
+- **Upload multiple d'images** pour musées, restaurants, hébergements, commerces
+- **Composant ImageUploader** intégré dans l'admin
+- **Aperçu instantané** des images uploadées
+- **Suppression facile** d'images de la galerie
+- **Stockage Supabase** avec organisation par dossiers
+- **Limites adaptées** par type (6-10 images selon le type)
+
+#### Bouton Rafraîchir
+- **Nouveau bouton "Rafraîchir"** dans l'admin
+- **Rechargement des données** depuis Supabase en un clic
+- **Fonction refreshData()** dans DataContext
+
+#### Documentation
+- `QUICK-GALLERY-GUIDE.md` - Guide rapide en 5 étapes
+- `GUIDE-GALERIE-IMAGES.md` - Guide complet avec dépannage
+- `GUIDE-RAFRAICHISSEMENT.md` - Solutions aux problèmes de cache
+
+### 🔧 Modifié
+
+#### Admin Panel
+- **Section Galerie** remplacée par composant ImageUploader
+- **Support upload** pour musées, restaurants, hébergements, commerces
+- **Interface améliorée** avec grille d'aperçu
+- **Feedback visuel** pendant l'upload
+
+#### DataContext
+- **Fonction refreshData()** ajoutée
+- **Paramètre forceRefresh** dans fetchData()
+- **Export de refreshData** dans le contexte
+
+### 📚 Documentation
+
+- Mise à jour de `DOCS-INDEX.md` avec section Galerie
+- Guides d'utilisation complets
+- Dépannage et bonnes pratiques
+
+### 🎯 Utilisation
+
+```typescript
+// Dans Admin
+<ImageUploader
+  currentImages={item.galleryImages || []}
+  onImagesChange={(images) => setItem({...item, galleryImages: images})}
+  maxImages={10}
+  folder="museums"
+  label="Galerie d'images"
+/>
+```
+
+---
+
 ## [2.0.0] - 2025-11-25 - 📱 Mobile Optimization Release
 
 ### 🎯 Changement Majeur
