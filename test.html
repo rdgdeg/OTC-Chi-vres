@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Simple</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            color: #333;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        h1 { color: #667eea; }
+        .status { 
+            padding: 10px; 
+            margin: 10px 0; 
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .ok { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Test de Diagnostic</h1>
+        <p>Si tu vois cette page, le serveur fonctionne !</p>
+        
+        <div class="status ok">✅ Serveur Vite : OK</div>
+        <div class="status ok">✅ HTML : OK</div>
+        <div class="status ok">✅ CSS : OK</div>
+        
+        <h2>Prochaines étapes :</h2>
+        <ol>
+            <li>Ouvre la console (F12)</li>
+            <li>Va sur <a href="http://localhost:3000">http://localhost:3000</a></li>
+            <li>Regarde les erreurs dans la console</li>
+            <li>Copie-moi les messages d'erreur</li>
+        </ol>
+        
+        <h2>Erreurs possibles :</h2>
+        <ul>
+            <li>Problème d'import de modules</li>
+            <li>Erreur dans le code React</li>
+            <li>Problème avec les CDN externes</li>
+            <li>Cache du navigateur</li>
+        </ul>
+        
+        <p><strong>URL de test :</strong> <a href="http://localhost:3000/test.html">http://localhost:3000/test.html</a></p>
+    </div>
+    
+    <script>
+        console.log('✅ JavaScript fonctionne !');
+        console.log('Serveur Vite opérationnel');
+    </script>
+</body>
+</html>

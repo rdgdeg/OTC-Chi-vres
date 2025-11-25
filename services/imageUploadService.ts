@@ -1,0 +1,98 @@
+import { supabase } from './supabaseClient';
+
+/**
+ * Upload an image to Supabase Storage
+ * @param file - The image file to upload
+ * @param folder - Optional folder path (e.g., 'museums', 'restaurants')
+ * @returns The public URL of the uploaded image
+ */
+export const uploadImage = async (file: File, folder: string = 'general'): Promise<string | null> => {
+  try {
+    // Generate unique filename with timestamp
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+    // Upload to Supabase Storage
+    const { data, error } = await supabase.storage
+      .from('images')
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (error) {
+      console.error('Upload error:', error);
+      return null;
+    }
+
+    // Get public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from('images')
+      .getPublicUrl(data.path);
+
+    return publicUrl;
+  } catch (error) {
+    console.error('Upload exception:', error);
+    return null;
+  }
+};
+
+/**
+ * Upload multiple images
+ * @param files - Array of image files
+ * @param folder - Optional folder path
+ * @returns Array of public URLs
+ */
+export const uploadMultipleImages = async (files: File[], folder: string = 'general'): Promise<string[]> => {
+  const uploadPromises = files.map(file => uploadImage(file, folder));
+  const results = await Promise.all(uploadPromises);
+  return results.filter((url): url is string => url !== null);
+};
+
+/**
+ * Delete an image from Supabase Storage
+ * @param imageUrl - The public URL of the image to delete
+ */
+export const deleteImage = async (imageUrl: string): Promise<boolean> => {
+  try {
+    // Extract path from URL
+    const url = new URL(imageUrl);
+    const pathParts = url.pathname.split('/images/');
+    if (pathParts.length < 2) return false;
+    
+    const filePath = pathParts[1];
+
+    const { error } = await supabase.storage
+      .from('images')
+      .remove([filePath]);
+
+    if (error) {
+      console.error('Delete error:', error);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Delete exception:', error);
+    return false;
+  }
+};
+
+/**
+ * Replace an image (delete old, upload new)
+ * @param oldImageUrl - URL of the image to replace
+ * @param newFile - New image file
+ * @param folder - Optional folder path
+ * @returns The public URL of the new image
+ */
+export const replaceImage = async (oldImageUrl: string, newFile: File, folder: string = 'general'): Promise<string | null> => {
+  // Upload new image first
+  const newUrl = await uploadImage(newFile, folder);
+  
+  if (newUrl && oldImageUrl) {
+    // Delete old image (don't wait for it)
+    deleteImage(oldImageUrl).catch(console.error);
+  }
+  
+  return newUrl;
+};

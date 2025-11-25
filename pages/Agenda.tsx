@@ -56,50 +56,50 @@ const Agenda: React.FC = () => {
         height="medium"
       />
 
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 sm:px-6 py-12 sm:py-16">
         
         {/* Controls */}
-        <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-serif font-bold text-slate-800">Prochains événements</h2>
-            <div className="flex bg-slate-100 p-1 rounded-lg">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4">
+            <h2 className="text-xl sm:text-2xl font-serif font-bold text-slate-800">Prochains événements</h2>
+            <div className="flex bg-slate-100 p-1 rounded-lg w-full sm:w-auto">
                 <button 
                     onClick={() => setView('list')}
-                    className={`flex items-center px-4 py-2 rounded-md text-sm font-bold transition-all ${view === 'list' ? 'bg-white text-primary shadow-sm' : 'text-slate-500'}`}
+                    className={`flex items-center justify-center flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-bold transition-all touch-manipulation ${view === 'list' ? 'bg-white text-primary shadow-sm' : 'text-slate-500'}`}
                 >
-                    <List size={16} className="mr-2" /> Liste
+                    <List size={16} className="mr-1 sm:mr-2" /> Liste
                 </button>
                 <button 
                     onClick={() => setView('calendar')}
-                    className={`flex items-center px-4 py-2 rounded-md text-sm font-bold transition-all ${view === 'calendar' ? 'bg-white text-primary shadow-sm' : 'text-slate-500'}`}
+                    className={`flex items-center justify-center flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-bold transition-all touch-manipulation ${view === 'calendar' ? 'bg-white text-primary shadow-sm' : 'text-slate-500'}`}
                 >
-                    <CalIcon size={16} className="mr-2" /> Calendrier
+                    <CalIcon size={16} className="mr-1 sm:mr-2" /> Calendrier
                 </button>
             </div>
         </div>
 
         {view === 'list' ? (
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
                 {events.map((event) => (
-                    <div key={event.id} className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row items-center md:items-start gap-6 group">
-                        <div className="shrink-0 bg-slate-100 rounded-lg p-4 text-center min-w-[100px]">
-                            <span className="block text-3xl font-serif font-bold text-primary">{event.day}</span>
-                            <span className="block text-sm font-bold text-slate-500 uppercase">{event.month}</span>
+                    <div key={event.id} className="bg-white rounded-xl p-4 sm:p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 group touch-manipulation">
+                        <div className="shrink-0 bg-slate-100 rounded-lg p-3 sm:p-4 text-center min-w-[80px] sm:min-w-[100px]">
+                            <span className="block text-2xl sm:text-3xl font-serif font-bold text-primary">{event.day}</span>
+                            <span className="block text-xs sm:text-sm font-bold text-slate-500 uppercase">{event.month}</span>
                         </div>
                         
-                        <div className="flex-grow text-center md:text-left">
+                        <div className="flex-grow text-center sm:text-left">
                             <div className="mb-2">
-                                <span className="text-xs font-bold uppercase tracking-wider text-secondary bg-secondary/10 px-2 py-1 rounded-full">{event.category}</span>
+                                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-secondary bg-secondary/10 px-2 py-1 rounded-full">{event.category}</span>
                             </div>
-                            <h3 className="text-xl font-bold text-slate-800 mb-2 group-hover:text-primary transition-colors">{event.title}</h3>
-                            <p className="text-slate-600 mb-4 text-sm">{event.description}</p>
-                            <div className="flex items-center justify-center md:justify-start text-slate-500 text-sm">
-                                <MapPin size={16} className="mr-1" />
-                                {event.location}
+                            <h3 className="text-lg sm:text-xl font-bold text-slate-800 mb-2 group-hover:text-primary transition-colors">{event.title}</h3>
+                            <p className="text-slate-600 mb-3 sm:mb-4 text-xs sm:text-sm line-clamp-2">{event.description}</p>
+                            <div className="flex items-center justify-center sm:justify-start text-slate-500 text-xs sm:text-sm">
+                                <MapPin size={14} className="mr-1 shrink-0" />
+                                <span className="truncate">{event.location}</span>
                             </div>
                         </div>
 
-                        <div className="shrink-0">
-                            <button className="border-2 border-primary text-primary font-bold px-6 py-2 rounded-lg hover:bg-primary hover:text-white transition-colors">
+                        <div className="shrink-0 w-full sm:w-auto">
+                            <button className="w-full sm:w-auto border-2 border-primary text-primary font-bold px-4 sm:px-6 py-2 rounded-lg hover:bg-primary hover:text-white active:scale-95 transition-all touch-manipulation text-sm sm:text-base">
                                 Détails
                             </button>
                         </div>

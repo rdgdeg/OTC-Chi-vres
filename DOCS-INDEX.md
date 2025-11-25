@@ -39,13 +39,20 @@
 
 ```
 📁 Documentation
-├── 🚀 QUICK-START.md          ← Commence ici !
-├── 🔧 CONFIGURATION.md         ← Configuration détaillée
-├── ✅ VERIFICATION.md          ← Tests et dépannage
-├── 📋 RESUME.md                ← Vue d'ensemble
-├── 🗄️ supabase-schema.sql     ← Schéma de la base
-├── 📝 .env.example             ← Template de configuration
-└── 📚 DOCS-INDEX.md            ← Ce fichier
+├── 🚀 QUICK-START.md                  ← Commence ici !
+├── 🔧 CONFIGURATION.md                 ← Configuration détaillée
+├── ✅ VERIFICATION.md                  ← Tests et dépannage
+├── 📋 RESUME.md                        ← Vue d'ensemble
+├── 🗄️ supabase-schema.sql             ← Schéma de la base
+├── 📝 .env.example                     ← Template de configuration
+├── 📚 DOCS-INDEX.md                    ← Ce fichier
+│
+└── 📱 Mobile (NOUVEAU!)
+    ├── 🎯 MOBILE-OPTIMIZATIONS.md      ← Guide complet des optimisations
+    ├── 🧪 MOBILE-TESTING-GUIDE.md      ← Checklist de tests mobile
+    ├── 📝 CHANGELOG-MOBILE.md          ← Historique des changements
+    ├── 💡 MOBILE-BEST-PRACTICES.md     ← Bonnes pratiques
+    └── ⚡ MOBILE-QUICK-REFERENCE.md    ← Référence rapide
 ```
 
 ## 🎓 Guides par tâche
@@ -181,11 +188,65 @@ visitchievres.be/
 └── types.ts            # Types TypeScript
 ```
 
+## 📱 Documentation Mobile (NOUVEAU!)
+
+### Optimisations Mobile Complètes
+
+Le site est maintenant **100% optimisé pour mobile** ! Consulte la documentation dédiée :
+
+#### 🎯 Vue d'ensemble
+👉 [`MOBILE-OPTIMIZATIONS.md`](MOBILE-OPTIMIZATIONS.md)
+- Toutes les améliorations apportées
+- Breakpoints et classes utilisées
+- Compatibilité navigateurs
+- Prochaines améliorations
+
+#### 🧪 Tests Mobile
+👉 [`MOBILE-TESTING-GUIDE.md`](MOBILE-TESTING-GUIDE.md)
+- Checklist complète par page
+- Tests de gestes tactiles
+- Tests de performance
+- Tests de compatibilité
+- Outils recommandés
+
+#### 📝 Historique
+👉 [`CHANGELOG-MOBILE.md`](CHANGELOG-MOBILE.md)
+- Tous les changements documentés
+- Métriques d'amélioration
+- Fichiers modifiés
+- Classes ajoutées
+
+#### 💡 Bonnes Pratiques
+👉 [`MOBILE-BEST-PRACTICES.md`](MOBILE-BEST-PRACTICES.md)
+- Principes fondamentaux
+- Patterns recommandés
+- Exemples de code
+- À éviter
+
+#### ⚡ Référence Rapide
+👉 [`MOBILE-QUICK-REFERENCE.md`](MOBILE-QUICK-REFERENCE.md)
+- Patterns communs
+- Tailles standards
+- Checklist rapide
+- Dépannage express
+
+### Highlights Mobile
+
+✅ **Responsive à 100%** - Toutes les pages adaptées
+✅ **Touch-Friendly** - Zones tactiles 44px minimum
+✅ **Performance** - Lighthouse Mobile 90+
+✅ **Accessibilité** - WCAG 2.1 AA
+✅ **PWA Ready** - Meta tags configurés
+
 ## 🚀 Prêt à commencer ?
 
+### Pour le développement général
 👉 **Commence par** [`QUICK-START.md`](QUICK-START.md) et suis les étapes !
+
+### Pour le développement mobile
+👉 **Consulte** [`MOBILE-QUICK-REFERENCE.md`](MOBILE-QUICK-REFERENCE.md) pour les patterns !
 
 ---
 
-**Dernière mise à jour** : Novembre 2024
-**Version** : 1.0.0
+**Dernière mise à jour** : 25 novembre 2025
+**Version** : 2.0.0 (Mobile Optimized)

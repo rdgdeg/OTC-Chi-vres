@@ -61,16 +61,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     <div className="flex flex-col min-h-screen font-sans">
       {/* Header - Sticky et Responsive */}
       <header className="sticky top-0 z-50 bg-white shadow-md">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center h-20">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="flex justify-between items-center h-16 sm:h-20">
             {/* Logo */}
-            <Link to="/" className="flex items-center space-x-2 group shrink-0">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white font-serif font-bold text-2xl group-hover:bg-secondary transition-colors shadow-sm">
+            <Link to="/" className="flex items-center space-x-2 group shrink-0 min-w-0">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary rounded-lg flex items-center justify-center text-white font-serif font-bold text-xl sm:text-2xl group-hover:bg-secondary transition-colors shadow-sm shrink-0">
                 V
               </div>
-              <div className="flex flex-col">
-                <span className="text-lg md:text-xl font-serif font-bold text-slate-800 leading-none tracking-tight">VisitChièvres<span className="text-secondary">.be</span></span>
-                <span className="text-[9px] md:text-[10px] text-slate-500 uppercase tracking-[0.2em] font-medium">Office du Tourisme</span>
+              <div className="flex flex-col min-w-0">
+                <span className="text-base sm:text-lg md:text-xl font-serif font-bold text-slate-800 leading-none tracking-tight truncate">VisitChièvres<span className="text-secondary">.be</span></span>
+                <span className="text-[8px] sm:text-[9px] md:text-[10px] text-slate-500 uppercase tracking-[0.15em] sm:tracking-[0.2em] font-medium">Office du Tourisme</span>
               </div>
             </Link>
 
@@ -110,8 +110,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
             {/* Mobile Menu Button */}
             <button
-              className="lg:hidden p-2 text-slate-600 hover:text-primary focus:outline-none"
+              className="lg:hidden p-2 text-slate-600 hover:text-primary focus:outline-none active:scale-95 transition-transform touch-manipulation"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -120,11 +121,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
         {/* Mobile Navigation Menu */}
         {isMenuOpen && (
-          <div className="lg:hidden bg-white border-t border-slate-100 absolute w-full shadow-lg h-[calc(100vh-5rem)] z-40 overflow-y-auto">
-            <div className="flex flex-col py-4 px-4 space-y-2">
+          <div className="lg:hidden bg-white border-t border-slate-100 absolute w-full shadow-lg max-h-[calc(100vh-4rem)] sm:max-h-[calc(100vh-5rem)] z-40 overflow-y-auto overscroll-contain">
+            <div className="flex flex-col py-4 px-4 space-y-1 pb-safe">
               <Link
                 to="/"
-                className="px-4 py-3 text-lg font-bold text-slate-800 border-b border-slate-100"
+                className="px-4 py-3 text-base sm:text-lg font-bold text-slate-800 border-b border-slate-100 active:bg-slate-50 touch-manipulation"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Accueil
@@ -134,19 +135,19 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <div key={item.label} className="border-b border-slate-100">
                   <button
                     onClick={() => toggleDropdown(item.label)}
-                    className="w-full flex justify-between items-center px-4 py-3 text-lg font-medium text-slate-600"
+                    className="w-full flex justify-between items-center px-4 py-3 text-base sm:text-lg font-medium text-slate-600 active:bg-slate-50 touch-manipulation"
                   >
                     {item.label}
                     <ChevronDown size={20} className={`transform transition-transform ${openDropdown === item.label ? 'rotate-180' : ''}`} />
                   </button>
                   
                   {openDropdown === item.label && (
-                    <div className="bg-slate-50 px-4 py-2 space-y-1">
+                    <div className="bg-slate-50 px-2 py-2 space-y-1">
                       {item.children?.map(subItem => (
                         <Link
                           key={subItem.path}
                           to={subItem.path!}
-                          className="block px-4 py-2 text-base text-slate-500 hover:text-primary rounded-lg"
+                          className="block px-4 py-3 text-sm sm:text-base text-slate-500 hover:text-primary rounded-lg active:bg-slate-100 touch-manipulation"
                           onClick={() => setIsMenuOpen(false)}
                         >
                           {subItem.label}
@@ -159,7 +160,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
               <Link
                   to="/boutique"
-                  className="px-4 py-3 text-lg font-medium text-slate-600 hover:text-primary flex items-center border-b border-slate-100"
+                  className="px-4 py-3 text-base sm:text-lg font-medium text-slate-600 hover:text-primary flex items-center border-b border-slate-100 active:bg-slate-50 touch-manipulation"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <ShoppingBag size={20} className="mr-2"/> Boutique
@@ -181,9 +182,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-white pt-16 pb-8">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+      <footer className="bg-slate-900 text-white pt-12 sm:pt-16 pb-8">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 mb-12">
             {/* Brand */}
             <div>
                <div className="flex items-center space-x-2 mb-6">
@@ -257,13 +258,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </div>
           </div>
           
-          <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-center md:text-left">
-            <p className="text-slate-500 text-xs mb-4 md:mb-0">
+          <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row justify-between items-center text-center sm:text-left gap-4">
+            <p className="text-slate-500 text-xs">
               &copy; {new Date().getFullYear()} Office du Tourisme de la Ville de Chièvres. Tous droits réservés.
             </p>
             <Link 
               to="/admin" 
-              className="bg-slate-800 hover:bg-secondary hover:text-slate-900 text-slate-300 px-5 py-2 rounded-full text-xs font-bold transition-all flex items-center shadow-lg border border-slate-700 hover:border-secondary group"
+              className="bg-slate-800 hover:bg-secondary hover:text-slate-900 text-slate-300 px-5 py-2 rounded-full text-xs font-bold transition-all flex items-center shadow-lg border border-slate-700 hover:border-secondary group touch-manipulation"
             >
                 <Settings size={14} className="mr-2 group-hover:rotate-90 transition-transform duration-300" /> 
                 Administration

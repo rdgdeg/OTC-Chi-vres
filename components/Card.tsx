@@ -27,8 +27,8 @@ const Card: React.FC<CardProps> = ({ place }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden border border-slate-100 flex flex-col h-full group">
-      <div className="relative h-56 overflow-hidden">
+    <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden border border-slate-100 flex flex-col h-full group touch-manipulation">
+      <div className="relative h-48 sm:h-56 overflow-hidden">
         <img 
           src={place.imageUrl} 
           alt={place.name} 
@@ -52,9 +52,9 @@ const Card: React.FC<CardProps> = ({ place }) => {
         )}
       </div>
       
-      <div className="p-6 flex-grow flex flex-col">
-        <div className="flex justify-between items-start mb-3">
-            <h3 className="text-xl font-serif font-bold text-slate-800 leading-tight">{place.name}</h3>
+      <div className="p-4 sm:p-6 flex-grow flex flex-col">
+        <div className="flex justify-between items-start mb-2 sm:mb-3">
+            <h3 className="text-lg sm:text-xl font-serif font-bold text-slate-800 leading-tight">{place.name}</h3>
             {place.rating && (
                 <div className="flex items-center text-secondary bg-yellow-50 px-2 py-1 rounded shrink-0 ml-2">
                     <Star size={14} fill="currentColor" />
@@ -65,44 +65,44 @@ const Card: React.FC<CardProps> = ({ place }) => {
 
         {/* Walk Specifics */}
         {place.type === 'walk' && (
-          <div className="flex space-x-4 mb-4 text-slate-600 text-sm bg-slate-50 p-3 rounded-lg">
+          <div className="flex flex-wrap gap-2 sm:gap-4 mb-3 sm:mb-4 text-slate-600 text-xs sm:text-sm bg-slate-50 p-2 sm:p-3 rounded-lg">
             <div className="flex items-center">
-              <Footprints size={16} className="mr-1.5 text-primary" />
+              <Footprints size={14} className="mr-1 sm:mr-1.5 text-primary" />
               <span className="font-medium">{place.distance}</span>
             </div>
             <div className="flex items-center">
-              <Timer size={16} className="mr-1.5 text-primary" />
+              <Timer size={14} className="mr-1 sm:mr-1.5 text-primary" />
               <span className="font-medium">{place.duration}</span>
             </div>
           </div>
         )}
         
-        <p className="text-slate-600 text-sm mb-6 flex-grow leading-relaxed">
+        <p className="text-slate-600 text-xs sm:text-sm mb-4 sm:mb-6 flex-grow leading-relaxed line-clamp-3">
           {place.description}
         </p>
 
-        <div className="space-y-2 mt-auto border-t border-slate-100 pt-4">
-            <div className="flex items-start text-slate-500 text-sm">
-                <MapPin size={16} className="mr-2 mt-0.5 shrink-0 text-secondary" />
-                <span>{place.address}</span>
+        <div className="space-y-2 mt-auto border-t border-slate-100 pt-3 sm:pt-4">
+            <div className="flex items-start text-slate-500 text-xs sm:text-sm">
+                <MapPin size={14} className="mr-2 mt-0.5 shrink-0 text-secondary" />
+                <span className="line-clamp-2">{place.address}</span>
             </div>
             {place.phone && (
-                <div className="flex items-center text-slate-500 text-sm">
-                    <Phone size={16} className="mr-2 shrink-0 text-secondary" />
-                    <a href={`tel:${place.phone}`} className="hover:text-primary transition-colors">{place.phone}</a>
+                <div className="flex items-center text-slate-500 text-xs sm:text-sm">
+                    <Phone size={14} className="mr-2 shrink-0 text-secondary" />
+                    <a href={`tel:${place.phone}`} className="hover:text-primary transition-colors touch-manipulation">{place.phone}</a>
                 </div>
             )}
             {place.website && (
-                <div className="flex items-center text-slate-500 text-sm">
-                    <Globe size={16} className="mr-2 shrink-0 text-secondary" />
-                    <a href={place.website} target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">Visiter le site web</a>
+                <div className="flex items-center text-slate-500 text-xs sm:text-sm">
+                    <Globe size={14} className="mr-2 shrink-0 text-secondary" />
+                    <a href={place.website} target="_blank" rel="noreferrer" className="hover:text-primary transition-colors touch-manipulation truncate">Visiter le site web</a>
                 </div>
             )}
         </div>
 
-        <div className="mt-5 flex flex-wrap gap-2">
+        <div className="mt-3 sm:mt-5 flex flex-wrap gap-1.5 sm:gap-2">
             {place.tags.map(tag => (
-                <span key={tag} className="bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded hover:bg-primary hover:text-white transition-colors cursor-default">
+                <span key={tag} className="bg-slate-100 text-slate-600 text-[10px] sm:text-xs px-2 py-1 rounded hover:bg-primary hover:text-white transition-colors cursor-default">
                     #{tag}
                 </span>
             ))}

@@ -30,12 +30,17 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({ items, height = '400px'
 
         mapboxgl.accessToken = MAPBOX_TOKEN;
 
+        // Detect if mobile for better UX
+        const isMobile = window.innerWidth < 768;
+
         map.current = new mapboxgl.Map({
           container: mapContainer.current,
           style: 'mapbox://styles/mapbox/streets-v12',
           center: [3.8075, 50.5891], // Centré par défaut sur Chièvres
-          zoom: 12,
-          cooperativeGestures: true // Permet de scroller la page sans rester coincé dans la carte sur mobile
+          zoom: isMobile ? 11 : 12,
+          cooperativeGestures: true, // Permet de scroller la page sans rester coincé dans la carte sur mobile
+          touchZoomRotate: true,
+          touchPitch: false // Désactive le pitch sur mobile pour une meilleure UX
         });
 
         // Contrôles de navigation (zoom, rotation)
@@ -77,21 +82,27 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({ items, height = '400px'
         // Ajouter les nouveaux marqueurs
         items.forEach(place => {
           if (place.lat && place.lng) {
-            // Création de la Popup avec image et style
+            // Création de la Popup avec image et style (optimisée mobile)
+            const isMobile = window.innerWidth < 640;
             const popupContent = `
-              <div class="text-slate-800 font-sans min-w-[200px]">
+              <div class="text-slate-800 font-sans min-w-[180px] sm:min-w-[200px]">
                 ${place.imageUrl ? 
-                  `<div class="h-32 w-full mb-2 rounded bg-slate-100 overflow-hidden -mt-1">
+                  `<div class="h-24 sm:h-32 w-full mb-2 rounded bg-slate-100 overflow-hidden -mt-1">
                       <img src="${place.imageUrl}" alt="${place.name}" class="h-full w-full object-cover" style="display:block;" />
                    </div>` : ''
                 }
-                <h3 class="font-bold text-sm mb-1 leading-tight">${place.name}</h3>
-                <p class="text-xs text-slate-600 mb-2 line-clamp-1">${place.address}</p>
-                <span class="text-[10px] font-bold px-2 py-1 bg-slate-100 rounded border border-slate-200 text-slate-600 uppercase tracking-wide">${place.type}</span>
+                <h3 class="font-bold text-xs sm:text-sm mb-1 leading-tight">${place.name}</h3>
+                <p class="text-[10px] sm:text-xs text-slate-600 mb-2 line-clamp-1">${place.address}</p>
+                <span class="text-[9px] sm:text-[10px] font-bold px-2 py-1 bg-slate-100 rounded border border-slate-200 text-slate-600 uppercase tracking-wide">${place.type}</span>
               </div>
             `;
 
-            const popup = new mapboxgl.Popup({ offset: 25, maxWidth: '240px' }).setHTML(popupContent);
+            const popup = new mapboxgl.Popup({ 
+              offset: isMobile ? 15 : 25, 
+              maxWidth: isMobile ? '200px' : '240px',
+              closeButton: true,
+              closeOnClick: true
+            }).setHTML(popupContent);
 
             // Couleur du marqueur selon le type
             let color = '#1a5f7a'; // Par défaut (Primary)
@@ -126,11 +137,15 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({ items, height = '400px'
 
             if (hasValidCoords) {
                 // Si un seul point, on centre et zoom modérément
+                const isMobile = window.innerWidth < 768;
                 if (items.length === 1 && items[0].lat && items[0].lng) {
-                    map.current.flyTo({ center: [items[0].lng, items[0].lat], zoom: 15 });
+                    map.current.flyTo({ center: [items[0].lng, items[0].lat], zoom: isMobile ? 14 : 15 });
                 } else {
-                    // Sinon on englobe tous les points avec du padding
-                    map.current.fitBounds(bounds, { padding: 70, maxZoom: 15 });
+                    // Sinon on englobe tous les points avec du padding (moins sur mobile)
+                    map.current.fitBounds(bounds, { 
+                      padding: isMobile ? 40 : 70, 
+                      maxZoom: isMobile ? 14 : 15 
+                    });
                 }
             }
         } else {
@@ -155,10 +170,14 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({ items, height = '400px'
   }
 
   return (
-    <div className="rounded-xl overflow-hidden shadow-md border border-slate-200 my-8 bg-slate-100 relative group">
-        <div ref={mapContainer} style={{ height: height, width: '100%' }} />
+    <div className="rounded-lg sm:rounded-xl overflow-hidden shadow-md border border-slate-200 my-6 sm:my-8 bg-slate-100 relative group touch-manipulation">
+        <div ref={mapContainer} style={{ height: height, width: '100%' }} className="touch-pan-y touch-pan-x" />
         <div className="absolute bottom-1 left-2 text-[10px] text-slate-500 bg-white/80 px-1 rounded pointer-events-none z-10">
             Mapbox
+        </div>
+        {/* Mobile hint */}
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-black/60 text-white text-[10px] px-2 py-1 rounded pointer-events-none z-10 sm:hidden">
+            Utilisez 2 doigts pour zoomer
         </div>
     </div>
   );

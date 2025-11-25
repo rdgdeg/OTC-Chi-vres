@@ -14,13 +14,23 @@ CREATE TABLE IF NOT EXISTS places (
     type TEXT NOT NULL CHECK (type IN ('museum', 'restaurant', 'hotel', 'shop', 'walk', 'cafe', 'producer')),
     rating NUMERIC,
     phone TEXT,
+    email TEXT,
     website TEXT,
+    facebook TEXT,
+    instagram TEXT,
+    twitter TEXT,
     tags TEXT[] DEFAULT '{}',
     lat NUMERIC,
     lng NUMERIC,
+    -- For walks
     distance TEXT,
     duration TEXT,
     difficulty TEXT,
+    -- For museums/restaurants
+    "openingHours" TEXT,
+    price TEXT,
+    "practicalInfo" TEXT,
+    -- Gallery
     "galleryImages" TEXT[] DEFAULT '{}',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -182,10 +192,26 @@ CREATE TRIGGER update_page_content_updated_at BEFORE UPDATE ON page_content
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ===================================
+-- STORAGE BUCKETS for Images
+-- ===================================
+-- Create storage bucket for images (run this in Supabase Dashboard > Storage)
+-- Bucket name: 'images'
+-- Public: true
+-- File size limit: 5MB
+-- Allowed MIME types: image/jpeg, image/png, image/webp, image/gif
+
+-- Storage policies (to be created in Supabase Dashboard)
+-- 1. Allow public read: SELECT with no conditions
+-- 2. Allow authenticated upload: INSERT for authenticated users
+-- 3. Allow authenticated update: UPDATE for authenticated users
+-- 4. Allow authenticated delete: DELETE for authenticated users
+
+-- ===================================
 -- NOTES
 -- ===================================
 -- 1. After running this script, use the "Initialiser DB" button in the admin panel
 --    to populate the tables with initial data
--- 2. For production, consider implementing proper authentication instead of allowing
+-- 2. Create the 'images' storage bucket in Supabase Dashboard > Storage
+-- 3. For production, consider implementing proper authentication instead of allowing
 --    all authenticated users to modify data
--- 3. The RLS policies are permissive for development. Tighten them for production.
+-- 4. The RLS policies are permissive for development. Tighten them for production.

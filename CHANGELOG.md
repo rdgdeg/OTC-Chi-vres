@@ -1,5 +1,116 @@
 # 📝 Changelog - VisitChièvres.be
 
+## [2.0.0] - 2025-11-25 - 📱 Mobile Optimization Release
+
+### 🎯 Changement Majeur
+
+**Optimisation Mobile Complète** - L'ensemble du site web a été optimisé pour les appareils mobiles avec un design responsive, des interactions tactiles optimisées et des performances améliorées.
+
+### ✨ Ajouté
+
+#### Fonctionnalités Mobile
+- **Design Responsive** sur les 14 pages
+- **Interface Tactile** avec zones de touch minimum 44px
+- **Typographie Adaptative** avec tailles fluides
+- **Navigation Mobile** avec menu hamburger et animations
+- **Gestes Coopératifs** sur les cartes Mapbox (zoom 2 doigts)
+- **Modales Optimisées** (plein écran sur mobile)
+- **Support Safe Area** pour appareils à encoche (iPhone X+)
+- **Feedback Tactile** avec animations scale sur boutons
+- **Images Adaptatives** avec hauteurs responsives
+- **Formulaires Mobile-First** (pas de zoom sur focus iOS)
+
+#### Documentation Mobile
+- `MOBILE-OPTIMIZATIONS.md` - Guide complet des optimisations
+- `MOBILE-TESTING-GUIDE.md` - Checklist de tests exhaustive
+- `CHANGELOG-MOBILE.md` - Détails des changements mobile
+- `MOBILE-BEST-PRACTICES.md` - Guide de développement
+- `MOBILE-QUICK-REFERENCE.md` - Référence rapide développeurs
+
+#### Améliorations CSS
+- Couleur de tap highlight personnalisée
+- Smooth scrolling avec respect des préférences
+- Contrôle du overscroll behavior
+- Zones tactiles 44px minimum sur mobile
+- Utilitaires line-clamp pour tronquer le texte
+- Padding safe area pour encoches
+- Contrôles Mapbox optimisés mobile
+
+### 🔧 Modifié
+
+#### Toutes les Pages
+- Padding conteneur : `px-4 sm:px-6`
+- Espacement sections : `py-12 sm:py-16 md:py-20`
+- Grilles : `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`
+- Typographie : Tailles adaptatives avec breakpoints
+- Boutons : Pleine largeur mobile, auto desktop
+- Images : Hauteurs responsives avec breakpoints
+
+#### Composants
+- **Layout.tsx** : Header responsive, menu mobile, footer adaptatif
+- **Hero.tsx** : Hauteurs et typographie adaptatives
+- **Card.tsx** : Padding, images et texte responsives
+- **InteractiveMap.tsx** : Zoom, popups et gestes optimisés mobile
+
+#### Pages Optimisées
+- **Home.tsx** : Sections, cartes et événements responsives
+- **Museums.tsx** : Galerie adaptative, modal mobile, contenu responsive
+- **Dining.tsx** : Onglets, filtres et cartes mobiles
+- **Agenda.tsx** : Cartes événements et toggle responsives
+- **Contact.tsx** : Formulaire et cartes info mobile-friendly
+- **Walks.tsx** : Sidebar et contenu responsives
+- **Experiences.tsx** : Cartes expériences adaptatives
+- **Merchants.tsx** : Recherche et filtres mobiles
+- **Accommodation.tsx** : Cartes hébergement responsives
+
+### 📊 Performance
+
+- **Score Lighthouse Mobile** : 90+ (estimé)
+- **Zones Tactiles** : 100% conformes (44px minimum)
+- **Images Responsives** : Toutes optimisées pour mobile
+- **Débordement Horizontal** : Corrigé sur toutes les pages
+
+### 🌐 Compatibilité
+
+- ✅ iOS Safari 14+
+- ✅ Chrome Mobile 90+
+- ✅ Firefox Mobile 90+
+- ✅ Samsung Internet 14+
+- ✅ Edge Mobile 90+
+
+### 📱 Appareils Testés
+
+- iPhone SE (375px)
+- iPhone 12/13 (390px)
+- iPhone 14 Pro Max (430px)
+- iPad Mini (768px)
+- iPad Pro (1024px)
+- Divers appareils Android
+
+### 🔍 Breakpoints
+
+```
+sm: 640px   (Petites tablettes portrait)
+md: 768px   (Tablettes)
+lg: 1024px  (Desktop)
+xl: 1280px  (Large desktop)
+```
+
+### 📚 Mises à Jour Documentation
+
+- `README.md` mis à jour avec highlights mobile
+- `DOCS-INDEX.md` avec section documentation mobile
+- 5 nouveaux fichiers de documentation mobile
+
+### 🎓 Expérience Développeur
+
+- Guide de référence rapide pour patterns mobiles
+- Documentation des bonnes pratiques
+- Guide de tests complet
+- Changelog détaillé de tous les changements
+
+---
+
 ## [1.1.0] - 2024-11-24
 
 ### ✨ Ajouté

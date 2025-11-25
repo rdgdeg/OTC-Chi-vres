@@ -170,7 +170,7 @@ const Admin: React.FC = () => {
                 Contenu (Pages)
             </div>
             <button
-                onClick={() => { setActiveTab('pages'); setEditingPageId('home'); setTempPageContent(pageContent['home']); }}
+                onClick={() => { setActiveTab('pages'); setEditingPageId('home'); setTempPageContent(pageContent['home'] || {} as PageContent); }}
                 className={`px-6 py-3 text-left font-medium text-sm whitespace-nowrap md:whitespace-normal transition-colors flex items-center ${
                   activeTab === 'pages'
                     ? 'bg-white text-secondary border-l-4 border-secondary shadow-sm' 
@@ -195,7 +195,7 @@ const Admin: React.FC = () => {
                         {pagesList.map(page => (
                             <button
                                 key={page.id}
-                                onClick={() => { setEditingPageId(page.id); setTempPageContent(pageContent[page.id] || {}); }}
+                                onClick={() => { setEditingPageId(page.id); setTempPageContent(pageContent[page.id] || {} as PageContent); }}
                                 className={`px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap ${
                                     editingPageId === page.id 
                                     ? 'bg-secondary text-slate-900' 
@@ -477,16 +477,135 @@ const Admin: React.FC = () => {
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Site Web / Facebook</label>
+                                            <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Email</label>
                                             <input 
-                                                type="text" 
-                                                value={editingItem.website || ''} 
-                                                onChange={e => setEditingItem({...editingItem, website: e.target.value})}
+                                                type="email" 
+                                                value={editingItem.email || ''} 
+                                                onChange={e => setEditingItem({...editingItem, email: e.target.value})}
                                                 className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                                                placeholder="https://..."
+                                                placeholder="contact@..."
                                             />
                                         </div>
                                     </div>
+
+                                    <div>
+                                        <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Site Web</label>
+                                        <input 
+                                            type="text" 
+                                            value={editingItem.website || ''} 
+                                            onChange={e => setEditingItem({...editingItem, website: e.target.value})}
+                                            className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                            placeholder="https://..."
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-3 gap-4">
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Facebook</label>
+                                            <input 
+                                                type="text" 
+                                                value={editingItem.facebook || ''} 
+                                                onChange={e => setEditingItem({...editingItem, facebook: e.target.value})}
+                                                className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                                placeholder="https://facebook.com/..."
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Instagram</label>
+                                            <input 
+                                                type="text" 
+                                                value={editingItem.instagram || ''} 
+                                                onChange={e => setEditingItem({...editingItem, instagram: e.target.value})}
+                                                className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                                placeholder="https://instagram.com/..."
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Twitter</label>
+                                            <input 
+                                                type="text" 
+                                                value={editingItem.twitter || ''} 
+                                                onChange={e => setEditingItem({...editingItem, twitter: e.target.value})}
+                                                className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                                placeholder="https://twitter.com/..."
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {collections[activeTab].type === 'museum' && (
+                                        <>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Horaires d'ouverture</label>
+                                                <textarea 
+                                                    rows={3}
+                                                    value={editingItem.openingHours || ''} 
+                                                    onChange={e => setEditingItem({...editingItem, openingHours: e.target.value})}
+                                                    className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                                    placeholder="Ex: Mardi-Dimanche: 10h-18h&#10;Fermé le lundi"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Prix / Tarifs</label>
+                                                <textarea 
+                                                    rows={2}
+                                                    value={editingItem.price || ''} 
+                                                    onChange={e => setEditingItem({...editingItem, price: e.target.value})}
+                                                    className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                                    placeholder="Ex: Adulte: 8€ / Enfant: 5€ / Gratuit -6 ans"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Informations Pratiques</label>
+                                                <textarea 
+                                                    rows={3}
+                                                    value={editingItem.practicalInfo || ''} 
+                                                    onChange={e => setEditingItem({...editingItem, practicalInfo: e.target.value})}
+                                                    className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                                    placeholder="Ex: Parking gratuit disponible&#10;Accessible PMR&#10;Visites guidées sur réservation"
+                                                />
+                                            </div>
+
+                                            <div className="bg-white p-4 rounded-lg border border-slate-200">
+                                                <label className="block text-xs font-bold uppercase text-slate-500 mb-2">Galerie d'images (URLs séparées par des virgules)</label>
+                                                <textarea 
+                                                    rows={3}
+                                                    value={Array.isArray(editingItem.galleryImages) ? editingItem.galleryImages.join(', ') : ''} 
+                                                    onChange={e => setEditingItem({...editingItem, galleryImages: e.target.value.split(',').map((url: string) => url.trim()).filter((url: string) => url)})}
+                                                    className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none font-mono text-sm"
+                                                    placeholder="https://image1.jpg, https://image2.jpg, ..."
+                                                />
+                                                <p className="text-xs text-slate-500 mt-2 italic">* Ajoutez plusieurs URLs d'images séparées par des virgules pour créer une galerie</p>
+                                            </div>
+                                        </>
+                                    )}
+                                    
+                                    {collections[activeTab].type === 'restaurant' && (
+                                        <>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Horaires d'ouverture</label>
+                                                <textarea 
+                                                    rows={3}
+                                                    value={editingItem.openingHours || ''} 
+                                                    onChange={e => setEditingItem({...editingItem, openingHours: e.target.value})}
+                                                    className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                                    placeholder="Ex: Lundi-Vendredi: 12h-14h, 18h-22h"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Gamme de prix</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={editingItem.price || ''} 
+                                                    onChange={e => setEditingItem({...editingItem, price: e.target.value})}
+                                                    className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                                    placeholder="Ex: €€ (15-30€) ou Menu du jour: 15€"
+                                                />
+                                            </div>
+                                        </>
+                                    )}
                                 </>
                             )}
 

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import Hero from '../components/Hero';
 import { useData } from '../contexts/DataContext';
-import { MapPin, Image as ImageIcon, Sparkles, Loader2, Share2, Check, X, Globe, Phone, Clock, ExternalLink } from 'lucide-react';
+import { MapPin, Image as ImageIcon, Sparkles, Loader2, Share2, Check, X, Globe, Phone, Clock, ExternalLink, Mail, Facebook, Instagram, Twitter, DollarSign, Info } from 'lucide-react';
 import { generateMuseumImage } from '../services/geminiService';
 import InteractiveMap from '../components/InteractiveMap';
 import { Place } from '../types';
@@ -19,6 +19,9 @@ const Museums: React.FC = () => {
 
   // State for the Detail Modal
   const [selectedMuseum, setSelectedMuseum] = useState<Place | null>(null);
+  
+  // State for image gallery viewer
+  const [galleryView, setGalleryView] = useState<{ museum: Place; imageIndex: number } | null>(null);
 
   const handleGenerateImage = async (museum: any) => {
     setGeneratingId(museum.id);
@@ -81,20 +84,20 @@ const Museums: React.FC = () => {
         height="medium"
       />
       
-      <div className="container mx-auto px-4 py-16">
-        <div className="mb-16 text-center">
-            <h2 className="text-3xl font-serif font-bold text-slate-800 mb-6">{content.introTitle || "Nos lieux culturels"}</h2>
-            <p className="text-slate-600 max-w-3xl mx-auto">
+      <div className="container mx-auto px-4 sm:px-6 py-12 sm:py-16">
+        <div className="mb-10 sm:mb-16 text-center">
+            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-slate-800 mb-4 sm:mb-6">{content.introTitle || "Nos lieux culturels"}</h2>
+            <p className="text-slate-600 text-sm sm:text-base max-w-3xl mx-auto px-4">
                 {content.introText || "Découvrez nos musées..."}
             </p>
         </div>
 
         {/* Map Section */}
-        <div className="mb-20">
-            <InteractiveMap items={museums} />
+        <div className="mb-12 sm:mb-20">
+            <InteractiveMap items={museums} height="300px" />
         </div>
 
-        <div className="space-y-24">
+        <div className="space-y-12 sm:space-y-16 md:space-y-24">
           {museums.map((museum, index) => {
             // Combine main image and gallery images for display
             const allImages = [museum.imageUrl, ...(museum.galleryImages || [])];
@@ -102,49 +105,49 @@ const Museums: React.FC = () => {
             const isCopied = copiedId === museum.id;
             
             return (
-              <div key={museum.id} id={museum.id} className={`flex flex-col lg:flex-row gap-12 items-start ${index % 2 === 1 ? 'lg:flex-row-reverse' : ''}`}>
+              <div key={museum.id} id={museum.id} className={`flex flex-col lg:flex-row gap-6 sm:gap-8 lg:gap-12 items-start ${index % 2 === 1 ? 'lg:flex-row-reverse' : ''}`}>
                 
                 {/* Text Content */}
                 <div className="w-full lg:w-1/2">
-                   <div className="flex flex-wrap gap-2 mb-4">
+                   <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
                       {museum.tags.map(tag => (
-                        <span key={tag} className="text-xs font-bold px-3 py-1 bg-secondary/20 text-slate-900 rounded-full uppercase tracking-wider">
+                        <span key={tag} className="text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1 bg-secondary/20 text-slate-900 rounded-full uppercase tracking-wider">
                           {tag}
                         </span>
                       ))}
                    </div>
                    
-                   <h3 className="text-4xl font-serif font-bold text-slate-800 mb-6 relative inline-block">
+                   <h3 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-slate-800 mb-4 sm:mb-6 relative inline-block">
                       {museum.name}
-                      <span className="absolute -bottom-2 left-0 w-12 h-1 bg-secondary"></span>
+                      <span className="absolute -bottom-2 left-0 w-10 sm:w-12 h-1 bg-secondary"></span>
                    </h3>
                    
-                   <div className="flex items-center text-slate-500 mb-6 text-sm font-medium">
-                      <MapPin size={18} className="mr-2 text-primary" />
-                      {museum.address}
+                   <div className="flex items-start text-slate-500 mb-4 sm:mb-6 text-xs sm:text-sm font-medium">
+                      <MapPin size={16} className="mr-2 text-primary shrink-0 mt-0.5" />
+                      <span className="line-clamp-2">{museum.address}</span>
                    </div>
 
-                   <p className="text-slate-600 text-lg leading-relaxed mb-8 text-justify">
+                   <p className="text-slate-600 text-sm sm:text-base md:text-lg leading-relaxed mb-6 sm:mb-8 text-justify">
                       {museum.description}
                    </p>
                    
-                   <div className="flex items-center gap-4">
+                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                        <button 
                           onClick={() => setSelectedMuseum(museum)}
-                          className="text-primary font-bold hover:text-secondary transition-colors uppercase text-sm tracking-wide border-b-2 border-primary hover:border-secondary pb-1"
+                          className="text-primary font-bold hover:text-secondary transition-colors uppercase text-xs sm:text-sm tracking-wide border-b-2 border-primary hover:border-secondary pb-1 text-center sm:text-left touch-manipulation"
                        >
                           En savoir plus
                        </button>
 
                        <button 
                          onClick={() => handleShare(museum)}
-                         className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-bold transition-all border ${
+                         className={`flex items-center justify-center space-x-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all border touch-manipulation ${
                            isCopied 
                              ? 'bg-green-50 text-green-700 border-green-200' 
-                             : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-primary'
+                             : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-primary active:scale-95'
                          }`}
                        >
-                         {isCopied ? <Check size={16} /> : <Share2 size={16} />}
+                         {isCopied ? <Check size={14} /> : <Share2 size={14} />}
                          <span>{isCopied ? 'Lien copié !' : 'Partager'}</span>
                        </button>
                    </div>
@@ -152,42 +155,50 @@ const Museums: React.FC = () => {
 
                 {/* Gallery & Main Image Grid */}
                 <div className="w-full lg:w-1/2">
-                  <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center text-slate-800 font-bold">
-                        <ImageIcon size={20} className="mr-2 text-secondary" />
+                  <div className="flex items-center justify-between mb-3 sm:mb-4">
+                      <div className="flex items-center text-slate-800 font-bold text-sm sm:text-base">
+                        <ImageIcon size={18} className="mr-2 text-secondary" />
                         <span>Galerie Photo</span>
                       </div>
                   </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 h-[400px] rounded-2xl overflow-hidden shadow-xl bg-slate-100">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 h-[300px] sm:h-[350px] md:h-[400px] rounded-xl sm:rounded-2xl overflow-hidden shadow-xl bg-slate-100">
                     {/* Main Image (Large) */}
-                    <div className="relative h-full w-full overflow-hidden group col-span-2 row-span-2">
+                    <div 
+                      className="relative h-full w-full overflow-hidden group col-span-2 row-span-2 touch-manipulation cursor-pointer"
+                      onClick={() => setGalleryView({ museum, imageIndex: 0 })}
+                    >
                          <img 
-                            src={museum.imageUrl} 
+                            src={`${museum.imageUrl}?t=${Date.now()}`}
                             alt={museum.name} 
                             className={`w-full h-full object-cover transition-transform duration-700 ${isGenerating ? 'opacity-50 blur-sm' : 'group-hover:scale-105'}`}
                           />
                           
                           {/* AI Generation Button Overlay */}
-                          <div className="absolute top-4 right-4 z-20">
+                          <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-20">
                               <button 
-                                onClick={() => handleGenerateImage(museum)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleGenerateImage(museum);
+                                }}
                                 disabled={isGenerating}
-                                className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider shadow-lg transition-all ${
+                                className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-lg transition-all touch-manipulation ${
                                   isGenerating 
                                     ? 'bg-slate-800 text-white cursor-wait' 
-                                    : 'bg-white/90 hover:bg-white text-primary hover:text-secondary backdrop-blur-sm'
+                                    : 'bg-white/90 hover:bg-white text-primary hover:text-secondary backdrop-blur-sm active:scale-95'
                                 }`}
                               >
                                 {isGenerating ? (
                                   <>
-                                    <Loader2 size={14} className="animate-spin" />
-                                    <span>Création...</span>
+                                    <Loader2 size={12} className="animate-spin" />
+                                    <span className="hidden sm:inline">Création...</span>
+                                    <span className="sm:hidden">...</span>
                                   </>
                                 ) : (
                                   <>
-                                    <Sparkles size={14} />
-                                    <span>Générer IA</span>
+                                    <Sparkles size={12} />
+                                    <span className="hidden sm:inline">Générer IA</span>
+                                    <span className="sm:hidden">IA</span>
                                   </>
                                 )}
                               </button>
@@ -198,22 +209,29 @@ const Museums: React.FC = () => {
 
                     {/* Secondary Images */}
                     {museum.galleryImages?.slice(0, 2).map((img, idx) => (
-                      <div key={idx} className="relative h-full w-full overflow-hidden group cursor-pointer col-span-1 row-span-1">
+                      <div 
+                        key={idx} 
+                        className="relative h-full w-full overflow-hidden group cursor-pointer col-span-1 row-span-1 touch-manipulation"
+                        onClick={() => setGalleryView({ museum, imageIndex: idx + 1 })}
+                      >
                         <img 
-                          src={img} 
+                          src={`${img}?t=${Date.now()}`}
                           alt="Detail" 
                           className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" 
                         />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                          <ImageIcon className="text-white opacity-0 group-hover:opacity-100 transition-opacity" size={24} />
+                        </div>
                       </div>
                     )) || (
                       // Fillers if no gallery images
                       <>
-                        <div className="bg-slate-200 flex items-center justify-center col-span-1 row-span-1"><ImageIcon className="text-slate-300"/></div>
-                        <div className="bg-slate-200 flex items-center justify-center col-span-1 row-span-1"><ImageIcon className="text-slate-300"/></div>
+                        <div className="bg-slate-200 flex items-center justify-center col-span-1 row-span-1"><ImageIcon size={20} className="text-slate-300"/></div>
+                        <div className="bg-slate-200 flex items-center justify-center col-span-1 row-span-1"><ImageIcon size={20} className="text-slate-300"/></div>
                       </>
                     )}
                   </div>
-                  <p className="text-xs text-slate-400 mt-2 text-right italic">
+                  <p className="text-[10px] sm:text-xs text-slate-400 mt-2 text-right italic">
                      * Utilisez le bouton "Générer IA" si la photo ne correspond pas.
                   </p>
                 </div>
@@ -226,26 +244,26 @@ const Museums: React.FC = () => {
 
       {/* DETAIL MODAL */}
       {selectedMuseum && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto relative animate-in zoom-in-95 duration-200 flex flex-col">
+        <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl max-w-3xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto relative animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 flex flex-col">
             
             {/* Close Button */}
             <button 
               onClick={() => setSelectedMuseum(null)}
-              className="absolute top-4 right-4 z-10 bg-white/80 hover:bg-white text-slate-800 p-2 rounded-full shadow-lg transition-colors"
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 bg-white/90 hover:bg-white text-slate-800 p-2 rounded-full shadow-lg transition-colors touch-manipulation active:scale-95"
             >
-              <X size={20} />
+              <X size={18} />
             </button>
 
             {/* Modal Hero Image */}
-            <div className="relative h-64 w-full shrink-0">
+            <div className="relative h-48 sm:h-56 md:h-64 w-full shrink-0">
                <img src={selectedMuseum.imageUrl} alt={selectedMuseum.name} className="w-full h-full object-cover" />
                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-               <div className="absolute bottom-6 left-6 right-6">
-                  <h2 className="text-3xl font-serif font-bold text-white mb-2 shadow-sm">{selectedMuseum.name}</h2>
-                  <div className="flex flex-wrap gap-2">
+               <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6">
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-serif font-bold text-white mb-2 shadow-sm">{selectedMuseum.name}</h2>
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
                     {selectedMuseum.tags.map(tag => (
-                        <span key={tag} className="text-xs font-bold px-2 py-1 bg-white/20 backdrop-blur-md text-white rounded border border-white/30">
+                        <span key={tag} className="text-[10px] sm:text-xs font-bold px-2 py-1 bg-white/20 backdrop-blur-md text-white rounded border border-white/30">
                             {tag}
                         </span>
                     ))}
@@ -254,65 +272,111 @@ const Museums: React.FC = () => {
             </div>
 
             {/* Modal Content */}
-            <div className="p-8 space-y-8">
+            <div className="p-5 sm:p-6 md:p-8 space-y-6 sm:space-y-8">
                 
                 {/* Intro / Description */}
                 <div>
-                   <h3 className="font-bold text-slate-800 text-lg mb-3 flex items-center">
-                      <Sparkles className="mr-2 text-secondary" size={20}/> 
+                   <h3 className="font-bold text-slate-800 text-base sm:text-lg mb-3 flex items-center">
+                      <Sparkles className="mr-2 text-secondary" size={18}/> 
                       À propos
                    </h3>
-                   <p className="text-slate-600 leading-relaxed text-justify">
+                   <p className="text-slate-600 text-sm sm:text-base leading-relaxed text-justify">
                       {selectedMuseum.description}
                       <br/><br/>
                       L'expérience offerte par {selectedMuseum.name} est unique en son genre. Que vous soyez passionné d'histoire, amateur d'art ou simplement curieux, ce lieu vous transportera à travers les époques. Les collections sont régulièrement mises à jour et des guides passionnés sont souvent disponibles pour enrichir votre visite.
                    </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-slate-100">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 pt-6 border-t border-slate-100">
                     
                     {/* Practical Info */}
-                    <div className="space-y-4">
-                       <h3 className="font-bold text-slate-800 text-lg mb-3">Informations Pratiques</h3>
+                    <div className="space-y-3 sm:space-y-4">
+                       <h3 className="font-bold text-slate-800 text-base sm:text-lg mb-3">Informations Pratiques</h3>
                        
-                       <div className="flex items-start text-slate-600">
-                          <MapPin size={20} className="mr-3 text-primary shrink-0 mt-1" />
-                          <span>{selectedMuseum.address}</span>
-                       </div>
+                       {selectedMuseum.address && (
+                         <div className="flex items-start text-slate-600 text-sm sm:text-base">
+                            <MapPin size={18} className="mr-2 sm:mr-3 text-primary shrink-0 mt-1" />
+                            <span>{selectedMuseum.address}</span>
+                         </div>
+                       )}
                        
-                       <div className="flex items-center text-slate-600">
-                          <Clock size={20} className="mr-3 text-primary shrink-0" />
-                          <span>Ouvert du Mardi au Dimanche<br/><span className="text-sm text-slate-500">10h00 - 18h00 (Dernière entrée 17h)</span></span>
-                       </div>
+                       {selectedMuseum.openingHours && (
+                         <div className="flex items-start text-slate-600 text-sm sm:text-base">
+                            <Clock size={18} className="mr-2 sm:mr-3 text-primary shrink-0 mt-1" />
+                            <span className="whitespace-pre-line">{selectedMuseum.openingHours}</span>
+                         </div>
+                       )}
+
+                       {selectedMuseum.price && (
+                         <div className="flex items-start text-slate-600 text-sm sm:text-base">
+                            <DollarSign size={18} className="mr-2 sm:mr-3 text-primary shrink-0 mt-1" />
+                            <span className="whitespace-pre-line">{selectedMuseum.price}</span>
+                         </div>
+                       )}
 
                        {selectedMuseum.phone && (
-                           <div className="flex items-center text-slate-600 hover:text-primary transition-colors">
-                              <Phone size={20} className="mr-3 text-primary shrink-0" />
-                              <a href={`tel:${selectedMuseum.phone}`}>{selectedMuseum.phone}</a>
+                           <div className="flex items-center text-slate-600 hover:text-primary transition-colors text-sm sm:text-base">
+                              <Phone size={18} className="mr-2 sm:mr-3 text-primary shrink-0" />
+                              <a href={`tel:${selectedMuseum.phone}`} className="touch-manipulation">{selectedMuseum.phone}</a>
+                           </div>
+                       )}
+
+                       {selectedMuseum.email && (
+                           <div className="flex items-center text-slate-600 hover:text-primary transition-colors text-sm sm:text-base">
+                              <Mail size={18} className="mr-2 sm:mr-3 text-primary shrink-0" />
+                              <a href={`mailto:${selectedMuseum.email}`} className="touch-manipulation truncate">{selectedMuseum.email}</a>
                            </div>
                        )}
 
                        {selectedMuseum.website && (
-                           <div className="flex items-center text-slate-600 hover:text-primary transition-colors">
-                              <Globe size={20} className="mr-3 text-primary shrink-0" />
-                              <a href={selectedMuseum.website} target="_blank" rel="noopener noreferrer">Visiter le site officiel</a>
+                           <div className="flex items-center text-slate-600 hover:text-primary transition-colors text-sm sm:text-base">
+                              <Globe size={18} className="mr-2 sm:mr-3 text-primary shrink-0" />
+                              <a href={selectedMuseum.website} target="_blank" rel="noopener noreferrer" className="touch-manipulation truncate">Site web</a>
                            </div>
+                       )}
+
+                       {/* Social Media */}
+                       {(selectedMuseum.facebook || selectedMuseum.instagram || selectedMuseum.twitter) && (
+                         <div className="flex items-center space-x-3 pt-2">
+                           {selectedMuseum.facebook && (
+                             <a href={selectedMuseum.facebook} target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-blue-600 transition-colors">
+                               <Facebook size={20} />
+                             </a>
+                           )}
+                           {selectedMuseum.instagram && (
+                             <a href={selectedMuseum.instagram} target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-pink-600 transition-colors">
+                               <Instagram size={20} />
+                             </a>
+                           )}
+                           {selectedMuseum.twitter && (
+                             <a href={selectedMuseum.twitter} target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-blue-400 transition-colors">
+                               <Twitter size={20} />
+                             </a>
+                           )}
+                         </div>
+                       )}
+
+                       {selectedMuseum.practicalInfo && (
+                         <div className="flex items-start text-slate-600 text-sm sm:text-base pt-2 border-t border-slate-100">
+                            <Info size={18} className="mr-2 sm:mr-3 text-primary shrink-0 mt-1" />
+                            <span className="whitespace-pre-line">{selectedMuseum.practicalInfo}</span>
+                         </div>
                        )}
                     </div>
 
                     {/* Actions / Map Placeholder */}
-                    <div className="bg-slate-50 rounded-xl p-6 border border-slate-100 flex flex-col items-center text-center justify-center">
-                        <h4 className="font-bold text-slate-800 mb-2">Planifier votre visite</h4>
-                        <p className="text-sm text-slate-500 mb-6">
+                    <div className="bg-slate-50 rounded-xl p-4 sm:p-6 border border-slate-100 flex flex-col items-center text-center justify-center">
+                        <h4 className="font-bold text-slate-800 mb-2 text-sm sm:text-base">Planifier votre visite</h4>
+                        <p className="text-xs sm:text-sm text-slate-500 mb-4 sm:mb-6">
                             Consultez l'itinéraire et préparez votre venue dès maintenant.
                         </p>
                         <a 
                           href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedMuseum.name + ' ' + selectedMuseum.address)}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="w-full bg-primary text-white font-bold py-3 rounded-lg hover:bg-slate-800 transition-colors flex items-center justify-center shadow-lg"
+                          className="w-full bg-primary text-white font-bold py-2.5 sm:py-3 rounded-lg hover:bg-slate-800 active:scale-95 transition-all flex items-center justify-center shadow-lg touch-manipulation text-sm sm:text-base"
                         >
-                            <MapPin size={18} className="mr-2" />
+                            <MapPin size={16} className="mr-2" />
                             Voir sur Google Maps
                         </a>
                         {selectedMuseum.website && (
@@ -320,9 +384,9 @@ const Museums: React.FC = () => {
                             href={selectedMuseum.website}
                             target="_blank"
                             rel="noreferrer"
-                            className="mt-3 w-full bg-white text-slate-700 border border-slate-200 font-bold py-3 rounded-lg hover:bg-slate-50 transition-colors flex items-center justify-center"
+                            className="mt-3 w-full bg-white text-slate-700 border border-slate-200 font-bold py-2.5 sm:py-3 rounded-lg hover:bg-slate-50 active:scale-95 transition-all flex items-center justify-center touch-manipulation text-sm sm:text-base"
                             >
-                                <ExternalLink size={18} className="mr-2" />
+                                <ExternalLink size={16} className="mr-2" />
                                 Site Web
                             </a>
                         )}
@@ -331,13 +395,66 @@ const Museums: React.FC = () => {
             </div>
 
             {/* Footer Modal */}
-            <div className="bg-slate-50 px-8 py-4 border-t border-slate-100 text-right">
+            <div className="bg-slate-50 px-4 sm:px-8 py-3 sm:py-4 border-t border-slate-100 text-center sm:text-right sticky bottom-0">
                 <button 
                   onClick={() => setSelectedMuseum(null)}
-                  className="px-6 py-2 text-slate-600 font-bold hover:bg-slate-200 rounded-lg transition-colors"
+                  className="w-full sm:w-auto px-6 py-2.5 sm:py-2 text-slate-600 font-bold hover:bg-slate-200 active:bg-slate-300 rounded-lg transition-colors touch-manipulation text-sm sm:text-base"
                 >
                   Fermer
                 </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* GALLERY VIEWER - Full Screen */}
+      {galleryView && (
+        <div className="fixed inset-0 z-[70] bg-black/95 backdrop-blur-sm flex items-center justify-center p-4">
+          <button
+            onClick={() => setGalleryView(null)}
+            className="absolute top-4 right-4 z-10 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-colors"
+          >
+            <X size={24} />
+          </button>
+
+          <div className="relative w-full h-full flex items-center justify-center">
+            {/* Previous Button */}
+            {galleryView.imageIndex > 0 && (
+              <button
+                onClick={() => setGalleryView({ ...galleryView, imageIndex: galleryView.imageIndex - 1 })}
+                className="absolute left-4 z-10 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+            )}
+
+            {/* Image */}
+            <img
+              src={galleryView.imageIndex === 0 
+                ? `${galleryView.museum.imageUrl}?t=${Date.now()}`
+                : `${galleryView.museum.galleryImages?.[galleryView.imageIndex - 1]}?t=${Date.now()}`
+              }
+              alt={galleryView.museum.name}
+              className="max-w-full max-h-full object-contain"
+            />
+
+            {/* Next Button */}
+            {galleryView.imageIndex < (galleryView.museum.galleryImages?.length || 0) && (
+              <button
+                onClick={() => setGalleryView({ ...galleryView, imageIndex: galleryView.imageIndex + 1 })}
+                className="absolute right-4 z-10 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            )}
+
+            {/* Image Counter */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-4 py-2 rounded-full text-sm">
+              {galleryView.imageIndex + 1} / {(galleryView.museum.galleryImages?.length || 0) + 1}
             </div>
           </div>
         </div>

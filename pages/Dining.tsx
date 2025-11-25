@@ -89,43 +89,43 @@ const Dining: React.FC = () => {
         height="medium"
       />
       
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
         
         {/* Navigation Tabs (Categories) */}
-        <div className="flex flex-wrap justify-center gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 mb-6 sm:mb-8">
             <button
               onClick={() => setActiveTab('restaurant')}
-              className={`flex items-center px-6 py-3 rounded-full font-bold transition-all ${activeTab === 'restaurant' ? 'bg-primary text-white shadow-lg scale-105' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+              className={`flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 rounded-full font-bold transition-all text-sm sm:text-base touch-manipulation ${activeTab === 'restaurant' ? 'bg-primary text-white shadow-lg scale-105' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 active:scale-95'}`}
             >
-              <Utensils className="mr-2" size={18}/> Se Restaurer
+              <Utensils className="mr-2" size={16}/> Se Restaurer
             </button>
             <button
               onClick={() => setActiveTab('cafe')}
-              className={`flex items-center px-6 py-3 rounded-full font-bold transition-all ${activeTab === 'cafe' ? 'bg-primary text-white shadow-lg scale-105' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+              className={`flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 rounded-full font-bold transition-all text-sm sm:text-base touch-manipulation ${activeTab === 'cafe' ? 'bg-primary text-white shadow-lg scale-105' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 active:scale-95'}`}
             >
-              <Coffee className="mr-2" size={18}/> Se Désaltérer
+              <Coffee className="mr-2" size={16}/> Se Désaltérer
             </button>
             <button
               onClick={() => setActiveTab('producer')}
-              className={`flex items-center px-6 py-3 rounded-full font-bold transition-all ${activeTab === 'producer' ? 'bg-primary text-white shadow-lg scale-105' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+              className={`flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 rounded-full font-bold transition-all text-sm sm:text-base touch-manipulation ${activeTab === 'producer' ? 'bg-primary text-white shadow-lg scale-105' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 active:scale-95'}`}
             >
-              <Wheat className="mr-2" size={18}/> Producteurs Locaux
+              <Wheat className="mr-2" size={16}/> Producteurs Locaux
             </button>
         </div>
 
         {/* Village Filters */}
-        <div className="flex flex-wrap justify-center items-center gap-2 mb-12 animate-in fade-in slide-in-from-top-2 duration-500">
-            <span className="text-slate-400 text-xs font-bold uppercase tracking-wider mr-2 flex items-center">
-               <MapPin size={14} className="mr-1"/> Villages :
+        <div className="flex flex-wrap justify-center items-center gap-2 mb-8 sm:mb-12 animate-in fade-in slide-in-from-top-2 duration-500">
+            <span className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider mr-1 sm:mr-2 flex items-center">
+               <MapPin size={12} className="mr-1"/> Villages :
             </span>
             {VILLAGES.map(village => (
                 <button
                     key={village}
                     onClick={() => setSelectedVillage(village)}
-                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                    className={`px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all touch-manipulation ${
                         selectedVillage === village 
                         ? 'bg-secondary text-slate-900 shadow-sm ring-2 ring-secondary/20 font-bold' 
-                        : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-primary hover:border-primary/30'
+                        : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-primary hover:border-primary/30 active:scale-95'
                     }`}
                 >
                     {village}
@@ -133,26 +133,26 @@ const Dining: React.FC = () => {
             ))}
         </div>
 
-        <div className="mb-8 text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-secondary/10 text-secondary rounded-full mb-6">
-                {React.cloneElement(headerInfo.icon as React.ReactElement, { size: 32, className: '' })}
+        <div className="mb-6 sm:mb-8 text-center max-w-4xl mx-auto">
+            <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-secondary/10 text-secondary rounded-full mb-4 sm:mb-6">
+                {React.cloneElement(headerInfo.icon as React.ReactElement, { size: 24, className: 'sm:w-8 sm:h-8' })}
             </div>
-            <h2 className="text-3xl font-serif font-bold text-slate-800 mb-6">
+            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-slate-800 mb-4 sm:mb-6 px-4">
               {headerInfo.title} {selectedVillage !== 'Tous' && <span className="text-primary">à {selectedVillage}</span>}
             </h2>
-            <p className="text-slate-600 text-lg">
+            <p className="text-slate-600 text-sm sm:text-base md:text-lg px-4">
                 {headerInfo.description}
             </p>
         </div>
 
         {/* Map Section */}
         {currentData.length > 0 && (
-          <div className="mb-12">
-             <InteractiveMap items={currentData} height="350px" />
+          <div className="mb-8 sm:mb-12">
+             <InteractiveMap items={currentData} height="300px" />
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {currentData.map((place) => (
             <Card key={place.id} place={place} />
           ))}

@@ -8,7 +8,11 @@ export interface Place {
   type: 'museum' | 'restaurant' | 'hotel' | 'shop' | 'walk' | 'cafe' | 'producer';
   rating?: number;
   phone?: string;
+  email?: string;
   website?: string;
+  facebook?: string;
+  instagram?: string;
+  twitter?: string;
   tags: string[];
   // Coordinates for Map
   lat?: number;
@@ -17,7 +21,10 @@ export interface Place {
   distance?: string;
   duration?: string;
   difficulty?: 'Facile' | 'Moyen' | 'Difficile';
-  // Specific for Museums
+  // Specific for Museums/Restaurants
+  openingHours?: string;
+  price?: string;
+  practicalInfo?: string;
   galleryImages?: string[];
 }
 
