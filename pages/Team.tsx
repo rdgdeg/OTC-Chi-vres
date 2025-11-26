@@ -1,21 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import Hero from '../components/Hero';
-import { Mail, Phone, Upload, Edit } from 'lucide-react';
+import { Mail, Phone } from 'lucide-react';
 import { supabase } from '../services/supabaseClient';
-import { uploadImage } from '../services/imageUploadService';
 import { TeamMember } from '../types';
+import EditableImage from '../components/EditableImage';
 
 const Team: React.FC = () => {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
-  const [uploadingId, setUploadingId] = useState<string | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     fetchTeamMembers();
-    // Check if user is on admin page or has admin access
-    const adminMode = window.location.hash.includes('admin') || sessionStorage.getItem('adminMode') === 'true';
-    setIsAdmin(adminMode);
   }, []);
 
   const fetchTeamMembers = async () => {
@@ -100,22 +95,12 @@ const Team: React.FC = () => {
     }
   };
 
-  const handleImageUpload = async (memberId: string, file: File) => {
-    setUploadingId(memberId);
+  const handleImageUpdate = async (memberId: string, newImageUrl: string) => {
     try {
-      // Upload image to Supabase Storage
-      const imageUrl = await uploadImage(file, 'team');
-      
-      if (!imageUrl) {
-        throw new Error('Échec de l\'upload de l\'image vers Supabase Storage');
-      }
-
-      console.log('Image uploaded successfully:', imageUrl);
-      
       // Update database with new image URL
       const { error } = await supabase
         .from('team_members')
-        .update({ imageUrl })
+        .update({ imageUrl: newImageUrl })
         .eq('id', memberId);
 
       if (error) {
@@ -126,18 +111,14 @@ const Team: React.FC = () => {
       // Update local state
       setTeamMembers(prev => 
         prev.map(member => 
-          member.id === memberId ? { ...member, imageUrl } : member
+          member.id === memberId ? { ...member, imageUrl: newImageUrl } : member
         )
       );
       
       console.log('Team member updated successfully');
-      alert('✅ Photo mise à jour avec succès !');
     } catch (error: any) {
-      console.error('Error uploading image:', error);
-      const errorMessage = error?.message || 'Erreur inconnue';
-      alert(`❌ Erreur : ${errorMessage}\n\nVérifiez :\n- La table team_members existe dans Supabase\n- Le bucket "images" existe et est public\n- Les politiques RLS sont configurées`);
-    } finally {
-      setUploadingId(null);
+      console.error('Error updating team member:', error);
+      throw error;
     }
   };
 
@@ -182,46 +163,13 @@ const Team: React.FC = () => {
               className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-100 hover:shadow-xl transition-shadow duration-300"
             >
               {/* Photo */}
-              <div className="aspect-square overflow-hidden bg-slate-100 relative group">
-                <img 
-                  src={member.imageUrl || 'https://picsum.photos/id/1005/400/400'}
-                  alt={member.name}
-                  className="w-full h-full object-cover"
-                />
-                
-                {/* Upload overlay - Always visible with hover effect */}
-                <label 
-                  htmlFor={`upload-${member.id}`}
-                  className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
-                >
-                  {uploadingId === member.id ? (
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-                  ) : (
-                    <div className="text-white text-center">
-                      <Edit className="w-8 h-8 mx-auto mb-2" />
-                      <span className="text-sm font-semibold">Modifier la photo</span>
-                      <p className="text-xs mt-1 opacity-80">Cliquez pour uploader</p>
-                    </div>
-                  )}
-                  <input
-                    id={`upload-${member.id}`}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        if (file.size > 5 * 1024 * 1024) {
-                          alert('L\'image est trop volumineuse. Taille maximale : 5 Mo');
-                          return;
-                        }
-                        handleImageUpload(member.id, file);
-                      }
-                    }}
-                    disabled={uploadingId !== null}
-                  />
-                </label>
-              </div>
+              <EditableImage
+                src={member.imageUrl || 'https://picsum.photos/id/1005/400/400'}
+                alt={member.name}
+                onImageUpdate={(newUrl) => handleImageUpdate(member.id, newUrl)}
+                folder="team"
+                aspectRatio="square"
+              />
 
               {/* Info */}
               <div className="p-5 sm:p-6">
