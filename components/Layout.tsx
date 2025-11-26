@@ -35,6 +35,7 @@ const NAV_ITEMS: NavItem[] = [
     children: [
       { label: 'Bulletin Communal', path: '/bulletin' },
       { label: 'Blog / Actualités', path: '/blog' },
+      { label: 'Notre Équipe', path: '/equipe' },
       { label: 'Contact', path: '/contact' },
     ]
   },

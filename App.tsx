@@ -16,6 +16,7 @@ import Shop from './pages/Shop';
 import Admin from './pages/Admin';
 import Crossage from './pages/Crossage';
 import Bulletin from './pages/Bulletin';
+import Team from './pages/Team';
 import { DataProvider } from './contexts/DataContext';
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
             <Route path="/blog" element={<Blog />} />
             <Route path="/boutique" element={<Shop />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/equipe" element={<Team />} />
             <Route path="/crossage" element={<Crossage />} />
             <Route path="/bulletin" element={<Bulletin />} />
             <Route path="/admin" element={<Admin />} />
