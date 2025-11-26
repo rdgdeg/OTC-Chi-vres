@@ -90,7 +90,21 @@ Si erreur "relation does not exist" → Exécutez `supabase-team-table.sql`
    - Allowed MIME types : `image/*`
 
 #### Étape 3 : Vérifier les politiques de stockage
-Exécutez le script `FIX-TEAM-STORAGE.sql` dans Supabase SQL Editor
+
+**D'abord, vérifiez si les politiques existent déjà :**
+```sql
+-- Exécutez VERIFY-STORAGE-POLICIES.sql
+```
+
+Si vous voyez des politiques pour le bucket `images`, c'est bon ! Passez à l'étape 4.
+
+**Si les politiques sont manquantes :**
+- Exécutez `FIX-TEAM-STORAGE.sql` dans Supabase SQL Editor
+
+**Si vous avez l'erreur "policy already exists" :**
+- C'est normal ! Les politiques existent déjà
+- Votre storage est probablement bien configuré
+- Passez directement à l'étape 4
 
 #### Étape 4 : Vérifier les politiques RLS de la table
 ```sql
@@ -111,7 +125,13 @@ SELECT * FROM pg_policies WHERE tablename = 'team_members';
 
 **"Upload failed: new row violates row-level security policy"**
 - Les politiques RLS bloquent l'upload
-- Solution : Exécutez `FIX-TEAM-STORAGE.sql`
+- Solution : Vérifiez d'abord avec `VERIFY-STORAGE-POLICIES.sql`
+- Si les politiques manquent, exécutez `FIX-TEAM-STORAGE.sql`
+
+**"ERROR: policy already exists"**
+- C'est normal ! Les politiques existent déjà
+- Votre storage est configuré correctement
+- Le problème vient probablement d'ailleurs (vérifiez les autres étapes)
 
 **"Échec de l'upload de l'image vers Supabase Storage"**
 - Le bucket n'existe pas ou n'est pas accessible

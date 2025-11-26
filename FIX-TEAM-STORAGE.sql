@@ -6,30 +6,39 @@
 -- First, ensure the 'images' bucket exists
 -- (This must be done in Supabase Dashboard > Storage if not already created)
 
--- Drop existing policies if they exist
-DROP POLICY IF EXISTS "Public Access to images" ON storage.objects;
-DROP POLICY IF EXISTS "Authenticated users can upload images" ON storage.objects;
-DROP POLICY IF EXISTS "Authenticated users can update images" ON storage.objects;
-DROP POLICY IF EXISTS "Authenticated users can delete images" ON storage.objects;
+-- Drop ALL existing policies on storage.objects for images bucket
+DO $$ 
+DECLARE
+    pol record;
+BEGIN
+    FOR pol IN 
+        SELECT policyname 
+        FROM pg_policies 
+        WHERE schemaname = 'storage' 
+        AND tablename = 'objects'
+    LOOP
+        EXECUTE format('DROP POLICY IF EXISTS %I ON storage.objects', pol.policyname);
+    END LOOP;
+END $$;
 
 -- Allow public read access to all images
-CREATE POLICY "Public Access to images"
+CREATE POLICY "images_public_read"
 ON storage.objects FOR SELECT
 USING (bucket_id = 'images');
 
 -- Allow anyone to upload images (for development - tighten for production)
-CREATE POLICY "Anyone can upload images"
+CREATE POLICY "images_public_insert"
 ON storage.objects FOR INSERT
 WITH CHECK (bucket_id = 'images');
 
 -- Allow anyone to update images (for development - tighten for production)
-CREATE POLICY "Anyone can update images"
+CREATE POLICY "images_public_update"
 ON storage.objects FOR UPDATE
 USING (bucket_id = 'images')
 WITH CHECK (bucket_id = 'images');
 
 -- Allow anyone to delete images (for development - tighten for production)
-CREATE POLICY "Anyone can delete images"
+CREATE POLICY "images_public_delete"
 ON storage.objects FOR DELETE
 USING (bucket_id = 'images');
 
