@@ -103,25 +103,39 @@ const Team: React.FC = () => {
   const handleImageUpload = async (memberId: string, file: File) => {
     setUploadingId(memberId);
     try {
+      // Upload image to Supabase Storage
       const imageUrl = await uploadImage(file, 'team');
       
+      if (!imageUrl) {
+        throw new Error('Échec de l\'upload de l\'image vers Supabase Storage');
+      }
+
+      console.log('Image uploaded successfully:', imageUrl);
+      
+      // Update database with new image URL
       const { error } = await supabase
         .from('team_members')
         .update({ imageUrl })
         .eq('id', memberId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database update error:', error);
+        throw error;
+      }
 
+      // Update local state
       setTeamMembers(prev => 
         prev.map(member => 
           member.id === memberId ? { ...member, imageUrl } : member
         )
       );
       
-      alert('Photo mise à jour avec succès !');
-    } catch (error) {
+      console.log('Team member updated successfully');
+      alert('✅ Photo mise à jour avec succès !');
+    } catch (error: any) {
       console.error('Error uploading image:', error);
-      alert('Erreur lors du téléchargement de l\'image. Assurez-vous que la table team_members existe dans Supabase.');
+      const errorMessage = error?.message || 'Erreur inconnue';
+      alert(`❌ Erreur : ${errorMessage}\n\nVérifiez :\n- La table team_members existe dans Supabase\n- Le bucket "images" existe et est public\n- Les politiques RLS sont configurées`);
     } finally {
       setUploadingId(null);
     }

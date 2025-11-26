@@ -8,9 +8,13 @@ import { supabase } from './supabaseClient';
  */
 export const uploadImage = async (file: File, folder: string = 'general'): Promise<string | null> => {
   try {
+    console.log('Starting image upload:', { fileName: file.name, size: file.size, folder });
+    
     // Generate unique filename with timestamp
     const fileExt = file.name.split('.').pop();
     const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+    console.log('Generated filename:', fileName);
 
     // Upload to Supabase Storage
     const { data, error } = await supabase.storage
@@ -21,19 +25,27 @@ export const uploadImage = async (file: File, folder: string = 'general'): Promi
       });
 
     if (error) {
-      console.error('Upload error:', error);
-      return null;
+      console.error('Supabase Storage upload error:', error);
+      throw new Error(`Upload failed: ${error.message}`);
     }
+
+    if (!data) {
+      throw new Error('No data returned from upload');
+    }
+
+    console.log('Upload successful, getting public URL for:', data.path);
 
     // Get public URL
     const { data: { publicUrl } } = supabase.storage
       .from('images')
       .getPublicUrl(data.path);
 
+    console.log('Public URL generated:', publicUrl);
+
     return publicUrl;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Upload exception:', error);
-    return null;
+    throw error;
   }
 };
 
