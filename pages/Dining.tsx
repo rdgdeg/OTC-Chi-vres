@@ -2,13 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Hero from '../components/Hero';
-import Card from '../components/Card';
+import EditableCard from '../components/EditableCard';
 import { useData } from '../contexts/DataContext';
-import { Utensils, Coffee, Wheat, Filter, MapPin } from 'lucide-react';
+import { Utensils, Coffee, Wheat, MapPin, Filter } from 'lucide-react';
 import InteractiveMap from '../components/InteractiveMap';
 
 const Dining: React.FC = () => {
-  const { restaurants, merchants } = useData();
+  const { restaurants, merchants, updateItem } = useData();
   const location = useLocation();
   
   // Determine default tab from URL query params
@@ -154,7 +154,14 @@ const Dining: React.FC = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {currentData.map((place) => (
-            <Card key={place.id} place={place} />
+            <EditableCard 
+              key={place.id} 
+              place={place}
+              editable={true}
+              onImageUpdate={async (newUrl) => {
+                await updateItem(place.type, { ...place, imageUrl: newUrl });
+              }}
+            />
           ))}
         </div>
 

@@ -2,17 +2,14 @@
 import React, { useState } from 'react';
 import Hero from '../components/Hero';
 import { useData } from '../contexts/DataContext';
-import { MapPin, Image as ImageIcon, Sparkles, Loader2, Share2, Check, X, Globe, Phone, Clock, ExternalLink, Mail, Facebook, Instagram, Twitter, DollarSign, Info } from 'lucide-react';
-import { generateMuseumImage } from '../services/geminiService';
+import { MapPin, Image as ImageIcon, Share2, Check, X, Globe, Phone, Clock, ExternalLink, Mail, Facebook, Instagram, Twitter, DollarSign, Info } from 'lucide-react';
 import InteractiveMap from '../components/InteractiveMap';
 import { Place } from '../types';
+import EditableImage from '../components/EditableImage';
 
 const Museums: React.FC = () => {
   const { museums, pageContent, updateItem } = useData();
   const content = pageContent['museums'] || {};
-  
-  // State to track which museum is currently generating an image
-  const [generatingId, setGeneratingId] = useState<string | null>(null);
   
   // State for share feedback (fallback clipboard)
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -22,30 +19,6 @@ const Museums: React.FC = () => {
   
   // State for image gallery viewer
   const [galleryView, setGalleryView] = useState<{ museum: Place; imageIndex: number } | null>(null);
-
-  const handleGenerateImage = async (museum: any) => {
-    setGeneratingId(museum.id);
-    
-    // Fallback placeholder
-    const placeholderUrl = "https://placehold.co/800x600?text=Image+Indisponible";
-
-    try {
-      const generatedImage = await generateMuseumImage(museum.name, museum.description);
-      
-      if (generatedImage) {
-        updateItem('museum', { ...museum, imageUrl: generatedImage });
-      } else {
-        // Use placeholder if generation fails but logic ran
-        alert("La génération a échoué. Utilisation d'un placeholder.");
-        updateItem('museum', { ...museum, imageUrl: placeholderUrl });
-      }
-    } catch (e) {
-      console.error(e);
-      updateItem('museum', { ...museum, imageUrl: placeholderUrl });
-    } finally {
-      setGeneratingId(null);
-    }
-  };
 
   const handleShare = async (museum: any) => {
     // Generate URL with anchor to specific museum
@@ -101,7 +74,6 @@ const Museums: React.FC = () => {
           {museums.map((museum, index) => {
             // Combine main image and gallery images for display
             const allImages = [museum.imageUrl, ...(museum.galleryImages || [])];
-            const isGenerating = generatingId === museum.id;
             const isCopied = copiedId === museum.id;
             
             return (
@@ -163,48 +135,17 @@ const Museums: React.FC = () => {
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 h-[300px] sm:h-[350px] md:h-[400px] rounded-xl sm:rounded-2xl overflow-hidden shadow-xl bg-slate-100">
-                    {/* Main Image (Large) */}
-                    <div 
-                      className="relative h-full w-full overflow-hidden group col-span-2 row-span-2 touch-manipulation cursor-pointer"
-                      onClick={() => setGalleryView({ museum, imageIndex: 0 })}
-                    >
-                         <img 
-                            src={`${museum.imageUrl}?t=${Date.now()}`}
-                            alt={museum.name} 
-                            className={`w-full h-full object-cover transition-transform duration-700 ${isGenerating ? 'opacity-50 blur-sm' : 'group-hover:scale-105'}`}
-                          />
-                          
-                          {/* AI Generation Button Overlay */}
-                          <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-20">
-                              <button 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleGenerateImage(museum);
-                                }}
-                                disabled={isGenerating}
-                                className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-lg transition-all touch-manipulation ${
-                                  isGenerating 
-                                    ? 'bg-slate-800 text-white cursor-wait' 
-                                    : 'bg-white/90 hover:bg-white text-primary hover:text-secondary backdrop-blur-sm active:scale-95'
-                                }`}
-                              >
-                                {isGenerating ? (
-                                  <>
-                                    <Loader2 size={12} className="animate-spin" />
-                                    <span className="hidden sm:inline">Création...</span>
-                                    <span className="sm:hidden">...</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Sparkles size={12} />
-                                    <span className="hidden sm:inline">Générer IA</span>
-                                    <span className="sm:hidden">IA</span>
-                                  </>
-                                )}
-                              </button>
-                          </div>
-
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                    {/* Main Image (Large) - Editable */}
+                    <div className="col-span-2 row-span-2">
+                      <EditableImage
+                        src={museum.imageUrl}
+                        alt={museum.name}
+                        onImageUpdate={async (newUrl) => {
+                          await updateItem('museum', { ...museum, imageUrl: newUrl });
+                        }}
+                        folder="museums"
+                        className="h-full cursor-pointer"
+                      />
                     </div>
 
                     {/* Secondary Images */}
@@ -232,7 +173,7 @@ const Museums: React.FC = () => {
                     )}
                   </div>
                   <p className="text-[10px] sm:text-xs text-slate-400 mt-2 text-right italic">
-                     * Utilisez le bouton "Générer IA" si la photo ne correspond pas.
+                     * Survolez l'image principale pour la modifier.
                   </p>
                 </div>
 
@@ -277,7 +218,7 @@ const Museums: React.FC = () => {
                 {/* Intro / Description */}
                 <div>
                    <h3 className="font-bold text-slate-800 text-base sm:text-lg mb-3 flex items-center">
-                      <Sparkles className="mr-2 text-secondary" size={18}/> 
+                      <Info className="mr-2 text-secondary" size={18}/> 
                       À propos
                    </h3>
                    <p className="text-slate-600 text-sm sm:text-base leading-relaxed text-justify">
