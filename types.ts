@@ -99,3 +99,14 @@ export interface PageContent {
   extraText?: string;
   extraImage?: string;
 }
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  email: string;
+  phone: string;
+  description: string;
+  imageUrl: string;
+  order: number;
+}

@@ -1,52 +1,142 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Hero from '../components/Hero';
-import { Mail, Phone } from 'lucide-react';
+import { Mail, Phone, Upload, Edit } from 'lucide-react';
+import { supabase } from '../services/supabaseClient';
+import { uploadImage } from '../services/imageUploadService';
+import { TeamMember } from '../types';
 
 const Team: React.FC = () => {
-  const teamMembers = [
-    {
-      name: "Marie Dubois",
-      role: "Directrice",
-      email: "marie.dubois@otchievres.be",
-      phone: "068/ 64 59 61",
-      description: "Passionnée par le patrimoine local, Marie coordonne l'ensemble des activités de l'Office du Tourisme."
-    },
-    {
-      name: "Sophie Martin",
-      role: "Responsable Communication",
-      email: "sophie.martin@otchievres.be",
-      phone: "068/ 64 59 62",
-      description: "Sophie gère la communication et les réseaux sociaux pour promouvoir notre belle région."
-    },
-    {
-      name: "Pierre Leroy",
-      role: "Guide Touristique",
-      email: "pierre.leroy@otchievres.be",
-      phone: "068/ 64 59 63",
-      description: "Guide expérimenté, Pierre vous fera découvrir les secrets et l'histoire de Chièvres."
-    },
-    {
-      name: "Julie Renard",
-      role: "Accueil et Information",
-      email: "julie.renard@otchievres.be",
-      phone: "068/ 64 59 64",
-      description: "Julie vous accueille et vous conseille pour organiser votre séjour dans la région."
-    },
-    {
-      name: "Thomas Bernard",
-      role: "Coordinateur Événements",
-      email: "thomas.bernard@otchievres.be",
-      phone: "068/ 64 59 65",
-      description: "Thomas organise les événements culturels et festifs tout au long de l'année."
-    },
-    {
-      name: "Isabelle Petit",
-      role: "Chargée de Projets",
-      email: "isabelle.petit@otchievres.be",
-      phone: "068/ 64 59 66",
-      description: "Isabelle développe de nouveaux projets touristiques pour valoriser notre territoire."
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    fetchTeamMembers();
+    // Check if user is on admin page or has admin access
+    const adminMode = window.location.hash.includes('admin') || sessionStorage.getItem('adminMode') === 'true';
+    setIsAdmin(adminMode);
+  }, []);
+
+  const fetchTeamMembers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('team_members')
+        .select('*')
+        .order('order', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching team members:', error);
+        // Fallback to default data if table doesn't exist yet
+        setTeamMembers([
+          {
+            id: 'team-1',
+            name: "Marie Dubois",
+            role: "Directrice",
+            email: "marie.dubois@otchievres.be",
+            phone: "068/ 64 59 61",
+            description: "Passionnée par le patrimoine local, Marie coordonne l'ensemble des activités de l'Office du Tourisme.",
+            imageUrl: "https://picsum.photos/id/1005/400/400",
+            order: 1
+          },
+          {
+            id: 'team-2',
+            name: "Sophie Martin",
+            role: "Responsable Communication",
+            email: "sophie.martin@otchievres.be",
+            phone: "068/ 64 59 62",
+            description: "Sophie gère la communication et les réseaux sociaux pour promouvoir notre belle région.",
+            imageUrl: "https://picsum.photos/id/1005/400/400",
+            order: 2
+          },
+          {
+            id: 'team-3',
+            name: "Pierre Leroy",
+            role: "Guide Touristique",
+            email: "pierre.leroy@otchievres.be",
+            phone: "068/ 64 59 63",
+            description: "Guide expérimenté, Pierre vous fera découvrir les secrets et l'histoire de Chièvres.",
+            imageUrl: "https://picsum.photos/id/1005/400/400",
+            order: 3
+          },
+          {
+            id: 'team-4',
+            name: "Julie Renard",
+            role: "Accueil et Information",
+            email: "julie.renard@otchievres.be",
+            phone: "068/ 64 59 64",
+            description: "Julie vous accueille et vous conseille pour organiser votre séjour dans la région.",
+            imageUrl: "https://picsum.photos/id/1005/400/400",
+            order: 4
+          },
+          {
+            id: 'team-5',
+            name: "Thomas Bernard",
+            role: "Coordinateur Événements",
+            email: "thomas.bernard@otchievres.be",
+            phone: "068/ 64 59 65",
+            description: "Thomas organise les événements culturels et festifs tout au long de l'année.",
+            imageUrl: "https://picsum.photos/id/1005/400/400",
+            order: 5
+          },
+          {
+            id: 'team-6',
+            name: "Isabelle Petit",
+            role: "Chargée de Projets",
+            email: "isabelle.petit@otchievres.be",
+            phone: "068/ 64 59 66",
+            description: "Isabelle développe de nouveaux projets touristiques pour valoriser notre territoire.",
+            imageUrl: "https://picsum.photos/id/1005/400/400",
+            order: 6
+          }
+        ]);
+      } else {
+        setTeamMembers(data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching team members:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const handleImageUpload = async (memberId: string, file: File) => {
+    setUploadingId(memberId);
+    try {
+      const imageUrl = await uploadImage(file, 'team');
+      
+      const { error } = await supabase
+        .from('team_members')
+        .update({ imageUrl })
+        .eq('id', memberId);
+
+      if (error) throw error;
+
+      setTeamMembers(prev => 
+        prev.map(member => 
+          member.id === memberId ? { ...member, imageUrl } : member
+        )
+      );
+      
+      alert('Photo mise à jour avec succès !');
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Erreur lors du téléchargement de l\'image. Assurez-vous que la table team_members existe dans Supabase.');
+    } finally {
+      setUploadingId(null);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-slate-600">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -72,18 +162,51 @@ const Team: React.FC = () => {
 
         {/* Team Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {teamMembers.map((member, index) => (
+          {teamMembers.map((member) => (
             <div 
-              key={index}
+              key={member.id}
               className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-100 hover:shadow-xl transition-shadow duration-300"
             >
               {/* Photo */}
-              <div className="aspect-square overflow-hidden bg-slate-100">
+              <div className="aspect-square overflow-hidden bg-slate-100 relative group">
                 <img 
-                  src="https://picsum.photos/id/1005/400/400"
+                  src={member.imageUrl || 'https://picsum.photos/id/1005/400/400'}
                   alt={member.name}
                   className="w-full h-full object-cover"
                 />
+                
+                {/* Upload overlay - Always visible with hover effect */}
+                <label 
+                  htmlFor={`upload-${member.id}`}
+                  className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
+                >
+                  {uploadingId === member.id ? (
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                  ) : (
+                    <div className="text-white text-center">
+                      <Edit className="w-8 h-8 mx-auto mb-2" />
+                      <span className="text-sm font-semibold">Modifier la photo</span>
+                      <p className="text-xs mt-1 opacity-80">Cliquez pour uploader</p>
+                    </div>
+                  )}
+                  <input
+                    id={`upload-${member.id}`}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        if (file.size > 5 * 1024 * 1024) {
+                          alert('L\'image est trop volumineuse. Taille maximale : 5 Mo');
+                          return;
+                        }
+                        handleImageUpload(member.id, file);
+                      }
+                    }}
+                    disabled={uploadingId !== null}
+                  />
+                </label>
               </div>
 
               {/* Info */}
