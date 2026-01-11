@@ -4,11 +4,11 @@ import {
   Image, Type, Link, Settings, AlertCircle,
   ChevronUp, ChevronDown, GripVertical
 } from 'lucide-react';
-import { homepageService, HomepageContent, HomepageNews, HomepageFavorite } from '../services/homepageService';
+import { homepageService, HomepageContent, HomepageNews } from '../services/homepageService';
 import EditableImage from './EditableImage';
 
 const HomepageContentManager: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'banner' | 'hero' | 'news' | 'favorites'>('banner');
+  const [activeTab, setActiveTab] = useState<'banner' | 'hero' | 'news'>('banner');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -16,13 +16,11 @@ const HomepageContentManager: React.FC = () => {
   const [banner, setBanner] = useState<HomepageContent | null>(null);
   const [hero, setHero] = useState<HomepageContent | null>(null);
   const [news, setNews] = useState<HomepageNews[]>([]);
-  const [favorites, setFavorites] = useState<HomepageFavorite[]>([]);
 
   // États d'édition
   const [editingBanner, setEditingBanner] = useState(false);
   const [editingHero, setEditingHero] = useState(false);
   const [editingNews, setEditingNews] = useState<string | null>(null);
-  const [editingFavorite, setEditingFavorite] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
@@ -31,17 +29,15 @@ const HomepageContentManager: React.FC = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [bannerData, heroData, newsData, favoritesData] = await Promise.all([
+      const [bannerData, heroData, newsData] = await Promise.all([
         homepageService.getBanner(),
         homepageService.getHero(),
-        homepageService.getAllNews(),
-        homepageService.getAllFavorites()
+        homepageService.getAllNews()
       ]);
 
       setBanner(bannerData);
       setHero(heroData);
       setNews(newsData);
-      setFavorites(favoritesData);
     } catch (error) {
       showMessage('error', 'Erreur lors du chargement des données');
     } finally {
@@ -57,8 +53,7 @@ const HomepageContentManager: React.FC = () => {
   const tabs = [
     { id: 'banner', label: 'Bannière d\'info', icon: AlertCircle },
     { id: 'hero', label: 'Section Hero', icon: Image },
-    { id: 'news', label: 'Actualités', icon: Type },
-    { id: 'favorites', label: 'Coups de cœur', icon: Link }
+    { id: 'news', label: 'Actualités', icon: Type }
   ];
 
   return (
@@ -150,14 +145,6 @@ const HomepageContentManager: React.FC = () => {
           {activeTab === 'news' && (
             <NewsManager
               news={news}
-              onUpdate={loadData}
-              onMessage={showMessage}
-            />
-          )}
-
-          {activeTab === 'favorites' && (
-            <FavoritesManager
-              favorites={favorites}
               onUpdate={loadData}
               onMessage={showMessage}
             />
@@ -342,7 +329,7 @@ const HeroEditor: React.FC<HeroEditorProps> = ({ hero, isEditing, onEdit, onSave
     });
   };
 
-  const handleImageUpdate = (newUrl: string) => {
+  const handleImageUpdate = async (newUrl: string) => {
     setFormData(prev => ({ ...prev, image_url: newUrl }));
   };
 
@@ -610,112 +597,6 @@ const NewsManager: React.FC<NewsManagerProps> = ({ news, onUpdate, onMessage }) 
   );
 };
 
-// Composant pour gérer les coups de cœur
-interface FavoritesManagerProps {
-  favorites: HomepageFavorite[];
-  onUpdate: () => void;
-  onMessage: (type: 'success' | 'error', text: string) => void;
-}
-
-const FavoritesManager: React.FC<FavoritesManagerProps> = ({ favorites, onUpdate, onMessage }) => {
-  const [showForm, setShowForm] = useState(false);
-
-  const handleDelete = async (id: string) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce coup de cœur ?')) {
-      const success = await homepageService.deleteFavorite(id);
-      if (success) {
-        onMessage('success', 'Coup de cœur supprimé avec succès');
-        onUpdate();
-      } else {
-        onMessage('error', 'Erreur lors de la suppression');
-      }
-    }
-  };
-
-  const toggleActive = async (id: string, currentStatus: boolean) => {
-    const success = await homepageService.updateFavorite(id, { is_active: !currentStatus });
-    if (success) {
-      onMessage('success', `Coup de cœur ${!currentStatus ? 'activé' : 'désactivé'} avec succès`);
-      onUpdate();
-    } else {
-      onMessage('error', 'Erreur lors de la mise à jour');
-    }
-  };
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Coups de cœur</h2>
-        <button
-          onClick={() => setShowForm(true)}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Ajouter un coup de cœur
-        </button>
-      </div>
-
-      {showForm && (
-        <FavoriteForm
-          onSave={async (data) => {
-            const result = await homepageService.createFavorite(data);
-            if (result) {
-              onMessage('success', 'Coup de cœur créé avec succès');
-              onUpdate();
-              setShowForm(false);
-            } else {
-              onMessage('error', 'Erreur lors de la création');
-            }
-          }}
-          onCancel={() => setShowForm(false)}
-        />
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {favorites.map((item) => (
-          <div key={item.id} className="bg-white border rounded-lg overflow-hidden">
-            <img
-              src={item.image_url}
-              alt={item.title}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-4">
-              <div className="flex items-start justify-between mb-2">
-                <h3 className="font-medium">{item.title}</h3>
-                <span className={`px-2 py-1 text-xs rounded-full ${
-                  item.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                }`}>
-                  {item.is_active ? 'Actif' : 'Inactif'}
-                </span>
-              </div>
-              <p className="text-gray-600 text-sm mb-3">{item.description}</p>
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500">Ordre: {item.sort_order}</span>
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => toggleActive(item.id, item.is_active)}
-                    className="p-1 text-gray-400 hover:text-gray-600"
-                    title={item.is_active ? 'Désactiver' : 'Activer'}
-                  >
-                    {item.is_active ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    className="p-1 text-gray-400 hover:text-red-600"
-                    title="Supprimer"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
 // Formulaire pour créer/éditer une actualité
 interface NewsFormProps {
   news?: HomepageNews;
@@ -853,133 +734,6 @@ const NewsForm: React.FC<NewsFormProps> = ({ news, onSave, onCancel }) => {
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             {news ? 'Mettre à jour' : 'Créer'}
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-};
-
-// Formulaire pour créer/éditer un coup de cœur
-interface FavoriteFormProps {
-  favorite?: HomepageFavorite;
-  onSave: (data: any) => void;
-  onCancel: () => void;
-}
-
-const FavoriteForm: React.FC<FavoriteFormProps> = ({ favorite, onSave, onCancel }) => {
-  const [formData, setFormData] = useState({
-    title: favorite?.title || '',
-    description: favorite?.description || '',
-    image_url: favorite?.image_url || '',
-    link_url: favorite?.link_url || '',
-    is_active: favorite?.is_active ?? true,
-    sort_order: favorite?.sort_order || 0
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave(formData);
-  };
-
-  return (
-    <div className="bg-white border rounded-lg p-6">
-      <h3 className="text-lg font-medium mb-4">
-        {favorite ? 'Modifier le coup de cœur' : 'Nouveau coup de cœur'}
-      </h3>
-      
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Titre *
-          </label>
-          <input
-            type="text"
-            required
-            value={formData.title}
-            onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Description *
-          </label>
-          <textarea
-            required
-            rows={2}
-            value={formData.description}
-            onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            URL de l'image *
-          </label>
-          <input
-            type="url"
-            required
-            value={formData.image_url}
-            onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Lien (optionnel)
-          </label>
-          <input
-            type="text"
-            value={formData.link_url}
-            onChange={(e) => setFormData(prev => ({ ...prev, link_url: e.target.value }))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Ex: /musees"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Ordre d'affichage
-            </label>
-            <input
-              type="number"
-              value={formData.sort_order}
-              onChange={(e) => setFormData(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
-          <div className="flex items-center">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={formData.is_active}
-                onChange={(e) => setFormData(prev => ({ ...prev, is_active: e.target.checked }))}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              />
-              <span className="ml-2 text-sm text-gray-700">Actif</span>
-            </label>
-          </div>
-        </div>
-
-        <div className="flex justify-end space-x-3 pt-4">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
-          >
-            Annuler
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            {favorite ? 'Mettre à jour' : 'Créer'}
           </button>
         </div>
       </form>
