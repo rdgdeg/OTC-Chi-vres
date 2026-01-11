@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { 
   Save, Edit3, Plus, Trash2, Eye, EyeOff, 
   Image, Type, Link, Settings, AlertCircle,
-  ChevronUp, ChevronDown, GripVertical
+  ChevronUp, ChevronDown, GripVertical, Grid3X3
 } from 'lucide-react';
 import { homepageService, HomepageContent, HomepageNews } from '../services/homepageService';
 import EditableImage from './EditableImage';
+import HomepageBlocksManager from './HomepageBlocksManager';
 
 const HomepageContentManager: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'banner' | 'hero' | 'news'>('banner');
+  const [activeTab, setActiveTab] = useState<'banner' | 'hero' | 'blocks' | 'news'>('banner');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -52,7 +53,8 @@ const HomepageContentManager: React.FC = () => {
 
   const tabs = [
     { id: 'banner', label: 'Bannière d\'info', icon: AlertCircle },
-    { id: 'hero', label: 'Section Hero', icon: Image },
+    { id: 'hero', label: 'Bannière d\'accueil', icon: Image },
+    { id: 'blocks', label: 'Blocs de navigation', icon: Grid3X3 },
     { id: 'news', label: 'Actualités', icon: Type }
   ];
 
@@ -131,7 +133,7 @@ const HomepageContentManager: React.FC = () => {
               onSave={async (data) => {
                 const success = await homepageService.updateHero(data);
                 if (success) {
-                  showMessage('success', 'Section Hero mise à jour avec succès');
+                  showMessage('success', 'Bannière d\'accueil mise à jour avec succès');
                   loadData();
                   setEditingHero(false);
                 } else {
@@ -140,6 +142,10 @@ const HomepageContentManager: React.FC = () => {
               }}
               onCancel={() => setEditingHero(false)}
             />
+          )}
+
+          {activeTab === 'blocks' && (
+            <HomepageBlocksManager />
           )}
 
           {activeTab === 'news' && (
@@ -336,7 +342,7 @@ const HeroEditor: React.FC<HeroEditorProps> = ({ hero, isEditing, onEdit, onSave
   return (
     <div className="bg-white rounded-lg shadow-sm border p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold">Section Hero (Bannière principale)</h2>
+        <h2 className="text-xl font-semibold">Bannière d'accueil (Hero)</h2>
         <div className="flex space-x-3">
           {!isEditing ? (
             <button
