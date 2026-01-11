@@ -4,7 +4,7 @@ import {
   Users, Settings, BarChart3, FileText, Image as ImageIcon, 
   Calendar, MapPin, ShoppingBag, Briefcase, Bed,
   Plus, Activity, TrendingUp, AlertCircle, Home, Layout,
-  LogOut, Bell, Search, Layers, Building, Mail
+  LogOut, Bell, Search, Layers, Building, Mail, Zap
 } from 'lucide-react';
 import AdminHomePage from '../components/AdminHomePage';
 import AdminPageManager from '../components/AdminPageManager';
@@ -13,6 +13,8 @@ import ContentManagementDashboard from '../components/ContentManagementDashboard
 import PageContentManager from '../components/PageContentManager';
 import HomepageContentManager from '../components/HomepageContentManager';
 import NewsletterManager from '../components/NewsletterManager';
+import { UnifiedCMSDashboard } from '../components/cms/UnifiedCMSDashboard';
+import { UnifiedCMSProvider } from '../contexts/UnifiedCMSContext';
 
 const AdminDashboard: React.FC = () => {
   const { user, logout, hasPermission } = useAuth();
@@ -36,6 +38,13 @@ const AdminDashboard: React.FC = () => {
       label: 'Tableau de Bord',
       icon: BarChart3,
       permission: null
+    },
+    {
+      id: 'unified-cms',
+      label: 'CMS Unifié',
+      icon: Zap,
+      permission: 'content:read',
+      featured: true
     },
     {
       id: 'content-management',
@@ -133,6 +142,12 @@ const AdminDashboard: React.FC = () => {
     switch (activeSection) {
       case 'dashboard':
         return <DashboardOverview stats={stats} />;
+      case 'unified-cms':
+        return (
+          <UnifiedCMSProvider>
+            <UnifiedCMSDashboard />
+          </UnifiedCMSProvider>
+        );
       case 'content-management':
         return <ContentManagementDashboard />;
       case 'pages':
@@ -212,7 +227,7 @@ const AdminDashboard: React.FC = () => {
             <button
               key={item.id}
               onClick={() => setActiveSection(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors relative ${
                 activeSection === item.id
                   ? 'bg-blue-600 text-white'
                   : 'text-slate-300 hover:bg-slate-800 hover:text-white'
@@ -220,7 +235,19 @@ const AdminDashboard: React.FC = () => {
               title={sidebarCollapsed ? item.label : undefined}
             >
               <item.icon size={20} />
-              {!sidebarCollapsed && <span className="text-sm font-medium">{item.label}</span>}
+              {!sidebarCollapsed && (
+                <>
+                  <span className="text-sm font-medium">{item.label}</span>
+                  {item.featured && (
+                    <span className="ml-auto bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                      Nouveau
+                    </span>
+                  )}
+                </>
+              )}
+              {sidebarCollapsed && item.featured && (
+                <div className="absolute -right-1 -top-1 w-3 h-3 bg-green-500 rounded-full"></div>
+              )}
             </button>
           ))}
         </nav>
