@@ -1,4 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
+import { config } from 'dotenv';
+
+// Charger les variables d'environnement depuis .env.local
+config({ path: '.env.local' });
 
 // Configuration Supabase
 const supabaseUrl = process.env.VITE_SUPABASE_URL;

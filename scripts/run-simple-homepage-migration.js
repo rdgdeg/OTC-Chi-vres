@@ -1,10 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
 import fs from 'fs';
 import path from 'path';
+import { config } from 'dotenv';
+
+// Charger les variables d'environnement depuis .env.local
+config({ path: '.env.local' });
 
 // Configuration Supabase
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
+
+console.log('🔍 Vérification des variables d\'environnement...');
+console.log('VITE_SUPABASE_URL:', supabaseUrl ? '✅ Définie' : '❌ Manquante');
+console.log('VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? '✅ Définie' : '❌ Manquante');
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error('❌ Variables d\'environnement Supabase manquantes');
