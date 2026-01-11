@@ -1,28 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Mail, CheckCircle, AlertCircle } from 'lucide-react';
+import { newsletterService } from '../services/newsletterService';
+import { homepageService } from '../services/homepageService';
 
 const NewsletterSection: React.FC = () => {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
+  const [content, setContent] = useState({
+    title: 'Inscrivez-vous à notre newsletter',
+    subtitle: 'Restez connecté avec Chièvres ! Recevez nos actus, événements et bons plans directement dans votre boîte mail.',
+    buttonText: 'S\'inscrire',
+    successMessage: 'Merci ! Vous êtes maintenant inscrit(e) à notre newsletter.',
+    errorMessage: 'Veuillez entrer une adresse email valide'
+  });
+
+  useEffect(() => {
+    loadContent();
+  }, []);
+
+  const loadContent = async () => {
+    try {
+      const newsletterContent = await homepageService.getContentBySection('newsletter');
+      if (newsletterContent) {
+        setContent({
+          title: newsletterContent.title || content.title,
+          subtitle: newsletterContent.subtitle || content.subtitle,
+          buttonText: newsletterContent.settings?.buttonText || content.buttonText,
+          successMessage: newsletterContent.settings?.successMessage || content.successMessage,
+          errorMessage: newsletterContent.settings?.errorMessage || content.errorMessage
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement du contenu newsletter:', error);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email || !email.includes('@')) {
       setStatus('error');
-      setMessage('Veuillez entrer une adresse email valide');
+      setMessage(content.errorMessage);
       return;
     }
 
     setStatus('loading');
     
-    // Simulation d'un appel API
-    setTimeout(() => {
-      setStatus('success');
-      setMessage('Merci ! Vous êtes maintenant inscrit(e) à notre newsletter.');
-      setEmail('');
-    }, 1500);
+    try {
+      const result = await newsletterService.subscribe(email);
+      
+      if (result.success) {
+        setStatus('success');
+        setMessage(result.message);
+        setEmail('');
+      } else {
+        setStatus('error');
+        setMessage(result.message);
+      }
+    } catch (error) {
+      setStatus('error');
+      setMessage('Une erreur est survenue. Veuillez réessayer.');
+    }
   };
 
   return (
@@ -38,11 +77,10 @@ const NewsletterSection: React.FC = () => {
               <Mail size={32} className="text-slate-900" />
             </div>
             <h2 className="text-3xl sm:text-4xl font-serif font-bold mb-4">
-              Inscrivez-vous à notre newsletter
+              {content.title}
             </h2>
             <p className="text-lg text-slate-200 max-w-2xl mx-auto leading-relaxed">
-              Restez connecté avec Chièvres ! Recevez nos actus, événements et bons plans 
-              directement dans votre boîte mail.
+              {content.subtitle}
             </p>
           </div>
 
@@ -64,7 +102,7 @@ const NewsletterSection: React.FC = () => {
                 {status === 'loading' ? (
                   <div className="w-5 h-5 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin"></div>
                 ) : (
-                  'S\'inscrire'
+                  content.buttonText
                 )}
               </button>
             </div>

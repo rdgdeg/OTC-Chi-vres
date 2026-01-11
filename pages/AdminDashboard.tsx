@@ -4,13 +4,15 @@ import {
   Users, Settings, BarChart3, FileText, Image as ImageIcon, 
   Calendar, MapPin, ShoppingBag, Briefcase, Bed,
   Plus, Activity, TrendingUp, AlertCircle, Home, Layout,
-  LogOut, Bell, Search, Layers, Building
+  LogOut, Bell, Search, Layers, Building, Mail
 } from 'lucide-react';
 import AdminHomePage from '../components/AdminHomePage';
 import AdminPageManager from '../components/AdminPageManager';
 import AccommodationManager from '../components/AccommodationManager';
 import ContentManagementDashboard from '../components/ContentManagementDashboard';
 import PageContentManager from '../components/PageContentManager';
+import HomepageContentManager from '../components/HomepageContentManager';
+import NewsletterManager from '../components/NewsletterManager';
 
 const AdminDashboard: React.FC = () => {
   const { user, logout, hasPermission } = useAuth();
@@ -52,6 +54,18 @@ const AdminDashboard: React.FC = () => {
       label: 'Page d\'Accueil',
       icon: Home,
       permission: 'content:write'
+    },
+    {
+      id: 'homepage-content',
+      label: 'Contenu Accueil',
+      icon: Layout,
+      permission: 'content:write'
+    },
+    {
+      id: 'newsletter',
+      label: 'Newsletter',
+      icon: Mail,
+      permission: 'content:read'
     },
     {
       id: 'places',
@@ -125,6 +139,10 @@ const AdminDashboard: React.FC = () => {
         return <PageContentManager />;
       case 'homepage':
         return <AdminHomePage />;
+      case 'homepage-content':
+        return <HomepageContentManager />;
+      case 'newsletter':
+        return <NewsletterManager />;
       case 'accommodations':
         return <AccommodationManager />;
       case 'media':

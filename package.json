@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "migrate:homepage": "node scripts/run-simple-homepage-migration.js",
+    "test:homepage": "node scripts/test-homepage-features.js"
   },
   "dependencies": {
     "@google/genai": "^1.30.0",

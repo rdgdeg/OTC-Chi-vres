@@ -1,46 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, ExternalLink } from 'lucide-react';
+import { homepageService, HomepageFavorite } from '../services/homepageService';
 
 const FavoritesSection: React.FC = () => {
-  const favorites = [
-    {
-      id: 1,
-      title: 'Église Saint-Martin',
-      image: 'https://picsum.photos/id/1041/600/400',
-      description: 'Monument historique classé du XIIe siècle'
-    },
-    {
-      id: 2,
-      title: 'Le Crossage al\'tonne',
-      image: 'https://picsum.photos/id/1042/600/400',
-      description: 'Tradition folklorique unique de Chièvres'
-    },
-    {
-      id: 3,
-      title: 'Château de Ladeuze',
-      image: 'https://picsum.photos/id/1043/600/400',
-      description: 'Patrimoine architectural remarquable'
-    },
-    {
-      id: 4,
-      title: 'Sentiers de randonnée',
-      image: 'https://picsum.photos/id/1044/600/400',
-      description: 'Découvrez la nature environnante'
-    },
-    {
-      id: 5,
-      title: 'Place Charles II',
-      image: 'https://picsum.photos/id/1045/600/400',
-      description: 'Cœur historique de la cité'
-    },
-    {
-      id: 6,
-      title: 'Musée de la Vie Rurale',
-      image: 'https://picsum.photos/id/1046/600/400',
-      description: 'Plongez dans l\'histoire locale'
+  const [favorites, setFavorites] = useState<HomepageFavorite[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadFavorites();
+  }, []);
+
+  const loadFavorites = async () => {
+    try {
+      const favoritesData = await homepageService.getFavorites();
+      setFavorites(favoritesData);
+    } catch (error) {
+      console.error('Erreur lors du chargement des coups de cœur:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  if (loading) {
+    return (
+      <section className="py-16 bg-slate-50">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="flex justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (favorites.length === 0) {
+    return null;
+  }
 
   return (
     <section className="py-16 bg-slate-50">
@@ -62,17 +58,20 @@ const FavoritesSection: React.FC = () => {
             <div
               key={favorite.id}
               className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer"
+              onClick={() => favorite.link_url && (window.location.href = favorite.link_url)}
             >
               <div className="relative h-48 overflow-hidden">
                 <img
-                  src={favorite.image}
+                  src={favorite.image_url}
                   alt={favorite.title}
                   className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="absolute top-4 right-4 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <ExternalLink size={18} className="text-slate-700" />
-                </div>
+                {favorite.link_url && (
+                  <div className="absolute top-4 right-4 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <ExternalLink size={18} className="text-slate-700" />
+                  </div>
+                )}
               </div>
               
               <div className="p-6">

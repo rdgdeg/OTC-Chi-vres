@@ -1,10 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import { homepageService } from '../services/homepageService';
 
 const HomeHero: React.FC = () => {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
+  const [heroContent, setHeroContent] = useState({
+    title: 'Bienvenue à Chièvres,',
+    subtitle: 'la Cité des Aviateurs !',
+    content: 'Suivez notre crosseur, emblème du crossage al\' tonne, et partez à la découverte d\'une ville riche en histoire, traditions et vie associative.',
+    backgroundImage: 'https://picsum.photos/id/1047/1920/1080',
+    videoUrl: '/videos/chievres-intro.mp4',
+    ctaText: 'Découvrir Chièvres',
+    ctaUrl: '/musees'
+  });
+
+  useEffect(() => {
+    loadHeroContent();
+  }, []);
+
+  const loadHeroContent = async () => {
+    try {
+      const content = await homepageService.getHero();
+      if (content) {
+        setHeroContent({
+          title: content.title || heroContent.title,
+          subtitle: content.subtitle || heroContent.subtitle,
+          content: content.content || heroContent.content,
+          backgroundImage: content.image_url || content.settings?.backgroundImage || heroContent.backgroundImage,
+          videoUrl: content.settings?.videoUrl || heroContent.videoUrl,
+          ctaText: content.cta_text || heroContent.ctaText,
+          ctaUrl: content.cta_url || heroContent.ctaUrl
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement du contenu hero:', error);
+    }
+  };
 
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
@@ -18,17 +51,17 @@ const HomeHero: React.FC = () => {
             loop
             playsInline
           >
-            <source src="/videos/chievres-intro.mp4" type="video/mp4" />
+            <source src={heroContent.videoUrl} type="video/mp4" />
             {/* Fallback image si la vidéo ne charge pas */}
             <img 
-              src="https://picsum.photos/id/1047/1920/1080" 
+              src={heroContent.backgroundImage} 
               alt="Chièvres - Cité des Aviateurs"
               className="w-full h-full object-cover"
             />
           </video>
         ) : (
           <img 
-            src="https://picsum.photos/id/1047/1920/1080" 
+            src={heroContent.backgroundImage} 
             alt="Chièvres - Cité des Aviateurs"
             className="w-full h-full object-cover"
           />
@@ -49,33 +82,23 @@ const HomeHero: React.FC = () => {
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold mb-6 leading-tight">
-            Bienvenue à Chièvres,<br />
-            <span className="text-secondary">la Cité des Aviateurs !</span>
+            {heroContent.title}<br />
+            <span className="text-secondary">{heroContent.subtitle}</span>
           </h1>
           
           <div className="max-w-3xl mx-auto mb-8 space-y-6">
             <p className="text-xl sm:text-2xl leading-relaxed font-light">
-              Suivez notre crosseur, emblème du crossage al' tonne, et partez à la découverte 
-              d'une ville riche en histoire, traditions et vie associative.
-            </p>
-            
-            <p className="text-lg sm:text-xl leading-relaxed opacity-90">
-              Chièvres séduit par son patrimoine médiéval, ses événements festifs et ses associations 
-              qui font vibrer la ville tout au long de l'année.
-            </p>
-            
-            <p className="text-lg font-semibold text-secondary">
-              Venez juger par vous-même et explorez les trésors de notre cité !
+              {heroContent.content}
             </p>
           </div>
 
           {/* Call to Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
             <Link 
-              to="/musees" 
+              to={heroContent.ctaUrl} 
               className="px-8 py-4 bg-secondary text-slate-900 font-bold rounded-lg hover:bg-yellow-400 transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
             >
-              Découvrir Chièvres
+              {heroContent.ctaText}
             </Link>
             <Link 
               to="/agenda" 

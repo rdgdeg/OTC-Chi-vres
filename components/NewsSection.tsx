@@ -1,38 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, ArrowRight, Clock } from 'lucide-react';
+import { homepageService, HomepageNews } from '../services/homepageService';
 
 const NewsSection: React.FC = () => {
-  // Données d'exemple - à remplacer par des données dynamiques
-  const newsItems = [
-    {
-      id: 1,
-      title: 'Ouverture de la nouvelle exposition au Musée de la Vie Rurale',
-      excerpt: 'Découvrez "Artisans d\'autrefois", une exposition temporaire qui met en lumière les métiers traditionnels de notre région.',
-      image: 'https://picsum.photos/id/1051/400/300',
-      date: '15 janvier 2026',
-      category: 'Culture',
-      readTime: '3 min'
-    },
-    {
-      id: 2,
-      title: 'Festival du Crossage 2026 : Save the Date !',
-      excerpt: 'Le traditionnel Festival du Crossage al\'tonne aura lieu le premier weekend de septembre. Préparez-vous à vivre une expérience unique !',
-      image: 'https://picsum.photos/id/1052/400/300',
-      date: '12 janvier 2026',
-      category: 'Événement',
-      readTime: '2 min'
-    },
-    {
-      id: 3,
-      title: 'Nouveaux circuits de randonnée balisés',
-      excerpt: 'Trois nouveaux parcours de découverte ont été aménagés pour vous faire découvrir les trésors cachés de notre campagne.',
-      image: 'https://picsum.photos/id/1053/400/300',
-      date: '8 janvier 2026',
-      category: 'Nature',
-      readTime: '4 min'
+  const [news, setNews] = useState<HomepageNews[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadNews();
+  }, []);
+
+  const loadNews = async () => {
+    try {
+      const newsData = await homepageService.getNews(3); // Limiter à 3 actualités
+      setNews(newsData);
+    } catch (error) {
+      console.error('Erreur lors du chargement des actualités:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  if (loading) {
+    return (
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="flex justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (news.length === 0) {
+    return null;
+  }
 
   return (
     <section className="py-16 bg-white">
@@ -56,14 +60,14 @@ const NewsSection: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {newsItems.map((item) => (
+          {news.map((item) => (
             <article
               key={item.id}
               className="group bg-white border border-slate-100 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer"
             >
               <div className="relative h-48 overflow-hidden">
                 <img
-                  src={item.image}
+                  src={item.image_url || 'https://picsum.photos/400/300?grayscale'}
                   alt={item.title}
                   className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
                 />
@@ -78,11 +82,11 @@ const NewsSection: React.FC = () => {
                 <div className="flex items-center text-slate-500 text-sm mb-3 space-x-4">
                   <div className="flex items-center space-x-1">
                     <Calendar size={14} />
-                    <span>{item.date}</span>
+                    <span>{new Date(item.published_at).toLocaleDateString('fr-FR')}</span>
                   </div>
                   <div className="flex items-center space-x-1">
                     <Clock size={14} />
-                    <span>{item.readTime}</span>
+                    <span>{item.read_time}</span>
                   </div>
                 </div>
                 
