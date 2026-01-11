@@ -21,6 +21,8 @@ export interface Place {
   distance?: string;
   duration?: string;
   difficulty?: 'Facile' | 'Moyen' | 'Difficile';
+  downloadUrl?: string;
+  documentUrl?: string;
   // Specific for Museums/Restaurants
   openingHours?: string;
   price?: string;
@@ -109,4 +111,45 @@ export interface TeamMember {
   description: string;
   imageUrl: string;
   order: number;
+}
+
+export interface Accommodation {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  excerpt: string;
+  type: 'bed_breakfast' | 'gite' | 'hotel' | 'camping' | 'unusual';
+  capacity: number;
+  bedrooms?: number;
+  beds_description?: string;
+  address: string;
+  village?: string;
+  lat?: number;
+  lng?: number;
+  phone?: string;
+  email?: string;
+  website?: string;
+  facebook?: string;
+  featured_image?: string;
+  gallery_images?: string[];
+  features?: string[];
+  amenities?: string[];
+  price_range?: string;
+  price_details?: string;
+  check_in_time?: string;
+  check_out_time?: string;
+  house_rules?: string[];
+  cancellation_policy?: string;
+  available_from?: string;
+  available_to?: string;
+  min_stay?: number;
+  status: 'draft' | 'published' | 'archived';
+  tag_ids?: string[];
+  rating?: number;
+  view_count?: number;
+  meta_title?: string;
+  meta_description?: string;
+  created_at: string;
+  updated_at: string;
 }

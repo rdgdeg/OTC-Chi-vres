@@ -10,7 +10,7 @@ const NAV_ITEMS: NavItem[] = [
     children: [
       { label: 'Culture & Patrimoine', path: '/musees' },
       { label: 'Nature & Balades', path: '/balades' },
-      { label: 'Le Crossage', path: '/crossage' },
+      { label: 'Le Crossage', path: '/crossage/detail' },
     ]
   },
   { 
@@ -19,7 +19,7 @@ const NAV_ITEMS: NavItem[] = [
       { label: 'Où manger ? (Restaurants)', path: '/restaurants?type=restaurant' },
       { label: 'Se désaltérer (Cafés)', path: '/restaurants?type=cafe' },
       { label: 'Terroir & Producteurs', path: '/restaurants?type=producer' },
-      { label: 'Où dormir ?', path: '/hebergement' },
+      { label: 'Où dormir ?', path: '/hebergements' },
     ]
   },
   { 
@@ -232,7 +232,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <ul className="space-y-3">
                 <li><Link to="/musees" className="text-slate-300 text-sm hover:text-secondary transition-colors flex items-center"><span className="w-1.5 h-1.5 bg-secondary rounded-full mr-2"></span>Patrimoine</Link></li>
                 <li><Link to="/balades" className="text-slate-300 text-sm hover:text-secondary transition-colors flex items-center"><span className="w-1.5 h-1.5 bg-secondary rounded-full mr-2"></span>Balades</Link></li>
-                <li><Link to="/crossage" className="text-slate-300 text-sm hover:text-secondary transition-colors flex items-center"><span className="w-1.5 h-1.5 bg-secondary rounded-full mr-2"></span>Le Crossage</Link></li>
+                <li><Link to="/crossage/detail" className="text-slate-300 text-sm hover:text-secondary transition-colors flex items-center"><span className="w-1.5 h-1.5 bg-secondary rounded-full mr-2"></span>Le Crossage</Link></li>
                 <li><Link to="/bulletin" className="text-slate-300 text-sm hover:text-secondary transition-colors flex items-center"><span className="w-1.5 h-1.5 bg-secondary rounded-full mr-2"></span>Bulletin Communal</Link></li>
               </ul>
             </div>

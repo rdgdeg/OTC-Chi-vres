@@ -6,9 +6,10 @@ import { Place } from '../types';
 interface InteractiveMapProps {
   items: Place[];
   height?: string;
+  onItemClick?: (item: Place) => void;
 }
 
-const InteractiveMap: React.FC<InteractiveMapProps> = ({ items, height = '400px' }) => {
+const InteractiveMap: React.FC<InteractiveMapProps> = ({ items, height = '400px', onItemClick }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<mapboxgl.Marker[]>([]);
@@ -118,6 +119,13 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({ items, height = '400px'
               .setLngLat([place.lng, place.lat])
               .setPopup(popup)
               .addTo(map.current!);
+
+            // Add click event to open detail modal
+            if (onItemClick) {
+              marker.getElement().addEventListener('click', () => {
+                onItemClick(place);
+              });
+            }
 
             markers.current.push(marker);
           }

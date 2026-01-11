@@ -1,6 +1,7 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Place } from '../types';
-import { MapPin, Star, Phone, Globe, Timer, Footprints, Mountain } from 'lucide-react';
+import { MapPin, Star, Phone, Globe, Timer, Footprints, Mountain, Download, FileText, Eye } from 'lucide-react';
 
 interface CardProps {
   place: Place;
@@ -96,6 +97,47 @@ const Card: React.FC<CardProps> = ({ place }) => {
                 <div className="flex items-center text-slate-500 text-xs sm:text-sm">
                     <Globe size={14} className="mr-2 shrink-0 text-secondary" />
                     <a href={place.website} target="_blank" rel="noreferrer" className="hover:text-primary transition-colors touch-manipulation truncate">Visiter le site web</a>
+                </div>
+            )}
+            
+            {/* Download buttons for walks */}
+            {place.type === 'walk' && ((place.downloadUrl && place.downloadUrl.trim() !== '') || (place.documentUrl && place.documentUrl.trim() !== '')) && (
+                <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                    {place.downloadUrl && place.downloadUrl.trim() !== '' && (
+                        <a 
+                            href={place.downloadUrl} 
+                            target="_blank" 
+                            rel="noreferrer" 
+                            className="flex items-center justify-center bg-primary text-white text-xs sm:text-sm px-3 py-2 rounded-lg hover:bg-primary/90 transition-colors touch-manipulation"
+                        >
+                            <Download size={14} className="mr-1.5" />
+                            Télécharger le tracé
+                        </a>
+                    )}
+                    {place.documentUrl && place.documentUrl.trim() !== '' && (
+                        <a 
+                            href={place.documentUrl} 
+                            target="_blank" 
+                            rel="noreferrer" 
+                            className="flex items-center justify-center bg-secondary text-white text-xs sm:text-sm px-3 py-2 rounded-lg hover:bg-secondary/90 transition-colors touch-manipulation"
+                        >
+                            <FileText size={14} className="mr-1.5" />
+                            Document explicatif
+                        </a>
+                    )}
+                </div>
+            )}
+
+            {/* Detail button for walks */}
+            {place.type === 'walk' && (
+                <div className="pt-3 border-t border-slate-100 mt-3">
+                    <Link 
+                        to={`/balades/${place.id}`}
+                        className="flex items-center justify-center gap-2 w-full bg-slate-100 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-200 transition-colors touch-manipulation text-sm font-medium"
+                    >
+                        <Eye size={14} />
+                        Voir le détail
+                    </Link>
                 </div>
             )}
         </div>

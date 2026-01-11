@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajout d'images aux hébergements</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .accommodation {
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        .accommodation.success {
+            border-color: #4CAF50;
+            background: #e8f5e9;
+        }
+        .accommodation.error {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #005a87;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .status.info {
+            background: #e3f2fd;
+            border: 1px solid #2196F3;
+        }
+        .status.success {
+            background: #e8f5e9;
+            border: 1px solid #4CAF50;
+        }
+        .status.error {
+            background: #ffebee;
+            border: 1px solid #f44336;
+        }
+        .image-preview {
+            max-width: 200px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ Ajout d'images aux hébergements</h1>
+        <p>Cette page permet d'ajouter les images manquantes aux hébergements de Chièvres.</p>
+        
+        <div id="status" class="status info">
+            📋 Chargement des hébergements...
+        </div>
+        
+        <button id="loadBtn" onclick="loadAccommodations()">🔄 Charger les hébergements</button>
+        <button id="addAllBtn" onclick="addAllImages()" disabled>🖼️ Ajouter toutes les images</button>
+        
+        <div id="accommodations"></div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2';
+        
+        // Configuration Supabase
+        const supabaseUrl = 'https://pyrqqruqvvhwmgkhlhed.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5cnFxcnVxdnZod21na2hsaGVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM5OTE1MzMsImV4cCI6MjA3OTU2NzUzM30.0i_zHPfL7KYc9VaU3FVbx8H7NufOgcbFa2E39GGdVts';
+        
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        
+        // Mapping des images
+        const imageMapping = {
+            'la-loge-bed-breakfast': 'https://picsum.photos/id/1001/600/400',
+            'au-sentier-chauchaut': 'https://picsum.photos/id/1002/600/400',
+            'la-maison-dacote': 'https://picsum.photos/id/1003/600/400',
+            'au-champ-du-bouillon': 'https://picsum.photos/id/1004/600/400',
+            'les-greniers-du-moulin': 'https://picsum.photos/id/1005/600/400',
+            'levasion-yacht': 'https://picsum.photos/id/1006/600/400',
+            'moulin-du-domissart': 'https://picsum.photos/id/1007/600/400',
+            'chez-les-kikis': 'https://picsum.photos/id/1008/600/400',
+            'on-dirait-le-sud': 'https://picsum.photos/id/1009/600/400'
+        };
+        
+        let accommodations = [];
+        
+        // Fonctions globales
+        window.loadAccommodations = async function() {
+            const statusDiv = document.getElementById('status');
+            const loadBtn = document.getElementById('loadBtn');
+            const addAllBtn = document.getElementById('addAllBtn');
+            
+            statusDiv.className = 'status info';
+            statusDiv.textContent = '📋 Chargement des hébergements...';
+            loadBtn.disabled = true;
+            
+            try {
+                const { data, error } = await supabase
+                    .from('accommodations')
+                    .select('id, name, slug, featured_image, status')
+                    .order('name');
+                
+                if (error) throw error;
+                
+                accommodations = data;
+                displayAccommodations();
+                
+                statusDiv.className = 'status success';
+                statusDiv.textContent = `✅ ${accommodations.length} hébergements chargés`;
+                addAllBtn.disabled = false;
+                
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = `❌ Erreur: ${error.message}`;
+            } finally {
+                loadBtn.disabled = false;
+            }
+        };
+        
+        window.addAllImages = async function() {
+            const statusDiv = document.getElementById('status');
+            const addAllBtn = document.getElementById('addAllBtn');
+            
+            statusDiv.className = 'status info';
+            statusDiv.textContent = '🖼️ Ajout des images en cours...';
+            addAllBtn.disabled = true;
+            
+            let successCount = 0;
+            let errorCount = 0;
+            
+            for (const accommodation of accommodations) {
+                const imageUrl = imageMapping[accommodation.id];
+                if (imageUrl && !accommodation.featured_image) {
+                    try {
+                        await updateAccommodationImage(accommodation.id, imageUrl);
+                        successCount++;
+                        updateAccommodationDisplay(accommodation.id, 'success', imageUrl);
+                    } catch (error) {
+                        errorCount++;
+                        updateAccommodationDisplay(accommodation.id, 'error', null, error.message);
+                    }
+                }
+            }
+            
+            statusDiv.className = successCount > 0 ? 'status success' : 'status error';
+            statusDiv.textContent = `📊 Terminé: ${successCount} succès, ${errorCount} erreurs`;
+            addAllBtn.disabled = false;
+        };
+        
+        window.addSingleImage = async function(accommodationId) {
+            const imageUrl = imageMapping[accommodationId];
+            if (!imageUrl) return;
+            
+            try {
+                await updateAccommodationImage(accommodationId, imageUrl);
+                updateAccommodationDisplay(accommodationId, 'success', imageUrl);
+            } catch (error) {
+                updateAccommodationDisplay(accommodationId, 'error', null, error.message);
+            }
+        };
+        
+        async function updateAccommodationImage(id, imageUrl) {
+            const { data, error } = await supabase
+                .from('accommodations')
+                .update({ featured_image: imageUrl })
+                .eq('id', id)
+                .select('id, featured_image');
+            
+            if (error) throw error;
+            
+            // Vérifier que l'image a bien été ajoutée
+            const { data: checkData, error: checkError } = await supabase
+                .from('accommodations')
+                .select('featured_image')
+                .eq('id', id)
+                .single();
+            
+            if (checkError) throw checkError;
+            if (!checkData.featured_image) throw new Error('Image non sauvegardée');
+            
+            return data;
+        }
+        
+        function displayAccommodations() {
+            const container = document.getElementById('accommodations');
+            container.innerHTML = '';
+            
+            accommodations.forEach(acc => {
+                const imageUrl = imageMapping[acc.id];
+                const hasImage = acc.featured_image;
+                
+                const div = document.createElement('div');
+                div.className = 'accommodation';
+                div.id = `acc-${acc.id}`;
+                
+                div.innerHTML = `
+                    <h3>${acc.name}</h3>
+                    <p><strong>ID:</strong> ${acc.id}</p>
+                    <p><strong>Statut:</strong> ${acc.status}</p>
+                    <p><strong>Image actuelle:</strong> ${hasImage ? '✅ Présente' : '❌ Manquante'}</p>
+                    ${hasImage ? `<img src="${acc.featured_image}" class="image-preview" alt="${acc.name}">` : ''}
+                    ${imageUrl ? `
+                        <p><strong>Image à ajouter:</strong></p>
+                        <img src="${imageUrl}" class="image-preview" alt="Aperçu">
+                        <br>
+                        <button onclick="addSingleImage('${acc.id}')" ${hasImage ? 'disabled' : ''}>
+                            ${hasImage ? '✅ Image déjà présente' : '🖼️ Ajouter cette image'}
+                        </button>
+                    ` : '<p>⚠️ Pas d\'image disponible pour cet hébergement</p>'}
+                `;
+                
+                container.appendChild(div);
+            });
+        }
+        
+        function updateAccommodationDisplay(id, status, imageUrl, errorMessage) {
+            const div = document.getElementById(`acc-${id}`);
+            if (!div) return;
+            
+            div.className = `accommodation ${status}`;
+            
+            if (status === 'success' && imageUrl) {
+                const button = div.querySelector('button');
+                if (button) {
+                    button.textContent = '✅ Image ajoutée avec succès';
+                    button.disabled = true;
+                }
+                
+                // Ajouter l'image si elle n'est pas déjà affichée
+                if (!div.querySelector('.image-preview')) {
+                    const img = document.createElement('img');
+                    img.src = imageUrl;
+                    img.className = 'image-preview';
+                    img.alt = 'Image ajoutée';
+                    div.appendChild(img);
+                }
+            } else if (status === 'error') {
+                const button = div.querySelector('button');
+                if (button) {
+                    button.textContent = `❌ Erreur: ${errorMessage}`;
+                    button.disabled = false;
+                }
+            }
+        }
+        
+        // Charger automatiquement au démarrage
+        window.addEventListener('load', loadAccommodations);
+    </script>
+</body>
+</html>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Supabase Update</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .success {
+            background: #d1fae5;
+            border: 1px solid #10b981;
+            color: #065f46;
+        }
+        .error {
+            background: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #991b1b;
+        }
+        .info {
+            background: #dbeafe;
+            border: 1px solid #3b82f6;
+            color: #1e40af;
+        }
+        .step {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9fafb;
+            border-left: 4px solid #3b82f6;
+        }
+        .step h3 {
+            margin-top: 0;
+            color: #1f2937;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Test de mise à jour Supabase</h1>
+        <p>Ce test vérifie si votre application peut mettre à jour les données dans Supabase.</p>
+
+        <div class="step">
+            <h3>Étape 1 : Connexion à Supabase</h3>
+            <button onclick="testConnection()">Tester la connexion</button>
+            <div id="connection-result"></div>
+        </div>
+
+        <div class="step">
+            <h3>Étape 2 : Lecture des musées</h3>
+            <button onclick="testRead()">Lire les données</button>
+            <div id="read-result"></div>
+        </div>
+
+        <div class="step">
+            <h3>Étape 3 : Test de mise à jour</h3>
+            <p>⚠️ Ce test va modifier temporairement l'URL d'image d'un musée, puis la restaurer.</p>
+            <button onclick="testUpdate()">Tester UPDATE</button>
+            <div id="update-result"></div>
+        </div>
+
+        <div class="step">
+            <h3>Étape 4 : Vérification des politiques RLS</h3>
+            <button onclick="checkPolicies()">Vérifier les politiques</button>
+            <div id="policies-result"></div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration Supabase
+        const SUPABASE_URL = 'https://pyrqqruqvvhwmgkhlhed.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB5cnFxcnVxdnZod21na2hsaGVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM5OTE1MzMsImV4cCI6MjA3OTU2NzUzM30.0i_zHPfL7KYc9VaU3FVbx8H7NufOgcbFa2E39GGdVts';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="result ${type}">${message}</div>`;
+        }
+
+        async function testConnection() {
+            showResult('connection-result', '⏳ Test en cours...', 'info');
+            
+            try {
+                const { data, error } = await supabase.from('places').select('count');
+                
+                if (error) {
+                    showResult('connection-result', 
+                        `❌ Erreur de connexion:\n${error.message}`, 
+                        'error'
+                    );
+                } else {
+                    showResult('connection-result', 
+                        `✅ Connexion réussie!\nSupabase est accessible.`, 
+                        'success'
+                    );
+                }
+            } catch (err) {
+                showResult('connection-result', 
+                    `❌ Exception:\n${err.message}`, 
+                    'error'
+                );
+            }
+        }
+
+        async function testRead() {
+            showResult('read-result', '⏳ Lecture en cours...', 'info');
+            
+            try {
+                const { data, error } = await supabase
+                    .from('places')
+                    .select('*')
+                    .eq('type', 'museum')
+                    .limit(5);
+                
+                if (error) {
+                    showResult('read-result', 
+                        `❌ Erreur de lecture:\n${error.message}`, 
+                        'error'
+                    );
+                } else {
+                    showResult('read-result', 
+                        `✅ Lecture réussie!\n${data.length} musée(s) trouvé(s):\n\n${JSON.stringify(data.map(m => ({ id: m.id, name: m.name })), null, 2)}`, 
+                        'success'
+                    );
+                }
+            } catch (err) {
+                showResult('read-result', 
+                    `❌ Exception:\n${err.message}`, 
+                    'error'
+                );
+            }
+        }
+
+        async function testUpdate() {
+            showResult('update-result', '⏳ Test de mise à jour en cours...', 'info');
+            
+            try {
+                // 1. Lire un musée
+                const { data: museums, error: readError } = await supabase
+                    .from('places')
+                    .select('*')
+                    .eq('type', 'museum')
+                    .limit(1);
+                
+                if (readError) {
+                    showResult('update-result', 
+                        `❌ Erreur de lecture:\n${readError.message}`, 
+                        'error'
+                    );
+                    return;
+                }
+
+                if (!museums || museums.length === 0) {
+                    showResult('update-result', 
+                        `❌ Aucun musée trouvé dans la base de données`, 
+                        'error'
+                    );
+                    return;
+                }
+
+                const museum = museums[0];
+                const originalUrl = museum.imageUrl;
+                const testUrl = `${originalUrl}?test=${Date.now()}`;
+
+                showResult('update-result', 
+                    `📝 Musée sélectionné: ${museum.name}\n⏳ Tentative de mise à jour...`, 
+                    'info'
+                );
+
+                // 2. Mettre à jour l'URL
+                const { data: updateData, error: updateError } = await supabase
+                    .from('places')
+                    .update({ imageUrl: testUrl })
+                    .eq('id', museum.id)
+                    .select();
+                
+                if (updateError) {
+                    showResult('update-result', 
+                        `❌ ERREUR DE MISE À JOUR:\n${updateError.message}\n\n` +
+                        `Code: ${updateError.code}\n` +
+                        `Détails: ${updateError.details}\n\n` +
+                        `🔧 SOLUTION:\n` +
+                        `Cette erreur indique probablement un problème de politiques RLS.\n` +
+                        `Exécutez le fichier FIX-RLS-POLICIES.sql dans Supabase SQL Editor.`, 
+                        'error'
+                    );
+                    return;
+                }
+
+                // 3. Vérifier que la mise à jour a fonctionné
+                const { data: verifyData, error: verifyError } = await supabase
+                    .from('places')
+                    .select('imageUrl')
+                    .eq('id', museum.id)
+                    .single();
+
+                if (verifyError) {
+                    showResult('update-result', 
+                        `❌ Erreur de vérification:\n${verifyError.message}`, 
+                        'error'
+                    );
+                    return;
+                }
+
+                if (verifyData.imageUrl === testUrl) {
+                    // 4. Restaurer l'URL originale
+                    await supabase
+                        .from('places')
+                        .update({ imageUrl: originalUrl })
+                        .eq('id', museum.id);
+
+                    showResult('update-result', 
+                        `✅ MISE À JOUR RÉUSSIE!\n\n` +
+                        `Le test a modifié puis restauré l'URL d'image.\n` +
+                        `Les politiques RLS sont correctement configurées.\n\n` +
+                        `Musée testé: ${museum.name}\n` +
+                        `URL originale: ${originalUrl}\n` +
+                        `URL test: ${testUrl}\n` +
+                        `Statut: ✅ Restauré`, 
+                        'success'
+                    );
+                } else {
+                    showResult('update-result', 
+                        `⚠️ Mise à jour partielle:\n` +
+                        `L'URL n'a pas été mise à jour correctement.\n` +
+                        `Attendu: ${testUrl}\n` +
+                        `Reçu: ${verifyData.imageUrl}`, 
+                        'error'
+                    );
+                }
+            } catch (err) {
+                showResult('update-result', 
+                    `❌ Exception:\n${err.message}`, 
+                    'error'
+                );
+            }
+        }
+
+        async function checkPolicies() {
+            showResult('policies-result', '⏳ Vérification des politiques...', 'info');
+            
+            try {
+                const { data, error } = await supabase
+                    .rpc('get_policies_info');
+                
+                if (error) {
+                    showResult('policies-result', 
+                        `ℹ️ Impossible de vérifier les politiques directement.\n\n` +
+                        `Pour vérifier manuellement:\n` +
+                        `1. Allez dans Supabase Dashboard\n` +
+                        `2. SQL Editor\n` +
+                        `3. Exécutez:\n\n` +
+                        `SELECT tablename, policyname, cmd\n` +
+                        `FROM pg_policies\n` +
+                        `WHERE schemaname = 'public'\n` +
+                        `AND tablename = 'places';`, 
+                        'info'
+                    );
+                } else {
+                    showResult('policies-result', 
+                        `✅ Politiques trouvées:\n${JSON.stringify(data, null, 2)}`, 
+                        'success'
+                    );
+                }
+            } catch (err) {
+                showResult('policies-result', 
+                    `ℹ️ Vérification automatique non disponible.\n\n` +
+                    `Utilisez le test UPDATE ci-dessus pour vérifier\n` +
+                    `si les politiques sont correctement configurées.`, 
+                    'info'
+                );
+            }
+        }
+    </script>
+</body>
+</html>

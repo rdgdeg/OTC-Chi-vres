@@ -4,8 +4,13 @@ import { Mail, Phone } from 'lucide-react';
 import { supabase } from '../services/supabaseClient';
 import { TeamMember } from '../types';
 import EditableImage from '../components/EditableImage';
+import { useAuth } from '../contexts/AuthContext';
 
 const Team: React.FC = () => {
+  const { hasPermission } = useAuth();
+  
+  // Vérifier si l'utilisateur peut éditer le contenu
+  const canEdit = hasPermission('users', 'update');
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -169,6 +174,7 @@ const Team: React.FC = () => {
                 onImageUpdate={(newUrl) => handleImageUpdate(member.id, newUrl)}
                 folder="team"
                 aspectRatio="square"
+                editable={canEdit}
               />
 
               {/* Info */}

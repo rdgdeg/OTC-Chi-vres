@@ -147,7 +147,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const addItem = async (type: string, item: any) => {
     const { table, dbType } = getTableNameAndType(type);
-    const itemToSave = { ...item };
+    
+    // Remove fields that don't exist in the database or are auto-managed
+    const { created_at, updated_at, title, ...itemData } = item;
+    const itemToSave = { ...itemData };
     
     // Assign ID if missing
     if (!itemToSave.id) itemToSave.id = Date.now().toString();
@@ -172,12 +175,31 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateItem = async (type: string, item: any) => {
     const { table } = getTableNameAndType(type);
     try {
-      const { error } = await supabase.from(table).update(item).eq('id', item.id);
-      if (error) throw error;
+      console.log(`Updating ${type} in ${table}:`, item);
+      
+      // Remove fields that don't exist in the database or are auto-managed
+      // created_at, updated_at: managed by triggers/manually
+      // title: doesn't exist in places table (uses 'name' instead)
+      const { created_at, updated_at, title, ...itemToUpdate } = item;
+      
+      // Add updated_at manually (in case trigger doesn't work)
+      const itemWithTimestamp = {
+        ...itemToUpdate,
+        updated_at: new Date().toISOString()
+      };
+      
+      const { data, error } = await supabase.from(table).update(itemWithTimestamp).eq('id', item.id);
+      if (error) {
+        console.error(`Supabase update error:`, error);
+        throw error;
+      }
+      console.log(`Update successful, refreshing data...`);
       await fetchData();
+      console.log(`Data refreshed`);
     } catch (err) {
       console.error(`Error updating item in ${table}:`, err);
       alert("Erreur lors de la mise à jour.");
+      throw err;
     }
   };
 

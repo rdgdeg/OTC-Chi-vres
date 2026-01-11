@@ -1,15 +1,29 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Hero from '../components/Hero';
 import { useData } from '../contexts/DataContext';
-import { MapPin, Image as ImageIcon, Share2, Check, X, Globe, Phone, Clock, ExternalLink, Mail, Facebook, Instagram, Twitter, DollarSign, Info } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { MapPin, Image as ImageIcon, Share2, Check, X, Globe, Phone, Clock, ExternalLink, Mail, Facebook, Instagram, Twitter, DollarSign, Info, Filter, Building, Landmark } from 'lucide-react';
 import InteractiveMap from '../components/InteractiveMap';
 import { Place } from '../types';
 import EditableImage from '../components/EditableImage';
 
 const Museums: React.FC = () => {
   const { museums, pageContent, updateItem } = useData();
-  const content = pageContent['museums'] || {};
+  const { hasPermission } = useAuth();
+  
+  // Vérifier si l'utilisateur peut éditer le contenu
+  const canEdit = hasPermission('places', 'update');
+  const content = pageContent['museums'] || {
+    heroTitle: "Culture & Patrimoine",
+    heroSubtitle: "Plongez au cœur de l'histoire.",
+    heroImage: "https://picsum.photos/id/1050/1920/600",
+    introTitle: "Nos lieux culturels",
+    introText: "Découvrez nos musées..."
+  };
+  
+  // State for filters
+  const [activeFilter, setActiveFilter] = useState<'all' | 'musee' | 'patrimoine'>('all');
   
   // State for share feedback (fallback clipboard)
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -19,6 +33,54 @@ const Museums: React.FC = () => {
   
   // State for image gallery viewer
   const [galleryView, setGalleryView] = useState<{ museum: Place; imageIndex: number } | null>(null);
+
+  // Filter museums based on category
+  const filteredMuseums = useMemo(() => {
+    if (activeFilter === 'all') return museums;
+    
+    return museums.filter(museum => {
+      const hasMuseumTag = museum.tags.some(tag => 
+        tag.toLowerCase().includes('musée') || tag.toLowerCase().includes('museum')
+      );
+      const hasPatrimoineTag = museum.tags.some(tag => 
+        tag.toLowerCase().includes('patrimoine') || 
+        tag.toLowerCase().includes('église') || 
+        tag.toLowerCase().includes('chapelle') ||
+        tag.toLowerCase().includes('monument') ||
+        tag.toLowerCase().includes('architecture') ||
+        tag.toLowerCase().includes('gothique') ||
+        tag.toLowerCase().includes('pèlerinage')
+      );
+      
+      if (activeFilter === 'musee') return hasMuseumTag;
+      if (activeFilter === 'patrimoine') return hasPatrimoineTag;
+      
+      return true;
+    });
+  }, [museums, activeFilter]);
+
+  // Count items per category
+  const categoryCounts = useMemo(() => {
+    const museeCount = museums.filter(museum => 
+      museum.tags.some(tag => 
+        tag.toLowerCase().includes('musée') || tag.toLowerCase().includes('museum')
+      )
+    ).length;
+    
+    const patrimoineCount = museums.filter(museum => 
+      museum.tags.some(tag => 
+        tag.toLowerCase().includes('patrimoine') || 
+        tag.toLowerCase().includes('église') || 
+        tag.toLowerCase().includes('chapelle') ||
+        tag.toLowerCase().includes('monument') ||
+        tag.toLowerCase().includes('architecture') ||
+        tag.toLowerCase().includes('gothique') ||
+        tag.toLowerCase().includes('pèlerinage')
+      )
+    ).length;
+    
+    return { musee: museeCount, patrimoine: patrimoineCount, all: museums.length };
+  }, [museums]);
 
   const handleShare = async (museum: any) => {
     // Generate URL with anchor to specific museum
@@ -51,7 +113,7 @@ const Museums: React.FC = () => {
   return (
     <div>
       <Hero 
-        title={content.heroTitle || "Musées & Patrimoine"}
+        title={content.heroTitle || "Culture & Patrimoine"}
         subtitle={content.heroSubtitle || "Plongez au cœur de l'histoire."}
         imageUrl={content.heroImage || "https://picsum.photos/id/1050/1920/600"}
         height="medium"
@@ -65,122 +127,244 @@ const Museums: React.FC = () => {
             </p>
         </div>
 
+        {/* Category Filters */}
+        <div className="mb-8 sm:mb-12">
+          <div className="flex items-center justify-center mb-6">
+            <div className="flex items-center gap-2 text-slate-600">
+              <Filter size={20} />
+              <span className="font-medium">Filtrer par catégorie :</span>
+            </div>
+          </div>
+          
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
+            <button
+              onClick={() => setActiveFilter('all')}
+              className={`flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-full font-medium transition-all ${
+                activeFilter === 'all'
+                  ? 'bg-primary text-white shadow-lg'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:border-primary hover:text-primary'
+              }`}
+            >
+              <span>Tout voir</span>
+              <span className={`text-xs px-2 py-1 rounded-full ${
+                activeFilter === 'all' ? 'bg-white/20' : 'bg-slate-100'
+              }`}>
+                {categoryCounts.all}
+              </span>
+            </button>
+            
+            <button
+              onClick={() => setActiveFilter('musee')}
+              className={`flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-full font-medium transition-all ${
+                activeFilter === 'musee'
+                  ? 'bg-blue-600 text-white shadow-lg'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:border-blue-600 hover:text-blue-600'
+              }`}
+            >
+              <Building size={16} />
+              <span>Musées</span>
+              <span className={`text-xs px-2 py-1 rounded-full ${
+                activeFilter === 'musee' ? 'bg-white/20' : 'bg-slate-100'
+              }`}>
+                {categoryCounts.musee}
+              </span>
+            </button>
+            
+            <button
+              onClick={() => setActiveFilter('patrimoine')}
+              className={`flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-full font-medium transition-all ${
+                activeFilter === 'patrimoine'
+                  ? 'bg-amber-600 text-white shadow-lg'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:border-amber-600 hover:text-amber-600'
+              }`}
+            >
+              <Landmark size={16} />
+              <span>Patrimoine</span>
+              <span className={`text-xs px-2 py-1 rounded-full ${
+                activeFilter === 'patrimoine' ? 'bg-white/20' : 'bg-slate-100'
+              }`}>
+                {categoryCounts.patrimoine}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* Results count */}
+        <div className="text-center mb-8">
+          <p className="text-slate-500 text-sm">
+            {filteredMuseums.length} {filteredMuseums.length === 1 ? 'lieu' : 'lieux'} 
+            {activeFilter !== 'all' && (
+              <span>
+                {' '}dans la catégorie{' '}
+                <span className="font-medium">
+                  {activeFilter === 'musee' ? 'Musées' : 'Patrimoine'}
+                </span>
+              </span>
+            )}
+          </p>
+        </div>
+
         {/* Map Section */}
         <div className="mb-12 sm:mb-20">
-            <InteractiveMap items={museums} height="300px" />
+            <InteractiveMap 
+              items={filteredMuseums} 
+              height="300px" 
+              onItemClick={(museum) => setSelectedMuseum(museum)}
+            />
         </div>
 
-        <div className="space-y-12 sm:space-y-16 md:space-y-24">
-          {museums.map((museum, index) => {
-            // Combine main image and gallery images for display
-            const allImages = [museum.imageUrl, ...(museum.galleryImages || [])];
-            const isCopied = copiedId === museum.id;
-            
-            return (
-              <div key={museum.id} id={museum.id} className={`flex flex-col lg:flex-row gap-6 sm:gap-8 lg:gap-12 items-start ${index % 2 === 1 ? 'lg:flex-row-reverse' : ''}`}>
-                
-                {/* Text Content */}
-                <div className="w-full lg:w-1/2">
-                   <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-                      {museum.tags.map(tag => (
-                        <span key={tag} className="text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1 bg-secondary/20 text-slate-900 rounded-full uppercase tracking-wider">
-                          {tag}
-                        </span>
-                      ))}
-                   </div>
-                   
-                   <h3 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-slate-800 mb-4 sm:mb-6 relative inline-block">
-                      {museum.name}
-                      <span className="absolute -bottom-2 left-0 w-10 sm:w-12 h-1 bg-secondary"></span>
-                   </h3>
-                   
-                   <div className="flex items-start text-slate-500 mb-4 sm:mb-6 text-xs sm:text-sm font-medium">
-                      <MapPin size={16} className="mr-2 text-primary shrink-0 mt-0.5" />
-                      <span className="line-clamp-2">{museum.address}</span>
-                   </div>
+        {/* Museums List */}
+        {filteredMuseums.length === 0 ? (
+          <div className="text-center py-12 animate-in fade-in duration-300">
+            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              {activeFilter === 'musee' ? <Building size={24} className="text-slate-400" /> : <Landmark size={24} className="text-slate-400" />}
+            </div>
+            <h3 className="text-lg font-semibold text-slate-800 mb-2">Aucun lieu trouvé</h3>
+            <p className="text-slate-500">
+              Aucun {activeFilter === 'musee' ? 'musée' : 'site patrimonial'} ne correspond à votre recherche.
+            </p>
+            <button
+              onClick={() => setActiveFilter('all')}
+              className="mt-4 px-6 py-2 bg-primary text-white rounded-lg hover:bg-slate-800 transition-colors"
+            >
+              Voir tous les lieux
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-12 sm:space-y-16 md:space-y-24 animate-in fade-in duration-500">
+            {filteredMuseums.map((museum, index) => {
+              // Combine main image and gallery images for display
+              const allImages = [museum.imageUrl, ...(museum.galleryImages || [])];
+              const isCopied = copiedId === museum.id;
+              
+              return (
+                <div 
+                  key={museum.id} 
+                  id={museum.id} 
+                  className={`flex flex-col lg:flex-row gap-6 sm:gap-8 lg:gap-12 items-start ${index % 2 === 1 ? 'lg:flex-row-reverse' : ''} animate-in slide-in-from-bottom duration-700`}
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  
+                  {/* Text Content */}
+                  <div className="w-full lg:w-1/2">
+                     <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+                        {museum.tags.map(tag => {
+                          // Color code tags based on category
+                          const isMuseumTag = tag.toLowerCase().includes('musée') || tag.toLowerCase().includes('museum');
+                          const isPatrimoineTag = tag.toLowerCase().includes('patrimoine') || 
+                                                tag.toLowerCase().includes('église') || 
+                                                tag.toLowerCase().includes('chapelle') ||
+                                                tag.toLowerCase().includes('monument') ||
+                                                tag.toLowerCase().includes('architecture') ||
+                                                tag.toLowerCase().includes('gothique') ||
+                                                tag.toLowerCase().includes('pèlerinage');
+                          
+                          let tagColor = 'bg-secondary/20 text-slate-900';
+                          if (isMuseumTag) tagColor = 'bg-blue-100 text-blue-800 border border-blue-200';
+                          if (isPatrimoineTag) tagColor = 'bg-amber-100 text-amber-800 border border-amber-200';
+                          
+                          return (
+                            <span key={tag} className={`text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1 ${tagColor} rounded-full uppercase tracking-wider transition-all hover:scale-105`}>
+                              {tag}
+                            </span>
+                          );
+                        })}
+                     </div>
+                     
+                     <h3 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-slate-800 mb-4 sm:mb-6 relative inline-block">
+                        {museum.name}
+                        <span className="absolute -bottom-2 left-0 w-10 sm:w-12 h-1 bg-secondary"></span>
+                     </h3>
+                     
+                     <div className="flex items-start text-slate-500 mb-4 sm:mb-6 text-xs sm:text-sm font-medium">
+                        <MapPin size={16} className="mr-2 text-primary shrink-0 mt-0.5" />
+                        <span className="line-clamp-2">{museum.address}</span>
+                     </div>
 
-                   <p className="text-slate-600 text-sm sm:text-base md:text-lg leading-relaxed mb-6 sm:mb-8 text-justify">
-                      {museum.description}
-                   </p>
-                   
-                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-                       <button 
-                          onClick={() => setSelectedMuseum(museum)}
-                          className="text-primary font-bold hover:text-secondary transition-colors uppercase text-xs sm:text-sm tracking-wide border-b-2 border-primary hover:border-secondary pb-1 text-center sm:text-left touch-manipulation"
-                       >
-                          En savoir plus
-                       </button>
+                     <p className="text-slate-600 text-sm sm:text-base md:text-lg leading-relaxed mb-6 sm:mb-8 text-justify">
+                        {museum.description}
+                     </p>
+                     
+                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+                         <button 
+                            onClick={() => setSelectedMuseum(museum)}
+                            className="text-primary font-bold hover:text-secondary transition-colors uppercase text-xs sm:text-sm tracking-wide border-b-2 border-primary hover:border-secondary pb-1 text-center sm:text-left touch-manipulation"
+                         >
+                            En savoir plus
+                         </button>
 
-                       <button 
-                         onClick={() => handleShare(museum)}
-                         className={`flex items-center justify-center space-x-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all border touch-manipulation ${
-                           isCopied 
-                             ? 'bg-green-50 text-green-700 border-green-200' 
-                             : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-primary active:scale-95'
-                         }`}
-                       >
-                         {isCopied ? <Check size={14} /> : <Share2 size={14} />}
-                         <span>{isCopied ? 'Lien copié !' : 'Partager'}</span>
-                       </button>
-                   </div>
-                </div>
-
-                {/* Gallery & Main Image Grid */}
-                <div className="w-full lg:w-1/2">
-                  <div className="flex items-center justify-between mb-3 sm:mb-4">
-                      <div className="flex items-center text-slate-800 font-bold text-sm sm:text-base">
-                        <ImageIcon size={18} className="mr-2 text-secondary" />
-                        <span>Galerie Photo</span>
-                      </div>
+                         <button 
+                           onClick={() => handleShare(museum)}
+                           className={`flex items-center justify-center space-x-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all border touch-manipulation ${
+                             isCopied 
+                               ? 'bg-green-50 text-green-700 border-green-200' 
+                               : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-primary active:scale-95'
+                           }`}
+                         >
+                           {isCopied ? <Check size={14} /> : <Share2 size={14} />}
+                           <span>{isCopied ? 'Lien copié !' : 'Partager'}</span>
+                         </button>
+                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 h-[300px] sm:h-[350px] md:h-[400px] rounded-xl sm:rounded-2xl overflow-hidden shadow-xl bg-slate-100">
-                    {/* Main Image (Large) - Editable */}
-                    <div className="col-span-2 row-span-2">
-                      <EditableImage
-                        src={museum.imageUrl}
-                        alt={museum.name}
-                        onImageUpdate={async (newUrl) => {
-                          await updateItem('museum', { ...museum, imageUrl: newUrl });
-                        }}
-                        folder="museums"
-                        className="h-full cursor-pointer"
-                      />
+                  {/* Gallery & Main Image Grid */}
+                  <div className="w-full lg:w-1/2">
+                    <div className="flex items-center justify-between mb-3 sm:mb-4">
+                        <div className="flex items-center text-slate-800 font-bold text-sm sm:text-base">
+                          <ImageIcon size={18} className="mr-2 text-secondary" />
+                          <span>Galerie Photo</span>
+                        </div>
                     </div>
 
-                    {/* Secondary Images */}
-                    {museum.galleryImages?.slice(0, 2).map((img, idx) => (
-                      <div 
-                        key={idx} 
-                        className="relative h-full w-full overflow-hidden group cursor-pointer col-span-1 row-span-1 touch-manipulation"
-                        onClick={() => setGalleryView({ museum, imageIndex: idx + 1 })}
-                      >
-                        <img 
-                          src={`${img}?t=${Date.now()}`}
-                          alt="Detail" 
-                          className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" 
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 h-[300px] sm:h-[350px] md:h-[400px] rounded-xl sm:rounded-2xl overflow-hidden shadow-xl bg-slate-100">
+                      {/* Main Image (Large) - Editable */}
+                      <div className="col-span-2 row-span-2">
+                        <EditableImage
+                          src={museum.imageUrl}
+                          alt={museum.name}
+                          onImageUpdate={async (newUrl) => {
+                            await updateItem('museum', { ...museum, imageUrl: newUrl });
+                          }}
+                          folder="museums"
+                          className="h-full cursor-pointer"
+                          editable={canEdit}
                         />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                          <ImageIcon className="text-white opacity-0 group-hover:opacity-100 transition-opacity" size={24} />
-                        </div>
                       </div>
-                    )) || (
-                      // Fillers if no gallery images
-                      <>
-                        <div className="bg-slate-200 flex items-center justify-center col-span-1 row-span-1"><ImageIcon size={20} className="text-slate-300"/></div>
-                        <div className="bg-slate-200 flex items-center justify-center col-span-1 row-span-1"><ImageIcon size={20} className="text-slate-300"/></div>
-                      </>
-                    )}
-                  </div>
-                  <p className="text-[10px] sm:text-xs text-slate-400 mt-2 text-right italic">
-                     * Survolez l'image principale pour la modifier.
-                  </p>
-                </div>
 
-              </div>
-            );
-          })}
-        </div>
+                      {/* Secondary Images */}
+                      {museum.galleryImages?.slice(0, 2).map((img, idx) => (
+                        <div 
+                          key={idx} 
+                          className="relative h-full w-full overflow-hidden group cursor-pointer col-span-1 row-span-1 touch-manipulation"
+                          onClick={() => setGalleryView({ museum, imageIndex: idx + 1 })}
+                        >
+                          <img 
+                            src={`${img}?t=${Date.now()}`}
+                            alt="Detail" 
+                            className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" 
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                            <ImageIcon className="text-white opacity-0 group-hover:opacity-100 transition-opacity" size={24} />
+                          </div>
+                        </div>
+                      )) || (
+                        // Fillers if no gallery images
+                        <>
+                          <div className="bg-slate-200 flex items-center justify-center col-span-1 row-span-1"><ImageIcon size={20} className="text-slate-300"/></div>
+                          <div className="bg-slate-200 flex items-center justify-center col-span-1 row-span-1"><ImageIcon size={20} className="text-slate-300"/></div>
+                        </>
+                      )}
+                    </div>
+                    <p className="text-[10px] sm:text-xs text-slate-400 mt-2 text-right italic">
+                       {canEdit ? '* Survolez l\'image principale pour la modifier.' : '* Modification réservée aux administrateurs.'}
+                    </p>
+                  </div>
+
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* DETAIL MODAL */}

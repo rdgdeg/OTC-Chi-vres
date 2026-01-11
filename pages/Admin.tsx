@@ -1,12 +1,15 @@
 
 import React, { useState, useRef } from 'react';
 import { useData } from '../contexts/DataContext';
+import { useAuth } from '../contexts/AuthContext';
 import { Plus, Trash2, Edit, Save, LogIn, RefreshCw, Image as ImageIcon, ExternalLink, FileText, Layers, Upload, Check, AlertCircle, Database } from 'lucide-react';
 import { PageContent } from '../types';
 import ImageUploader from '../components/ImageUploader';
+import WalksDatabaseUpdater from '../components/WalksDatabaseUpdater';
+import WalkEditor from '../components/WalkEditor';
 
 const Admin: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuthenticated, login } = useAuth();
   const [password, setPassword] = useState('');
   const [activeTab, setActiveTab] = useState<string>('museum');
   // Edit items (places, events)
@@ -23,8 +26,8 @@ const Admin: React.FC = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === 'admin') {
-      setIsAuthenticated(true);
+    if (login(password)) {
+      // Login successful
     } else {
       alert('Mot de passe incorrect');
     }
@@ -385,7 +388,30 @@ const Admin: React.FC = () => {
                 </button>
                 </div>
 
+                {/* Composant spécial pour la mise à jour des balades */}
+                {activeTab === 'walk' && !editingItem && (
+                    <div className="mb-8">
+                        <WalksDatabaseUpdater />
+                    </div>
+                )}
+
                 {editingItem ? (
+                // Utiliser l'éditeur spécialisé pour les balades
+                activeTab === 'walk' ? (
+                    <WalkEditor
+                        walk={editingItem.isNew ? null : editingItem}
+                        isNew={editingItem.isNew}
+                        onSave={async (walkData) => {
+                            if (editingItem.isNew) {
+                                await addItem('walk', walkData);
+                            } else {
+                                await updateItem('walk', { ...editingItem, ...walkData });
+                            }
+                            setEditingItem(null);
+                        }}
+                        onCancel={() => setEditingItem(null)}
+                    />
+                ) : (
                 <form onSubmit={handleSaveItem} className="space-y-6 max-w-2xl animate-in fade-in slide-in-from-right-10 duration-300">
                     <div className="bg-blue-50 border border-blue-100 p-6 rounded-xl shadow-sm">
                         <h3 className="font-bold text-lg mb-4 border-b border-blue-200 pb-2 text-blue-900">
@@ -697,6 +723,7 @@ const Admin: React.FC = () => {
                         </div>
                     </div>
                 </form>
+                )
                 ) : (
                 <div className="grid gap-4">
                     {collections[activeTab].data.map((item: any) => (

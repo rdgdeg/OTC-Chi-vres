@@ -1,6 +1,25 @@
 import { supabase } from './supabaseClient';
 
 /**
+ * Vérifier si l'utilisateur a les permissions pour uploader des images
+ */
+const checkUploadPermissions = (): boolean => {
+  // Vérifier si l'utilisateur est authentifié avec les bonnes permissions
+  // Pour l'instant, on vérifie juste s'il y a une session admin
+  const adminAuth = sessionStorage.getItem('admin_authenticated');
+  
+  if (adminAuth === 'true') {
+    return true;
+  }
+  
+  // TODO: Ajouter la vérification Supabase quand elle sera implémentée
+  // const { data: { session } } = await supabase.auth.getSession();
+  // return session?.user && hasPermission(session.user, 'media', 'create');
+  
+  return false;
+};
+
+/**
  * Upload an image to Supabase Storage
  * @param file - The image file to upload
  * @param folder - Optional folder path (e.g., 'museums', 'restaurants')
@@ -8,6 +27,11 @@ import { supabase } from './supabaseClient';
  */
 export const uploadImage = async (file: File, folder: string = 'general'): Promise<string | null> => {
   try {
+    // Vérifier les permissions avant l'upload
+    if (!checkUploadPermissions()) {
+      throw new Error('Permissions insuffisantes pour uploader des images. Veuillez vous connecter en tant qu\'administrateur.');
+    }
+    
     console.log('Starting image upload:', { fileName: file.name, size: file.size, folder });
     
     // Generate unique filename with timestamp
@@ -56,6 +80,11 @@ export const uploadImage = async (file: File, folder: string = 'general'): Promi
  * @returns Array of public URLs
  */
 export const uploadMultipleImages = async (files: File[], folder: string = 'general'): Promise<string[]> => {
+  // Vérifier les permissions avant l'upload
+  if (!checkUploadPermissions()) {
+    throw new Error('Permissions insuffisantes pour uploader des images. Veuillez vous connecter en tant qu\'administrateur.');
+  }
+  
   const uploadPromises = files.map(file => uploadImage(file, folder));
   const results = await Promise.all(uploadPromises);
   return results.filter((url): url is string => url !== null);
@@ -67,6 +96,11 @@ export const uploadMultipleImages = async (files: File[], folder: string = 'gene
  */
 export const deleteImage = async (imageUrl: string): Promise<boolean> => {
   try {
+    // Vérifier les permissions avant la suppression
+    if (!checkUploadPermissions()) {
+      throw new Error('Permissions insuffisantes pour supprimer des images. Veuillez vous connecter en tant qu\'administrateur.');
+    }
+    
     // Extract path from URL
     const url = new URL(imageUrl);
     const pathParts = url.pathname.split('/images/');
@@ -98,6 +132,11 @@ export const deleteImage = async (imageUrl: string): Promise<boolean> => {
  * @returns The public URL of the new image
  */
 export const replaceImage = async (oldImageUrl: string, newFile: File, folder: string = 'general'): Promise<string | null> => {
+  // Vérifier les permissions avant le remplacement
+  if (!checkUploadPermissions()) {
+    throw new Error('Permissions insuffisantes pour remplacer des images. Veuillez vous connecter en tant qu\'administrateur.');
+  }
+  
   // Upload new image first
   const newUrl = await uploadImage(newFile, folder);
   

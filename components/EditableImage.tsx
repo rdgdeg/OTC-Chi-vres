@@ -24,6 +24,11 @@ const EditableImage: React.FC<EditableImageProps> = ({
   const [uploading, setUploading] = useState(false);
   const [currentSrc, setCurrentSrc] = useState(src);
 
+  // Update currentSrc when src prop changes (after DB refresh)
+  React.useEffect(() => {
+    setCurrentSrc(src);
+  }, [src]);
+
   const aspectClasses = {
     square: 'aspect-square',
     video: 'aspect-video',
@@ -80,6 +85,7 @@ const EditableImage: React.FC<EditableImageProps> = ({
         src={currentSrc}
         alt={alt}
         className="w-full h-full object-cover"
+        key={currentSrc}
         onError={(e) => {
           // Fallback image on error
           (e.target as HTMLImageElement).src = 'https://picsum.photos/800/600?text=Image+Non+Disponible';

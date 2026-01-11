@@ -4,12 +4,17 @@ import { useLocation } from 'react-router-dom';
 import Hero from '../components/Hero';
 import EditableCard from '../components/EditableCard';
 import { useData } from '../contexts/DataContext';
+import { useAuth } from '../contexts/AuthContext';
 import { Utensils, Coffee, Wheat, MapPin, Filter } from 'lucide-react';
 import InteractiveMap from '../components/InteractiveMap';
 
 const Dining: React.FC = () => {
   const { restaurants, merchants, updateItem } = useData();
+  const { hasPermission } = useAuth();
   const location = useLocation();
+  
+  // Vérifier si l'utilisateur peut éditer le contenu
+  const canEdit = hasPermission('places', 'update');
   
   // Determine default tab from URL query params
   const getInitialTab = () => {
@@ -157,7 +162,7 @@ const Dining: React.FC = () => {
             <EditableCard 
               key={place.id} 
               place={place}
-              editable={true}
+              editable={canEdit}
               onImageUpdate={async (newUrl) => {
                 await updateItem(place.type, { ...place, imageUrl: newUrl });
               }}
