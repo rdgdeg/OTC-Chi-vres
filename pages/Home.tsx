@@ -3,38 +3,26 @@ import React from 'react';
 import InfoBanner from '../components/InfoBanner';
 import HomeHero from '../components/HomeHero';
 import NewsSection from '../components/NewsSection';
-import PlanYourVisitSection from '../components/PlanYourVisitSection';
+import FavoritesSection from '../components/FavoritesSection';
 import NewsletterSection from '../components/NewsletterSection';
 import SocialSection from '../components/SocialSection';
-import { useData } from '../contexts/DataContext';
-import homePageConfig from '../data/homePageConfig';
 
 const Home: React.FC = () => {
-  // Use CMS Data for text content
-  const { pageContent, events } = useData();
-  const content = pageContent['home'] || {};
-
   return (
     <div>
-      {/* Bande info défilante */}
-      {homePageConfig.infoBanner.enabled && (
-        <InfoBanner 
-          message={homePageConfig.infoBanner.message}
-          type={homePageConfig.infoBanner.type}
-          dismissible={homePageConfig.infoBanner.dismissible}
-        />
-      )}
+      {/* Bannière d'information dynamique */}
+      <InfoBanner />
 
-      {/* Section Intro avec Vidéo/Photo */}
+      {/* Section Hero avec contenu dynamique */}
       <HomeHero />
 
-      {/* Planifiez votre visite */}
-      <PlanYourVisitSection />
-
-      {/* Section Actualités */}
+      {/* Section Actualités dynamiques */}
       <NewsSection />
 
-      {/* Section Newsletter */}
+      {/* Section Coups de cœur dynamiques */}
+      <FavoritesSection />
+
+      {/* Section Newsletter avec sauvegarde BDD */}
       <NewsletterSection />
 
       {/* Réseaux sociaux */}
