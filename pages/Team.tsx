@@ -221,7 +221,7 @@ const Team: React.FC = () => {
             et vous aider à préparer votre séjour à Chièvres.
           </p>
           <a 
-            href="#/contact"
+            href="/contact"
             className="inline-block bg-primary text-white font-bold px-6 sm:px-8 py-3 sm:py-4 rounded-lg hover:bg-slate-800 active:scale-98 transition-all shadow-lg touch-manipulation text-sm sm:text-base"
           >
             Contactez-nous
