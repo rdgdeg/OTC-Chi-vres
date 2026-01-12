@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Hero from '../components/Hero';
@@ -20,12 +19,13 @@ const Dining: React.FC = () => {
   const getInitialTab = () => {
     const params = new URLSearchParams(location.search);
     const type = params.get('type');
+    if (type === 'restaurant') return 'restaurant';
     if (type === 'cafe') return 'cafe';
     if (type === 'producer') return 'producer';
-    return 'restaurant';
+    return 'all'; // Par défaut, afficher tout
   };
 
-  const [activeTab, setActiveTab] = useState<'restaurant' | 'cafe' | 'producer'>(getInitialTab());
+  const [activeTab, setActiveTab] = useState<'all' | 'restaurant' | 'cafe' | 'producer'>(getInitialTab());
   const [selectedVillage, setSelectedVillage] = useState<string>('Tous');
 
   const VILLAGES = ['Tous', 'Chièvres', 'Vaudignies', 'Ladeuze', 'Grosage', 'Huissignies'];
@@ -41,7 +41,13 @@ const Dining: React.FC = () => {
     let data = [];
     
     // 1. Filter by Type
-    if (activeTab === 'producer') {
+    if (activeTab === 'all') {
+      // Combiner tous les types
+      const restaurantData = restaurants.filter(r => r.type === 'restaurant');
+      const cafeData = restaurants.filter(r => r.type === 'cafe');
+      const producerData = merchants.filter(p => p.type === 'producer');
+      data = [...restaurantData, ...cafeData, ...producerData];
+    } else if (activeTab === 'producer') {
       data = merchants.filter(p => p.type === 'producer');
     } else {
       data = restaurants.filter(r => r.type === activeTab);
@@ -62,22 +68,28 @@ const Dining: React.FC = () => {
 
   const getTabContent = () => {
     switch(activeTab) {
+      case 'restaurant':
+        return {
+          title: 'Se Restaurer',
+          description: 'Un petit creux ou une grosse faim ? Des plats brasserie à la cuisine italienne, régalez-vous dans nos établissements.',
+          icon: <Utensils className="mr-2" size={20}/>
+        };
       case 'cafe':
         return {
           title: 'Se Désaltérer',
-          description: 'Besoin d’une pause ? Attablez-vous à l’une des quelques terrasses de cafés et dégustez de délicieuses bières régionales.',
+          description: 'Besoin d\'une pause ? Attablez-vous à l\'une des quelques terrasses de cafés et dégustez de délicieuses bières régionales.',
           icon: <Coffee className="mr-2" size={20}/>
         };
       case 'producer':
         return {
           title: 'Alimentation & Terroir',
-          description: 'La Cité des aviateurs est riche de ses producteurs locaux. Favorisez le circuit-court afin de soutenir l’économie locale !',
+          description: 'La Cité des aviateurs est riche de ses producteurs locaux. Favorisez le circuit-court afin de soutenir l\'économie locale !',
           icon: <Wheat className="mr-2" size={20}/>
         };
-      default:
+      default: // 'all'
         return {
-          title: 'Se Restaurer',
-          description: 'Un petit creux ou une grosse faim ? Des plats brasserie à la cuisine italienne, régalez-vous dans nos établissements.',
+          title: 'Gastronomie & Terroir',
+          description: 'Découvrez tous nos établissements : restaurants, cafés et producteurs locaux pour une expérience culinaire complète.',
           icon: <Utensils className="mr-2" size={20}/>
         };
     }
@@ -98,6 +110,12 @@ const Dining: React.FC = () => {
         
         {/* Navigation Tabs (Categories) */}
         <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+            <button
+              onClick={() => setActiveTab('all')}
+              className={`flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 rounded-full font-bold transition-all text-sm sm:text-base touch-manipulation ${activeTab === 'all' ? 'bg-primary text-white shadow-lg scale-105' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 active:scale-95'}`}
+            >
+              <Utensils className="mr-2" size={16}/> Tout
+            </button>
             <button
               onClick={() => setActiveTab('restaurant')}
               className={`flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 rounded-full font-bold transition-all text-sm sm:text-base touch-manipulation ${activeTab === 'restaurant' ? 'bg-primary text-white shadow-lg scale-105' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 active:scale-95'}`}
@@ -157,7 +175,7 @@ const Dining: React.FC = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
           {currentData.map((place) => (
             <EditableCard 
               key={place.id} 

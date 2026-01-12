@@ -26,10 +26,11 @@ const AccommodationsPage: React.FC = () => {
     if (type === 'hotel') return 'hotel';
     if (type === 'camping') return 'camping';
     if (type === 'unusual') return 'unusual';
-    return 'gite';
+    if (type === 'gite') return 'gite';
+    return 'all'; // Par défaut, afficher tous les hébergements
   };
 
-  const [activeTab, setActiveTab] = useState<'gite' | 'bed_breakfast' | 'hotel' | 'camping' | 'unusual'>(getInitialTab());
+  const [activeTab, setActiveTab] = useState<'all' | 'gite' | 'bed_breakfast' | 'hotel' | 'camping' | 'unusual'>(getInitialTab());
   const [selectedVillage, setSelectedVillage] = useState<string>('Tous');
 
   const VILLAGES = ['Tous', 'Chièvres', 'Vaudignies', 'Ladeuze', 'Tongre-Saint-Martin', 'Tongre-Notre-Dame', 'Grosage', 'Huissignies'];
@@ -57,7 +58,12 @@ const AccommodationsPage: React.FC = () => {
 
   // Filter Data
   const filteredData = () => {
-    let data = accommodations.filter(acc => acc.type === activeTab);
+    let data = accommodations;
+    
+    // Filtrer par type seulement si un type spécifique est sélectionné
+    if (activeTab !== 'all') {
+      data = data.filter(acc => acc.type === activeTab);
+    }
 
     // Filter by Village
     if (selectedVillage !== 'Tous') {
@@ -95,11 +101,17 @@ const AccommodationsPage: React.FC = () => {
           description: 'Vivez une expérience unique dans nos hébergements atypiques et originaux.',
           icon: <Star className="mr-2" size={20}/>
         };
-      default:
+      case 'gite':
         return {
           title: 'Gîtes',
           description: 'Découvrez nos gîtes authentiques pour un séjour en toute indépendance au cœur de la campagne chiévroise.',
           icon: <Bed className="mr-2" size={20}/>
+        };
+      default: // 'all'
+        return {
+          title: 'Tous nos hébergements',
+          description: 'Découvrez tous nos hébergements pour un séjour authentique et convivial à Chièvres et ses villages.',
+          icon: <Home className="mr-2" size={20}/>
         };
     }
   };
@@ -163,6 +175,12 @@ const AccommodationsPage: React.FC = () => {
         
         {/* Navigation Tabs (Categories) */}
         <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+          <button
+            onClick={() => setActiveTab('all')}
+            className={`flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 rounded-full font-bold transition-all text-sm sm:text-base touch-manipulation ${activeTab === 'all' ? 'bg-primary text-white shadow-lg scale-105' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 active:scale-95'}`}
+          >
+            <Home className="mr-2" size={16}/> Tous
+          </button>
           <button
             onClick={() => setActiveTab('gite')}
             className={`flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 rounded-full font-bold transition-all text-sm sm:text-base touch-manipulation ${activeTab === 'gite' ? 'bg-primary text-white shadow-lg scale-105' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 active:scale-95'}`}
@@ -234,7 +252,7 @@ const AccommodationsPage: React.FC = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
           {currentData.map((accommodation) => (
             <AccommodationCard 
               key={accommodation.id} 

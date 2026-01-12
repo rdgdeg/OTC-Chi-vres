@@ -1,0 +1,131 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nettoyage Cache - OTC Chièvres</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .success { color: green; font-weight: bold; }
+        .warning { color: orange; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        button { background: #007cba; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #005a87; }
+        .cache-info { background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🧹 Nettoyage des Caches - OTC Chièvres</h1>
+    
+    <div class="cache-info">
+        <h3>État actuel des caches :</h3>
+        <p id="cache-status">Vérification en cours...</p>
+    </div>
+
+    <h3>Actions de nettoyage :</h3>
+    <button onclick="clearLocalStorage()">Vider localStorage</button>
+    <button onclick="clearSessionStorage()">Vider sessionStorage</button>
+    <button onclick="clearAllStorage()">Vider tout le stockage</button>
+    <button onclick="forceReload()">Rechargement forcé</button>
+    <button onclick="clearServiceWorker()">Nettoyer Service Worker</button>
+
+    <div id="results"></div>
+
+    <h3>Instructions manuelles :</h3>
+    <ul>
+        <li><strong>Chrome/Edge :</strong> Ctrl+Shift+R ou F12 > Application > Storage > Clear storage</li>
+        <li><strong>Firefox :</strong> Ctrl+Shift+R ou F12 > Storage > Clear All</li>
+        <li><strong>Safari :</strong> Cmd+Option+R</li>
+    </ul>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = message;
+            results.appendChild(div);
+        }
+
+        function clearLocalStorage() {
+            try {
+                const itemCount = localStorage.length;
+                localStorage.clear();
+                log(`✅ localStorage vidé (${itemCount} éléments supprimés)`, 'success');
+            } catch (err) {
+                log(`❌ Erreur localStorage: ${err.message}`, 'error');
+            }
+        }
+
+        function clearSessionStorage() {
+            try {
+                const itemCount = sessionStorage.length;
+                sessionStorage.clear();
+                log(`✅ sessionStorage vidé (${itemCount} éléments supprimés)`, 'success');
+            } catch (err) {
+                log(`❌ Erreur sessionStorage: ${err.message}`, 'error');
+            }
+        }
+
+        function clearAllStorage() {
+            clearLocalStorage();
+            clearSessionStorage();
+            
+            // Nettoyer les cookies du domaine actuel
+            document.cookie.split(";").forEach(function(c) { 
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+            });
+            log('✅ Cookies supprimés', 'success');
+
+            // Nettoyer IndexedDB si disponible
+            if ('indexedDB' in window) {
+                indexedDB.databases().then(databases => {
+                    databases.forEach(db => {
+                        indexedDB.deleteDatabase(db.name);
+                    });
+                    log('✅ IndexedDB nettoyé', 'success');
+                }).catch(err => {
+                    log(`⚠️  IndexedDB: ${err.message}`, 'warning');
+                });
+            }
+        }
+
+        function forceReload() {
+            log('🔄 Rechargement forcé en cours...', 'warning');
+            setTimeout(() => {
+                location.reload(true);
+            }, 1000);
+        }
+
+        function clearServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    registrations.forEach(registration => {
+                        registration.unregister();
+                    });
+                    log('✅ Service Workers supprimés', 'success');
+                }).catch(err => {
+                    log(`❌ Erreur Service Worker: ${err.message}`, 'error');
+                });
+            } else {
+                log('⏭️  Service Worker non supporté', 'warning');
+            }
+        }
+
+        // Vérifier l'état des caches au chargement
+        window.onload = function() {
+            const localStorageSize = localStorage.length;
+            const sessionStorageSize = sessionStorage.length;
+            const cookieCount = document.cookie.split(';').length;
+            
+            document.getElementById('cache-status').innerHTML = `
+                • localStorage: ${localStorageSize} éléments<br>
+                • sessionStorage: ${sessionStorageSize} éléments<br>
+                • Cookies: ${cookieCount} éléments<br>
+                • Dernière modification: ${new Date().toLocaleString('fr-FR')}
+            `;
+        };
+    </script>
+</body>
+</html>
