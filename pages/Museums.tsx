@@ -1,26 +1,31 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import Hero from '../components/Hero';
-import { useData } from '../contexts/DataContext';
 import { useAuth } from '../contexts/AuthContext';
 import { MapPin, Image as ImageIcon, Share2, Check, X, Globe, Phone, Clock, ExternalLink, Mail, Facebook, Instagram, Twitter, DollarSign, Info, Filter, Building, Landmark } from 'lucide-react';
 import InteractiveMap from '../components/InteractiveMap';
 import { Place } from '../types';
 import EditableImage from '../components/EditableImage';
 import { museumSortService } from '../services/museumSortService';
+import { UnifiedDataService } from '../services/unifiedDataService';
 
 const Museums: React.FC = () => {
-  const { museums, pageContent, updateItem } = useData();
   const { hasPermission } = useAuth();
+  
+  // État local pour les musées (récupérés directement de Supabase)
+  const [museums, setMuseums] = useState<Place[]>([]);
+  const [loading, setLoading] = useState(true);
   
   // Vérifier si l'utilisateur peut éditer le contenu
   const canEdit = hasPermission('places', 'update');
-  const content = pageContent['museums'] || {
+  
+  // Contenu de la page (à terme, ceci devrait aussi venir de Supabase)
+  const content = {
     heroTitle: "Culture & Patrimoine",
     heroSubtitle: "Plongez au cœur de l'histoire.",
     heroImage: "https://picsum.photos/id/1050/1920/600",
     introTitle: "Nos lieux culturels",
-    introText: "Découvrez nos musées..."
+    introText: "Découvrez nos musées et sites patrimoniaux qui racontent l'histoire fascinante de Chièvres et de ses villages."
   };
   
   // State for filters
@@ -38,16 +43,33 @@ const Museums: React.FC = () => {
   // State for sorted museums
   const [sortedMuseums, setSortedMuseums] = useState<Place[]>([]);
 
-  // Charger les musées triés
+  // Charger les musées depuis Supabase
   useEffect(() => {
-    const loadSortedMuseums = async () => {
-      try {
-        const sorted = await museumSortService.sortMuseums(museums);
-        setSortedMuseums(sorted);
-      } catch (error) {
-        console.error('Erreur lors du tri des musées:', error);
-        // Fallback sur tri alphabétique
-        setSortedMuseums([...museums].sort((a, b) => a.name.localeCompare(b.name)));
+    loadMuseums();
+  }, []);
+
+  const loadMuseums = async () => {
+    try {
+      setLoading(true);
+      console.log('🔄 Chargement des musées depuis Supabase...');
+      
+      const museumsData = await UnifiedDataService.getMuseums();
+      setMuseums(museumsData);
+      
+      console.log(`✅ ${museumsData.length} musées chargés`);
+      
+      // Trier les musées
+      const sorted = await museumSortService.sortMuseums(museumsData);
+      setSortedMuseums(sorted);
+      
+    } catch (error) {
+      console.error('❌ Erreur lors du chargement des musées:', error);
+      // Fallback sur tri alphabétique
+      setSortedMuseums([...museums].sort((a, b) => a.name.localeCompare(b.name)));
+    } finally {
+      setLoading(false);
+    }
+  };
       }
     };
 
@@ -155,18 +177,27 @@ const Museums: React.FC = () => {
         <div className="mb-10 sm:mb-16 text-center">
             <h2 className="text-2xl sm:text-3xl font-serif font-bold text-slate-800 mb-4 sm:mb-6">{content.introTitle || "Nos lieux culturels"}</h2>
             <p className="text-slate-600 text-sm sm:text-base max-w-3xl mx-auto px-4">
-                {content.introText || "Découvrez nos musées..."}
+                {content.introText || "Découvrez nos musées et sites patrimoniaux qui racontent l'histoire fascinante de Chièvres et de ses villages."}
             </p>
         </div>
 
-        {/* Category Filters */}
-        <div className="mb-8 sm:mb-12">
-          <div className="flex items-center justify-center mb-6">
-            <div className="flex items-center gap-2 text-slate-600">
-              <Filter size={20} />
-              <span className="font-medium">Filtrer par catégorie :</span>
-            </div>
+        {/* Indicateur de chargement */}
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-slate-600">🔄 Synchronisation avec la base de données...</p>
+            <p className="text-sm text-slate-500 mt-2">Chargement des musées et sites patrimoniaux</p>
           </div>
+        ) : (
+          <>
+            {/* Category Filters */}
+            <div className="mb-8 sm:mb-12">
+              <div className="flex items-center justify-center mb-6">
+                <div className="flex items-center gap-2 text-slate-600">
+                  <Filter size={20} />
+                  <span className="font-medium">Filtrer par catégorie :</span>
+                </div>
+              </div>
           
           <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
             <button
@@ -396,6 +427,8 @@ const Museums: React.FC = () => {
               );
             })}
           </div>
+        )}
+        </>
         )}
       </div>
 
