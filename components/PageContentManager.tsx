@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Edit3, Save, X, Eye, Settings, Image, 
   FileText, Globe, MapPin, Calendar, Users, 
-  Utensils, Bed, ShoppingBag, Mail,
+  Utensils, BedIcon as Bed, ShoppingBag, Mail,
   Mountain, Camera, BookOpen, Newspaper
 } from 'lucide-react';
 import EditableImage from './EditableImage';

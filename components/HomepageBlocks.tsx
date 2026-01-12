@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  MapPin, Calendar, Mountain, Utensils, Bed, 
+  MapPin, Calendar, Mountain, Utensils, BedIcon as Bed, 
   Camera, Users, Coffee, TreePine, Building,
   ArrowRight, ExternalLink
 } from 'lucide-react';

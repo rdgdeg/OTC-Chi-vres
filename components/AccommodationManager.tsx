@@ -5,7 +5,7 @@ import AccommodationEditor from './AccommodationEditor';
 import { 
   Plus, Edit3, Trash2, Eye, EyeOff, Search, Filter, 
   Users, MapPin, Phone, Mail, Globe, Facebook,
-  Calendar, MoreVertical, ExternalLink
+  Calendar, MoreVertical, ExternalLink, BedIcon as Bed
 } from 'lucide-react';
 
 const AccommodationManager: React.FC = () => {

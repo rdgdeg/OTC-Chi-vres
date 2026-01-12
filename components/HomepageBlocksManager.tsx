@@ -276,7 +276,7 @@ const BlockForm: React.FC<BlockFormProps> = ({ block, onSave, onCancel }) => {
   });
 
   const iconOptions = [
-    'MapPin', 'Calendar', 'Mountain', 'Utensils', 'Bed',
+    'MapPin', 'Calendar', 'Mountain', 'Utensils', 'BedIcon',
     'Camera', 'Users', 'Coffee', 'TreePine', 'Building'
   ];
 

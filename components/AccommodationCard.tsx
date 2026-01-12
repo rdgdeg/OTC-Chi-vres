@@ -1,6 +1,6 @@
 import React from 'react';
 import { Accommodation } from '../types';
-import { MapPin, Star, Phone, Globe, Users, Bed, Mail, Facebook } from 'lucide-react';
+import { MapPin, Star, Phone, Globe, Users, BedIcon as Bed, Mail, Facebook } from 'lucide-react';
 import EditableImage from './EditableImage';
 
 interface AccommodationCardProps {

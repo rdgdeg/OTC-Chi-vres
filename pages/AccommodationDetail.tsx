@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Accommodation } from '../types';
 import { AccommodationService } from '../services/accommodationService';
 import { 
-  ArrowLeft, Users, Bed, MapPin, Phone, Mail, Globe, Facebook, 
+  ArrowLeft, Users, BedIcon as Bed, MapPin, Phone, Mail, Globe, Facebook, 
   Star, Wifi, Car, Coffee, Utensils, Tv, Bath, CheckCircle,
   Calendar, Clock, Info, Camera
 } from 'lucide-react';

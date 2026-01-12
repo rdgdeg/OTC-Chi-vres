@@ -3,7 +3,7 @@ import { Accommodation } from '../types';
 import { AccommodationService } from '../services/accommodationService';
 import { 
   Save, X, Plus, Trash2, Upload, MapPin, Phone, Mail, 
-  Globe, Facebook, Users, Bed, Calendar, Clock, Info,
+  Globe, Facebook, Users, BedIcon as Bed, Calendar, Clock, Info,
   Eye, EyeOff, Edit3
 } from 'lucide-react';
 

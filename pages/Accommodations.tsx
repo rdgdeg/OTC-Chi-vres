@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { Accommodation } from '../types';
 import { AccommodationService } from '../services/accommodationService';
 import { useAuth } from '../contexts/AuthContext';
-import { Bed, Home, Building, Tent, Star, MapPin, Filter } from 'lucide-react';
+import { BedIcon as Bed, Home, Building, Tent, Star, MapPin, Filter } from 'lucide-react';
 import Hero from '../components/Hero';
 import AccommodationCard from '../components/AccommodationCard';
 import InteractiveMap from '../components/InteractiveMap';
