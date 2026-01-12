@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../services/supabaseClient';
 
 // Types simplifiés pour éviter les erreurs d'import
 interface User {
@@ -47,6 +48,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Vérifier l'ancien système (sessionStorage)
       const legacyAuth = sessionStorage.getItem('admin_authenticated');
       if (legacyAuth === 'true') {
+        // Créer une session Supabase temporaire pour l'admin
+        await createAdminSession();
+        return;
+      }
+
+      // Vérifier la session Supabase existante
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setAuthState({
+          user: {
+            id: session.user.id,
+            email: session.user.email || 'admin@chievres.be',
+            name: 'Administrateur',
+            role: 'super_admin',
+            isActive: true,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          isAuthenticated: true,
+          isLoading: false,
+        });
+        return;
+      }
+
+      setAuthState(prev => ({ ...prev, isLoading: false }));
+    } catch (error) {
+      console.error('Auth check error:', error);
+      setAuthState(prev => ({ ...prev, isLoading: false }));
+    }
+  };
+
+  const createAdminSession = async () => {
+    try {
+      // Utiliser une authentification anonyme mais avec des privilèges admin
+      // En production, ceci devrait être remplacé par une vraie authentification
+      const { data, error } = await supabase.auth.signInAnonymously();
+      
+      if (error) {
+        console.error('Erreur lors de la création de la session admin:', error);
+        // Fallback: utiliser le système legacy
         setAuthState({
           user: {
             id: 'legacy-admin',
@@ -63,19 +104,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
-      // Pour l'instant, pas de Supabase
-      setAuthState(prev => ({ ...prev, isLoading: false }));
-    } catch (error) {
-      console.error('Auth check error:', error);
-      setAuthState(prev => ({ ...prev, isLoading: false }));
-    }
-  };
-
-  const legacyLogin = (password: string): boolean => {
-    if (password === 'admin') {
       setAuthState({
         user: {
-          id: 'legacy-admin',
+          id: data.user?.id || 'admin-session',
           email: 'admin@chievres.be',
           name: 'Administrateur',
           role: 'super_admin',
@@ -86,7 +117,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated: true,
         isLoading: false,
       });
+    } catch (error) {
+      console.error('Erreur lors de la création de la session:', error);
+      setAuthState(prev => ({ ...prev, isLoading: false }));
+    }
+  };
+
+  const legacyLogin = async (password: string): Promise<boolean> => {
+    if (password === 'admin') {
       sessionStorage.setItem('admin_authenticated', 'true');
+      await createAdminSession();
       return true;
     }
     return false;
@@ -108,6 +148,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       // Nettoyer l'ancien système
       sessionStorage.removeItem('admin_authenticated');
+      
+      // Déconnecter de Supabase
+      await supabase.auth.signOut();
       
       setAuthState({
         user: null,
