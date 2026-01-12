@@ -70,10 +70,19 @@ const Museums: React.FC = () => {
       setLoading(false);
     }
   };
-      }
-    };
 
+  // Effet pour trier les musées quand ils changent
+  useEffect(() => {
     if (museums.length > 0) {
+      const loadSortedMuseums = async () => {
+        try {
+          const sorted = await museumSortService.sortMuseums(museums);
+          setSortedMuseums(sorted);
+        } catch (error) {
+          console.error('❌ Erreur lors du tri des musées:', error);
+          setSortedMuseums([...museums].sort((a, b) => a.name.localeCompare(b.name)));
+        }
+      };
       loadSortedMuseums();
     }
   }, [museums]);
