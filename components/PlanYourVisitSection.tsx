@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Bed, Utensils, Calendar, ArrowRight, MapPin } from 'lucide-react';
+import { BedIcon as Bed, Utensils, Calendar, ArrowRight, MapPin } from 'lucide-react';
 
 const PlanYourVisitSection: React.FC = () => {
   const visitOptions = [

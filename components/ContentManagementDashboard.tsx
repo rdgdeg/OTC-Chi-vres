@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import UniversalItemManager from './UniversalItemManager';
 import { 
-  MapPin, Utensils, Bed, Store, Mountain, Briefcase, 
+  MapPin, Utensils, BedIcon as Bed, Store, Mountain, Briefcase, 
   Calendar, FileText, ShoppingBag, BarChart3, Settings,
   Eye, EyeOff, Trash2, AlertCircle, TrendingUp
 } from 'lucide-react';

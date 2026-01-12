@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { 
   BarChart3, Settings, Users, FileText, Image as ImageIcon,
-  Calendar, MapPin, ShoppingBag, Briefcase, Bed, Home, Layout,
+  Calendar, MapPin, ShoppingBag, Briefcase, BedIcon as Bed, Home, Layout,
   Mail, Megaphone, Layers, Building, Mountain, Camera,
   Plus, Search, Filter, Grid, List, Eye, Edit, Trash2,
   Save, X, Check, AlertCircle, TrendingUp, Activity

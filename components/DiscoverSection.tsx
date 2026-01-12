@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Camera, MapPin, Bed, ArrowRight, Clock, Users } from 'lucide-react';
+import { Camera, MapPin, BedIcon as Bed, ArrowRight, Clock, Users } from 'lucide-react';
 
 const DiscoverSection: React.FC = () => {
   const discoverItems = [
