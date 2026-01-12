@@ -1,7 +1,8 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useData } from '../contexts/DataContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Trash2, Edit, Save, LogIn, RefreshCw, Image as ImageIcon, ExternalLink, FileText, Layers, Upload, Check, AlertCircle, Database } from 'lucide-react';
 import { PageContent } from '../types';
 import ImageUploader from '../components/ImageUploader';
@@ -10,6 +11,7 @@ import WalkEditor from '../components/WalkEditor';
 
 const Admin: React.FC = () => {
   const { isAuthenticated, login } = useAuth();
+  const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [activeTab, setActiveTab] = useState<string>('museum');
   // Edit items (places, events)
@@ -24,10 +26,17 @@ const Admin: React.FC = () => {
     updateItem, addItem, deleteItem, updatePageContent, syncMockDataToSupabase, isLoading, refreshData 
   } = useData();
 
+  // Rediriger vers le nouveau tableau de bord si déjà authentifié
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/admin-dashboard');
+    }
+  }, [isAuthenticated, navigate]);
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (login(password)) {
-      // Login successful
+      // La redirection se fera automatiquement via useEffect
     } else {
       alert('Mot de passe incorrect');
     }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { 
   BarChart3, Settings, Users, FileText, Image as ImageIcon,
   Calendar, MapPin, ShoppingBag, Briefcase, Bed, Home, Layout,
@@ -40,7 +41,8 @@ interface AdminStats {
 }
 
 export const SimpleUnifiedDashboard: React.FC = () => {
-  const { user, hasPermission } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('overview');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
@@ -180,10 +182,20 @@ export const SimpleUnifiedDashboard: React.FC = () => {
     }
   ];
 
+  // Vérifier l'authentification
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/admin');
+      return;
+    }
+  }, [isAuthenticated, navigate]);
+
   // Charger les statistiques
   useEffect(() => {
-    loadStats();
-  }, []);
+    if (isAuthenticated) {
+      loadStats();
+    }
+  }, [isAuthenticated]);
 
   const loadStats = async () => {
     try {
@@ -210,7 +222,8 @@ export const SimpleUnifiedDashboard: React.FC = () => {
     const matchesSearch = section.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          section.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || section.category === selectedCategory;
-    const hasPermission = !section.permission || hasPermission(section.permission);
+    // Simplifier les permissions pour l'instant
+    const hasPermission = true; // Tous les utilisateurs authentifiés ont accès
     
     return matchesSearch && matchesCategory && hasPermission;
   });
@@ -450,6 +463,18 @@ export const SimpleUnifiedDashboard: React.FC = () => {
       </div>
     );
   };
+
+  // Ne pas rendre le composant si pas authentifié
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Redirection vers la page de connexion...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
