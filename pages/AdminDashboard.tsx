@@ -4,7 +4,7 @@ import {
   Users, Settings, BarChart3, FileText, Image as ImageIcon, 
   Calendar, MapPin, ShoppingBag, Briefcase, Bed,
   Plus, Activity, TrendingUp, AlertCircle, Home, Layout,
-  LogOut, Bell, Search, Layers, Building, Mail, Zap
+  LogOut, Bell, Search, Layers, Building, Mail, Zap, Megaphone
 } from 'lucide-react';
 import AdminHomePage from '../components/AdminHomePage';
 import AdminPageManager from '../components/AdminPageManager';
@@ -13,6 +13,8 @@ import ContentManagementDashboard from '../components/ContentManagementDashboard
 import PageContentManager from '../components/PageContentManager';
 import HomepageContentManager from '../components/HomepageContentManager';
 import NewsletterManager from '../components/NewsletterManager';
+import BannerManager from '../components/BannerManager';
+import MuseumSortManager from '../components/MuseumSortManager';
 import { UnifiedCMSDashboard } from '../components/cms/UnifiedCMSDashboard';
 import { UnifiedCMSProvider } from '../contexts/UnifiedCMSContext';
 
@@ -38,6 +40,12 @@ const AdminDashboard: React.FC = () => {
       label: 'Tableau de Bord',
       icon: BarChart3,
       permission: null
+    },
+    {
+      id: 'banner',
+      label: 'Bannière d\'Info',
+      icon: Megaphone,
+      permission: 'content:write'
     },
     {
       id: 'unified-cms',
@@ -81,6 +89,12 @@ const AdminDashboard: React.FC = () => {
       label: 'Lieux & Patrimoine',
       icon: MapPin,
       permission: 'places:read'
+    },
+    {
+      id: 'places-sort',
+      label: 'Tri Musées & Patrimoine',
+      icon: Layers,
+      permission: 'places:write'
     },
     {
       id: 'accommodations',
@@ -142,6 +156,10 @@ const AdminDashboard: React.FC = () => {
     switch (activeSection) {
       case 'dashboard':
         return <DashboardOverview stats={stats} />;
+      case 'banner':
+        return <BannerManager />;
+      case 'places-sort':
+        return <MuseumSortManager />;
       case 'unified-cms':
         return (
           <UnifiedCMSProvider>

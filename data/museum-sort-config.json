@@ -1,0 +1,39 @@
+{
+  "museums": [
+    {
+      "id": "m_miba",
+      "name": "Musée International de la Base Aérienne (M.I.B.A.)",
+      "sort_order": 1
+    },
+    {
+      "id": "m_rural",
+      "name": "Musée de la Vie Rurale",
+      "sort_order": 2
+    },
+    {
+      "id": "p_tour",
+      "name": "La Tour de Gavre",
+      "sort_order": 3
+    },
+    {
+      "id": "p_ladrerie",
+      "name": "Chapelle de la Ladrerie",
+      "sort_order": 4
+    },
+    {
+      "id": "p_stmartin",
+      "name": "Église Saint-Martin",
+      "sort_order": 5
+    },
+    {
+      "id": "p_ndfontaine",
+      "name": "Chapelle Notre-Dame de la Fontaine",
+      "sort_order": 6
+    },
+    {
+      "id": "1768199798775",
+      "name": "Chapelle Saint-Jean-Baptiste",
+      "sort_order": 7
+    }
+  ]
+}

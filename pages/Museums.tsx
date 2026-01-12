@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Hero from '../components/Hero';
 import { useData } from '../contexts/DataContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -7,6 +7,7 @@ import { MapPin, Image as ImageIcon, Share2, Check, X, Globe, Phone, Clock, Exte
 import InteractiveMap from '../components/InteractiveMap';
 import { Place } from '../types';
 import EditableImage from '../components/EditableImage';
+import { museumSortService } from '../services/museumSortService';
 
 const Museums: React.FC = () => {
   const { museums, pageContent, updateItem } = useData();
@@ -34,40 +35,66 @@ const Museums: React.FC = () => {
   // State for image gallery viewer
   const [galleryView, setGalleryView] = useState<{ museum: Place; imageIndex: number } | null>(null);
 
+  // State for sorted museums
+  const [sortedMuseums, setSortedMuseums] = useState<Place[]>([]);
+
+  // Charger les musées triés
+  useEffect(() => {
+    const loadSortedMuseums = async () => {
+      try {
+        const sorted = await museumSortService.sortMuseums(museums);
+        setSortedMuseums(sorted);
+      } catch (error) {
+        console.error('Erreur lors du tri des musées:', error);
+        // Fallback sur tri alphabétique
+        setSortedMuseums([...museums].sort((a, b) => a.name.localeCompare(b.name)));
+      }
+    };
+
+    if (museums.length > 0) {
+      loadSortedMuseums();
+    }
+  }, [museums]);
+
   // Filter museums based on category
   const filteredMuseums = useMemo(() => {
-    if (activeFilter === 'all') return museums;
+    let filtered = sortedMuseums;
     
-    return museums.filter(museum => {
-      const hasMuseumTag = museum.tags.some(tag => 
-        tag.toLowerCase().includes('musée') || tag.toLowerCase().includes('museum')
-      );
-      const hasPatrimoineTag = museum.tags.some(tag => 
-        tag.toLowerCase().includes('patrimoine') || 
-        tag.toLowerCase().includes('église') || 
-        tag.toLowerCase().includes('chapelle') ||
-        tag.toLowerCase().includes('monument') ||
-        tag.toLowerCase().includes('architecture') ||
-        tag.toLowerCase().includes('gothique') ||
-        tag.toLowerCase().includes('pèlerinage')
-      );
-      
-      if (activeFilter === 'musee') return hasMuseumTag;
-      if (activeFilter === 'patrimoine') return hasPatrimoineTag;
-      
-      return true;
-    });
-  }, [museums, activeFilter]);
+    if (activeFilter !== 'all') {
+      filtered = sortedMuseums.filter(museum => {
+        const hasMuseumTag = museum.tags.some(tag => 
+          tag.toLowerCase().includes('musée') || tag.toLowerCase().includes('museum')
+        );
+        const hasPatrimoineTag = museum.tags.some(tag => 
+          tag.toLowerCase().includes('patrimoine') || 
+          tag.toLowerCase().includes('église') || 
+          tag.toLowerCase().includes('chapelle') ||
+          tag.toLowerCase().includes('monument') ||
+          tag.toLowerCase().includes('architecture') ||
+          tag.toLowerCase().includes('gothique') ||
+          tag.toLowerCase().includes('pèlerinage')
+        );
+        
+        if (activeFilter === 'musee') return hasMuseumTag;
+        if (activeFilter === 'patrimoine') return hasPatrimoineTag;
+        
+        return true;
+      });
+    }
+    
+    // Les musées sont déjà triés par le service
+    return filtered;
+  }, [sortedMuseums, activeFilter]);
 
   // Count items per category
   const categoryCounts = useMemo(() => {
-    const museeCount = museums.filter(museum => 
+    const museeCount = sortedMuseums.filter(museum => 
       museum.tags.some(tag => 
         tag.toLowerCase().includes('musée') || tag.toLowerCase().includes('museum')
       )
     ).length;
     
-    const patrimoineCount = museums.filter(museum => 
+    const patrimoineCount = sortedMuseums.filter(museum => 
       museum.tags.some(tag => 
         tag.toLowerCase().includes('patrimoine') || 
         tag.toLowerCase().includes('église') || 
@@ -79,8 +106,8 @@ const Museums: React.FC = () => {
       )
     ).length;
     
-    return { musee: museeCount, patrimoine: patrimoineCount, all: museums.length };
-  }, [museums]);
+    return { musee: museeCount, patrimoine: patrimoineCount, all: sortedMuseums.length };
+  }, [sortedMuseums]);
 
   const handleShare = async (museum: any) => {
     // Generate URL with anchor to specific museum

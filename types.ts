@@ -28,6 +28,8 @@ export interface Place {
   price?: string;
   practicalInfo?: string;
   galleryImages?: string[];
+  // Sort order for display
+  sort_order?: number;
 }
 
 export interface NavItem {
