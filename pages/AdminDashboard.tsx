@@ -15,6 +15,7 @@ import HomepageContentManager from '../components/HomepageContentManager';
 import NewsletterManager from '../components/NewsletterManager';
 import BannerManager from '../components/BannerManager';
 import MuseumSortManager from '../components/MuseumSortManager';
+import MuseumPatrimoineManager from '../components/MuseumPatrimoineManager';
 import { UnifiedCMSDashboard } from '../components/cms/UnifiedCMSDashboard';
 import { UnifiedCMSProvider } from '../contexts/UnifiedCMSContext';
 
@@ -86,7 +87,7 @@ const AdminDashboard: React.FC = () => {
     },
     {
       id: 'places',
-      label: 'Lieux & Patrimoine',
+      label: 'Musées & Patrimoine',
       icon: MapPin,
       permission: 'places:read'
     },
@@ -158,6 +159,8 @@ const AdminDashboard: React.FC = () => {
         return <DashboardOverview stats={stats} />;
       case 'banner':
         return <BannerManager />;
+      case 'places':
+        return <MuseumPatrimoineManager />;
       case 'places-sort':
         return <MuseumSortManager />;
       case 'unified-cms':
@@ -364,7 +367,7 @@ const DashboardOverview: React.FC<{ stats: any }> = ({ stats }) => {
       {/* Cartes de statistiques */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          title="Lieux & Patrimoine"
+          title="Musées & Patrimoine"
           value={stats.totalPlaces}
           icon={MapPin}
           color="blue"

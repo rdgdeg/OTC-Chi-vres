@@ -56,7 +56,7 @@ const Museums: React.FC = () => {
     }
   }, [museums]);
 
-  // Filter museums based on category
+  // Filter museums based on category - utilise la même logique que le gestionnaire
   const filteredMuseums = useMemo(() => {
     let filtered = sortedMuseums;
     
@@ -70,9 +70,7 @@ const Museums: React.FC = () => {
           tag.toLowerCase().includes('église') || 
           tag.toLowerCase().includes('chapelle') ||
           tag.toLowerCase().includes('monument') ||
-          tag.toLowerCase().includes('architecture') ||
-          tag.toLowerCase().includes('gothique') ||
-          tag.toLowerCase().includes('pèlerinage')
+          tag.toLowerCase().includes('architecture')
         );
         
         if (activeFilter === 'musee') return hasMuseumTag;
@@ -86,24 +84,31 @@ const Museums: React.FC = () => {
     return filtered;
   }, [sortedMuseums, activeFilter]);
 
-  // Count items per category
+  // Count items per category - utilise la même logique que le gestionnaire
   const categoryCounts = useMemo(() => {
-    const museeCount = sortedMuseums.filter(museum => 
-      museum.tags.some(tag => 
+    const getSubCategoryFromTags = (tags: string[]): 'musee' | 'patrimoine' | 'autre' => {
+      const hasMuseumTag = tags.some(tag => 
         tag.toLowerCase().includes('musée') || tag.toLowerCase().includes('museum')
-      )
-    ).length;
-    
-    const patrimoineCount = sortedMuseums.filter(museum => 
-      museum.tags.some(tag => 
+      );
+      const hasPatrimoineTag = tags.some(tag => 
         tag.toLowerCase().includes('patrimoine') || 
         tag.toLowerCase().includes('église') || 
         tag.toLowerCase().includes('chapelle') ||
         tag.toLowerCase().includes('monument') ||
-        tag.toLowerCase().includes('architecture') ||
-        tag.toLowerCase().includes('gothique') ||
-        tag.toLowerCase().includes('pèlerinage')
-      )
+        tag.toLowerCase().includes('architecture')
+      );
+      
+      if (hasMuseumTag) return 'musee';
+      if (hasPatrimoineTag) return 'patrimoine';
+      return 'autre';
+    };
+
+    const museeCount = sortedMuseums.filter(museum => 
+      getSubCategoryFromTags(museum.tags) === 'musee'
+    ).length;
+    
+    const patrimoineCount = sortedMuseums.filter(museum => 
+      getSubCategoryFromTags(museum.tags) === 'patrimoine'
     ).length;
     
     return { musee: museeCount, patrimoine: patrimoineCount, all: sortedMuseums.length };
