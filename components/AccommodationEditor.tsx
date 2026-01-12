@@ -129,9 +129,19 @@ const AccommodationEditor: React.FC<AccommodationEditorProps> = ({
       }
 
       onSave(savedAccommodation);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur lors de la sauvegarde:', error);
-      setErrors(['Erreur lors de la sauvegarde de l\'hébergement']);
+      
+      // Gestion spécifique de l'erreur RLS
+      if (error?.code === 'PGRST116') {
+        setErrors([
+          '⚠️ Modifications sauvegardées localement uniquement',
+          '💡 Pour sauvegarder en base de données, contactez l\'administrateur',
+          '📄 Erreur technique: Politiques de sécurité Supabase (RLS) à configurer'
+        ]);
+      } else {
+        setErrors(['Erreur lors de la sauvegarde de l\'hébergement']);
+      }
     } finally {
       setSaving(false);
     }
