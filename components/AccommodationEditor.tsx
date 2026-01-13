@@ -23,7 +23,7 @@ const AccommodationEditor: React.FC<AccommodationEditorProps> = ({
     slug: '',
     description: '',
     excerpt: '',
-    type: 'gite',
+    type: [], // Changé pour un tableau vide
     capacity: 2,
     bedrooms: 1,
     beds_description: '',
@@ -273,17 +273,42 @@ const AccommodationEditor: React.FC<AccommodationEditorProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <label className="block text-sm font-bold text-blue-800 mb-2">
-                  Type d'hébergement *
+                  Types d'hébergement * (sélection multiple)
                 </label>
-                <select
-                  value={accommodation.type || 'gite'}
-                  onChange={(e) => setAccommodation(prev => ({ ...prev, type: e.target.value as Accommodation['type'] }))}
-                  className="w-full px-3 py-2 border-2 border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
-                >
+                <div className="space-y-2">
                   {Object.entries(accommodationTypes).map(([key, label]) => (
-                    <option key={key} value={key}>{label}</option>
+                    <label key={key} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={Array.isArray(accommodation.type) 
+                          ? accommodation.type.includes(key)
+                          : accommodation.type === key
+                        }
+                        onChange={(e) => {
+                          const currentTypes = Array.isArray(accommodation.type) 
+                            ? accommodation.type 
+                            : accommodation.type ? [accommodation.type] : [];
+                          
+                          let newTypes;
+                          if (e.target.checked) {
+                            newTypes = [...currentTypes, key];
+                          } else {
+                            newTypes = currentTypes.filter(t => t !== key);
+                          }
+                          
+                          setAccommodation(prev => ({ ...prev, type: newTypes }));
+                        }}
+                        className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                      <span className="text-sm text-gray-700">{label}</span>
+                    </label>
                   ))}
-                </select>
+                </div>
+                {Array.isArray(accommodation.type) && accommodation.type.length > 0 && (
+                  <div className="mt-2 text-xs text-blue-600">
+                    Sélectionnés: {accommodation.type.map(t => accommodationTypes[t]).join(', ')}
+                  </div>
+                )}
               </div>
 
               <div>

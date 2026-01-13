@@ -14,6 +14,7 @@ import WalkDetail from './pages/WalkDetail';
 import Contact from './pages/Contact';
 import Experiences from './pages/Experiences';
 import Agenda from './pages/Agenda';
+import Events from './pages/Events';
 import Blog from './pages/Blog';
 import Shop from './pages/Shop';
 import Admin from './pages/Admin';
@@ -48,6 +49,8 @@ function App() {
                 <Route path="/commercants" element={<Merchants />} />
                 <Route path="/experiences" element={<Experiences />} />
                 <Route path="/agenda" element={<Agenda />} />
+                <Route path="/events" element={<Events />} />
+                <Route path="/evenements" element={<Events />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/boutique" element={<Shop />} />
                 <Route path="/contact" element={<Contact />} />

@@ -76,10 +76,17 @@ const AccommodationManager: React.FC = () => {
       filtered = filtered.filter(acc => acc.status === statusFilter);
     }
 
-    // Filtre par type
-    if (typeFilter !== 'all') {
-      filtered = filtered.filter(acc => acc.type === typeFilter);
-    }
+  // Filtre par type - supporter les types multiples
+  if (typeFilter !== 'all') {
+    filtered = filtered.filter(acc => {
+      if (Array.isArray(acc.type)) {
+        return acc.type.includes(typeFilter);
+      } else {
+        // Compatibilité avec l'ancien format
+        return acc.type === typeFilter;
+      }
+    });
+  }
 
     setFilteredAccommodations(filtered);
   };
@@ -260,200 +267,165 @@ const AccommodationManager: React.FC = () => {
           )}
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Hébergement
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Type & Capacité
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        {/* Vue en cartes pour éviter le défilement horizontal */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          {filteredAccommodations.map((accommodation) => (
+            <div key={accommodation.id} className="bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow">
+              {/* En-tête avec image et titre */}
+              <div className="flex items-start space-x-4 mb-4">
+                {accommodation.featured_image && (
+                  <img
+                    src={accommodation.featured_image}
+                    alt={accommodation.name}
+                    className="h-16 w-16 rounded-lg object-cover flex-shrink-0"
+                  />
+                )}
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-semibold text-gray-900 truncate">
+                    {accommodation.name}
+                  </h3>
+                  <p className="text-sm text-gray-600 line-clamp-2">
+                    {accommodation.excerpt || accommodation.description.substring(0, 100) + '...'}
+                  </p>
+                  <div className="text-xs text-blue-600 font-medium mt-1">
+                    ID: {accommodation.id}
+                  </div>
+                </div>
+                
+                {/* Statut */}
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusColors[accommodation.status]}`}>
+                  {statusLabels[accommodation.status]}
+                </span>
+              </div>
+
+              {/* Informations principales */}
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <div className="text-sm font-medium text-gray-900 flex items-center">
+                    <Users className="h-4 w-4 mr-1 text-gray-400" />
+                    {Array.isArray(accommodation.type) 
+                      ? accommodation.type.map(t => accommodationTypes[t]).join(', ')
+                      : accommodationTypes[accommodation.type] || accommodation.type
+                    }
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {accommodation.capacity} personnes
+                    {accommodation.bedrooms && ` • ${accommodation.bedrooms} chambres`}
+                  </div>
+                </div>
+                
+                <div>
+                  <div className="text-sm font-medium text-gray-900 flex items-center">
+                    <MapPin className="h-4 w-4 mr-1 text-gray-400" />
                     Localisation
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Contact
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Statut
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Vues
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredAccommodations.map((accommodation) => (
-                  <tr key={accommodation.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        {accommodation.featured_image && (
-                          <img
-                            src={accommodation.featured_image}
-                            alt={accommodation.name}
-                            className="h-12 w-12 rounded-lg object-cover mr-4"
-                          />
-                        )}
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">
-                            {accommodation.name}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {accommodation.excerpt || accommodation.description.substring(0, 60) + '...'}
-                          </div>
-                          <div className="text-xs text-blue-600 font-medium mt-1">
-                            ID: {accommodation.id}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {accommodationTypes[accommodation.type]}
-                      </div>
-                      <div className="text-sm text-gray-500 flex items-center">
-                        <Users className="h-4 w-4 mr-1" />
-                        {accommodation.capacity} personnes
-                      </div>
-                      {accommodation.bedrooms && (
-                        <div className="text-xs text-gray-400 flex items-center">
-                          <Bed className="h-3 w-3 mr-1" />
-                          {accommodation.bedrooms} chambres
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900 flex items-start">
-                        <MapPin className="h-4 w-4 mr-1 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <div className="font-medium">{accommodation.address}</div>
-                          {accommodation.village && (
-                            <div className="text-xs text-gray-500 mt-1">
-                              📍 {accommodation.village}
-                            </div>
-                          )}
-                          {(accommodation.lat && accommodation.lng) ? (
-                            <div className="text-xs text-green-600 mt-1">
-                              🗺️ GPS: {accommodation.lat.toFixed(4)}, {accommodation.lng.toFixed(4)}
-                            </div>
-                          ) : (
-                            <div className="text-xs text-orange-500 mt-1">
-                              🗺️ GPS: Coordonnées par défaut
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex space-x-2">
-                        {accommodation.phone && (
-                          <a
-                            href={`tel:${accommodation.phone}`}
-                            className="text-blue-600 hover:text-blue-800"
-                            title={accommodation.phone}
-                          >
-                            <Phone className="h-4 w-4" />
-                          </a>
-                        )}
-                        {accommodation.email && (
-                          <a
-                            href={`mailto:${accommodation.email}`}
-                            className="text-blue-600 hover:text-blue-800"
-                            title={accommodation.email}
-                          >
-                            <Mail className="h-4 w-4" />
-                          </a>
-                        )}
-                        {accommodation.website && (
-                          <a
-                            href={accommodation.website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800"
-                            title="Site web"
-                          >
-                            <Globe className="h-4 w-4" />
-                          </a>
-                        )}
-                        {accommodation.facebook && (
-                          <a
-                            href={accommodation.facebook}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800"
-                            title="Facebook"
-                          >
-                            <Facebook className="h-4 w-4" />
-                          </a>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusColors[accommodation.status]}`}>
-                        {statusLabels[accommodation.status]}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {accommodation.view_count || 0}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex items-center justify-end space-x-2">
-                        {accommodation.status === 'published' && (
-                          <a
-                            href={`/hebergements/${accommodation.slug}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800"
-                            title="Voir sur le site"
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                          </a>
-                        )}
-                        
-                        <button
-                          onClick={() => handleToggleStatus(accommodation)}
-                          className={`${
-                            accommodation.status === 'published'
-                              ? 'text-orange-600 hover:text-orange-800'
-                              : 'text-green-600 hover:text-green-800'
-                          }`}
-                          title={accommodation.status === 'published' ? 'Dépublier' : 'Publier'}
-                        >
-                          {accommodation.status === 'published' ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                        </button>
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {accommodation.village || accommodation.address}
+                  </div>
+                </div>
+              </div>
 
-                        <button
-                          onClick={() => handleEdit(accommodation.id)}
-                          className="text-blue-600 hover:text-blue-800"
-                          title="Modifier"
-                        >
-                          <Edit3 className="h-4 w-4" />
-                        </button>
+              {/* Contact et liens */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex space-x-2">
+                  {accommodation.phone && (
+                    <a
+                      href={`tel:${accommodation.phone}`}
+                      className="text-blue-600 hover:text-blue-800 p-1"
+                      title={accommodation.phone}
+                    >
+                      <Phone className="h-4 w-4" />
+                    </a>
+                  )}
+                  {accommodation.email && (
+                    <a
+                      href={`mailto:${accommodation.email}`}
+                      className="text-blue-600 hover:text-blue-800 p-1"
+                      title={accommodation.email}
+                    >
+                      <Mail className="h-4 w-4" />
+                    </a>
+                  )}
+                  {accommodation.website && (
+                    <a
+                      href={accommodation.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 p-1"
+                      title="Site web"
+                    >
+                      <Globe className="h-4 w-4" />
+                    </a>
+                  )}
+                  {accommodation.facebook && (
+                    <a
+                      href={accommodation.facebook}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 p-1"
+                      title="Facebook"
+                    >
+                      <Facebook className="h-4 w-4" />
+                    </a>
+                  )}
+                </div>
+                
+                <div className="text-sm text-gray-600">
+                  {accommodation.view_count || 0} vues
+                </div>
+              </div>
 
-                        <button
-                          onClick={() => setDeleteConfirm(accommodation.id)}
-                          className="text-red-600 hover:text-red-800"
-                          title="Supprimer"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              {/* Actions */}
+              <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                <div className="flex items-center space-x-2">
+                  {accommodation.status === 'published' && (
+                    <a
+                      href={`/hebergements/${accommodation.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 p-1"
+                      title="Voir sur le site"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  )}
+                  
+                  <button
+                    onClick={() => handleToggleStatus(accommodation)}
+                    className={`p-1 ${
+                      accommodation.status === 'published'
+                        ? 'text-orange-600 hover:text-orange-800'
+                        : 'text-green-600 hover:text-green-800'
+                    }`}
+                    title={accommodation.status === 'published' ? 'Dépublier' : 'Publier'}
+                  >
+                    {accommodation.status === 'published' ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => handleEdit(accommodation.id)}
+                    className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
+                  >
+                    Modifier
+                  </button>
+
+                  <button
+                    onClick={() => setDeleteConfirm(accommodation.id)}
+                    className="p-1 text-red-600 hover:text-red-800"
+                    title="Supprimer"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

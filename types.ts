@@ -121,7 +121,7 @@ export interface Accommodation {
   slug: string;
   description: string;
   excerpt: string;
-  type: 'bed_breakfast' | 'gite' | 'hotel' | 'camping' | 'unusual';
+  type: string[]; // Changé pour supporter plusieurs types
   capacity: number;
   bedrooms?: number;
   beds_description?: string;

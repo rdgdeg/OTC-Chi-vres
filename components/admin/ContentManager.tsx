@@ -10,6 +10,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { UnifiedContentService } from '../../services/admin/UnifiedContentService';
 import { ContentEditor } from './ContentEditor';
 import { BulkActionsPanel } from './BulkActionsPanel';
+import { EventManager } from '../EventManager';
 
 interface ContentItem {
   id: string;
@@ -423,6 +424,11 @@ export const ContentManager: React.FC<ContentManagerProps> = ({ contentType }) =
         </p>
       </div>
     );
+  }
+
+  // Utiliser le gestionnaire spécialisé pour les événements
+  if (contentType === 'events') {
+    return <EventManager />;
   }
 
   return (

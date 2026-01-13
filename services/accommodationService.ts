@@ -159,12 +159,12 @@ export class AccommodationService {
     }
   }
 
-  // Filtrer les hébergements par type
-  static async getAccommodationsByType(type: Accommodation['type']): Promise<Accommodation[]> {
+  // Filtrer les hébergements par type - supporter les types multiples
+  static async getAccommodationsByType(type: string): Promise<Accommodation[]> {
     const { data, error } = await supabase
       .from('accommodations')
       .select('*')
-      .eq('type', type)
+      .contains('type', [type]) // Utiliser contains pour les tableaux
       .eq('status', 'published')
       .order('name');
 
@@ -266,8 +266,8 @@ export class AccommodationService {
       errors.push('La description est requise');
     }
 
-    if (!accommodation.type) {
-      errors.push('Le type d\'hébergement est requis');
+    if (!accommodation.type || (Array.isArray(accommodation.type) && accommodation.type.length === 0)) {
+      errors.push('Au moins un type d\'hébergement est requis');
     }
 
     if (!accommodation.capacity || accommodation.capacity < 1) {
