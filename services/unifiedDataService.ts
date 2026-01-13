@@ -16,6 +16,7 @@ export class UnifiedDataService {
       .from('accommodations')
       .select('*')
       .eq('status', 'published')
+      .order('sort_order', { ascending: true, nullsFirst: false })
       .order('name');
 
     if (error) {
@@ -32,6 +33,7 @@ export class UnifiedDataService {
       .select('*')
       .eq('type', type)
       .eq('status', 'published')
+      .order('sort_order', { ascending: true, nullsFirst: false })
       .order('name');
 
     if (error) {
@@ -51,6 +53,7 @@ export class UnifiedDataService {
       .from('places')
       .select('*')
       .eq('type', 'museum')
+      .order('sort_order', { ascending: true, nullsFirst: false })
       .order('name');
 
     if (error) {
@@ -79,6 +82,7 @@ export class UnifiedDataService {
       .from('places')
       .select('*')
       .in('type', ['restaurant', 'cafe'])
+      .order('sort_order', { ascending: true, nullsFirst: false })
       .order('name');
 
     if (error) {
@@ -98,6 +102,7 @@ export class UnifiedDataService {
       .from('places')
       .select('*')
       .in('type', ['shop', 'producer'])
+      .order('sort_order', { ascending: true, nullsFirst: false })
       .order('name');
 
     if (error) {
@@ -109,7 +114,7 @@ export class UnifiedDataService {
   }
 
   // ===================================
-  // BALADES (Table: places)
+  // BALADES (Table: places avec type='walk')
   // ===================================
   
   static async getWalks(): Promise<Place[]> {
@@ -117,6 +122,7 @@ export class UnifiedDataService {
       .from('places')
       .select('*')
       .eq('type', 'walk')
+      .order('sort_order', { ascending: true, nullsFirst: false })
       .order('name');
 
     if (error) {

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../services/supabaseClient';
+import { AdminAuthService } from '../services/adminAuthService';
 
 // Types simplifiés pour éviter les erreurs d'import
 interface User {
@@ -81,12 +82,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const createAdminSession = async () => {
     try {
-      // Utiliser une authentification anonyme mais avec des privilèges admin
-      // En production, ceci devrait être remplacé par une vraie authentification
-      const { data, error } = await supabase.auth.signInAnonymously();
+      // Utiliser le nouveau service d'authentification admin
+      const success = await AdminAuthService.initializeAdminAccess();
       
-      if (error) {
-        console.error('Erreur lors de la création de la session admin:', error);
+      if (!success) {
+        console.error('Impossible de créer la session admin');
         // Fallback: utiliser le système legacy
         setAuthState({
           user: {
@@ -106,7 +106,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       setAuthState({
         user: {
-          id: data.user?.id || 'admin-session',
+          id: 'admin-session',
           email: 'admin@chievres.be',
           name: 'Administrateur',
           role: 'super_admin',
@@ -149,8 +149,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Nettoyer l'ancien système
       sessionStorage.removeItem('admin_authenticated');
       
-      // Déconnecter de Supabase
-      await supabase.auth.signOut();
+      // Utiliser le nouveau service pour détruire la session
+      await AdminAuthService.destroySession();
       
       setAuthState({
         user: null,

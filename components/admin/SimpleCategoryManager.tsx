@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Home, Bed, Coffee, Utensils, Camera, MapPin, Calendar,
-  Users, Settings, Plus, Edit3, Eye, EyeOff, Trash2,
-  ChevronRight, List, Grid, Search, Filter
+  Home, Bed, Utensils, Camera, MapPin, Calendar,
+  Users, Plus, Edit3, Eye, Trash2,
+  ChevronRight, List, Grid, Search, ArrowUpDown
 } from 'lucide-react';
 import { CategoryContentService, ContentItem } from '../../services/admin/CategoryContentService';
+import UniversalSortManager from './UniversalSortManager';
 
 interface Category {
   id: string;
@@ -17,7 +18,7 @@ interface Category {
 
 const SimpleCategoryManager: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'grid' | 'sort'>('list');
   const [items, setItems] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -74,6 +75,7 @@ const SimpleCategoryManager: React.FC = () => {
       types: ['event', 'festival', 'manifestation'],
       color: 'bg-red-500'
     },
+    /*
     {
       id: 'team',
       name: 'Équipe',
@@ -90,8 +92,24 @@ const SimpleCategoryManager: React.FC = () => {
       types: ['page_content', 'homepage_block'],
       color: 'bg-gray-500'
     }
+    */
   ];
 
+  // Mapping des catégories vers les clés de table pour le tri
+  const getCategoryTableKey = (categoryId: string): string => {
+    const mapping: Record<string, string> = {
+      accommodations: 'accommodations',
+      dining: 'places-restaurant',
+      activities: 'places-activity',
+      heritage: 'places-museum',
+      walks: 'walks', // Balades dans places avec type='walk'
+      events: 'events'
+      // team et pages commentés car les tables peuvent ne pas exister
+      // team: 'team_members',
+      // pages: 'homepage_blocks'
+    };
+    return mapping[categoryId] || categoryId;
+  };
   // Charger les statistiques globales au démarrage
   useEffect(() => {
     loadGlobalStats();
@@ -289,7 +307,7 @@ const SimpleCategoryManager: React.FC = () => {
                 placeholder="Rechercher..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -318,14 +336,23 @@ const SimpleCategoryManager: React.FC = () => {
             <button
               onClick={() => setViewMode('list')}
               className={`p-2 rounded ${viewMode === 'list' ? 'bg-white shadow-sm' : 'text-gray-600'}`}
+              title="Vue liste"
             >
               <List className="h-4 w-4" />
             </button>
             <button
               onClick={() => setViewMode('grid')}
               className={`p-2 rounded ${viewMode === 'grid' ? 'bg-white shadow-sm' : 'text-gray-600'}`}
+              title="Vue grille"
             >
               <Grid className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('sort')}
+              className={`p-2 rounded ${viewMode === 'sort' ? 'bg-white shadow-sm' : 'text-gray-600'}`}
+              title="Trier par glisser-déposer"
+            >
+              <ArrowUpDown className="h-4 w-4" />
             </button>
           </div>
 
@@ -341,6 +368,14 @@ const SimpleCategoryManager: React.FC = () => {
         <div className="flex items-center justify-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
+      ) : viewMode === 'sort' ? (
+        <UniversalSortManager
+          tableKey={getCategoryTableKey(selectedCategory)}
+          title={`Tri - ${selectedCat?.name}`}
+          description={`Réorganisez l'ordre d'affichage des éléments de la catégorie "${selectedCat?.name}" sur le site`}
+          onItemEdit={(itemId) => console.log('Edit item:', itemId)}
+          onItemView={(itemId) => console.log('View item:', itemId)}
+        />
       ) : (
         <div className="bg-white rounded-lg shadow-sm border">
           {viewMode === 'list' ? (

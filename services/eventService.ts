@@ -48,6 +48,7 @@ class EventService {
       let query = supabase
         .from('events')
         .select('*')
+        .order('sort_order', { ascending: true, nullsFirst: false })
         .order('start_date', { ascending: true });
 
       // Appliquer les filtres
@@ -112,6 +113,7 @@ class EventService {
         .select('*')
         .eq('status', 'published')
         .gte('start_date', new Date().toISOString())
+        .order('sort_order', { ascending: true, nullsFirst: false })
         .order('start_date', { ascending: true });
 
       if (limit) {

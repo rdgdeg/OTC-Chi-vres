@@ -8,6 +8,7 @@ export class AccommodationService {
       .from('accommodations')
       .select('*')
       .eq('status', 'published')
+      .order('sort_order', { ascending: true, nullsFirst: false })
       .order('name');
 
     if (error) {
@@ -23,6 +24,7 @@ export class AccommodationService {
     const { data, error } = await supabase
       .from('accommodations')
       .select('*')
+      .order('sort_order', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -166,6 +168,7 @@ export class AccommodationService {
       .select('*')
       .contains('type', [type]) // Utiliser contains pour les tableaux
       .eq('status', 'published')
+      .order('sort_order', { ascending: true, nullsFirst: false })
       .order('name');
 
     if (error) {
@@ -183,6 +186,7 @@ export class AccommodationService {
       .select('*')
       .eq('village', village)
       .eq('status', 'published')
+      .order('sort_order', { ascending: true, nullsFirst: false })
       .order('name');
 
     if (error) {
@@ -205,7 +209,9 @@ export class AccommodationService {
       query = query.lte('capacity', maxCapacity);
     }
 
-    const { data, error } = await query.order('capacity');
+    const { data, error } = await query
+      .order('sort_order', { ascending: true, nullsFirst: false })
+      .order('capacity');
 
     if (error) {
       console.error('Erreur lors de la récupération des hébergements par capacité:', error);
@@ -222,6 +228,7 @@ export class AccommodationService {
       .select('*')
       .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,village.ilike.%${searchTerm}%`)
       .eq('status', 'published')
+      .order('sort_order', { ascending: true, nullsFirst: false })
       .order('name');
 
     if (error) {
