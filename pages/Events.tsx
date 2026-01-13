@@ -1,7 +1,7 @@
 import React from 'react';
 import { EventsCalendar } from '../components/EventsCalendar';
 
-export const Events: React.FC = () => {
+const Events: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
@@ -25,3 +25,5 @@ export const Events: React.FC = () => {
     </div>
   );
 };
+
+export default Events;

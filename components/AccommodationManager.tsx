@@ -267,8 +267,9 @@ const AccommodationManager: React.FC = () => {
           )}
         </div>
       ) : (
-        {/* Vue en cartes pour éviter le défilement horizontal */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+          {/* Vue en cartes pour éviter le défilement horizontal */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 p-6">
           {filteredAccommodations.map((accommodation) => (
             <div key={accommodation.id} className="bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow">
               {/* En-tête avec image et titre */}
@@ -426,6 +427,7 @@ const AccommodationManager: React.FC = () => {
               </div>
             </div>
           ))}
+          </div>
         </div>
       )}
 
