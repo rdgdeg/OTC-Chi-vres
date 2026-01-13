@@ -1,8 +1,8 @@
 import React from 'react';
-import { SimpleUnifiedDashboard } from '../components/admin/SimpleUnifiedDashboard';
+import SimpleAdminDashboard from '../components/admin/SimpleAdminDashboard';
 
 const AdminDashboard: React.FC = () => {
-  return <SimpleUnifiedDashboard />;
+  return <SimpleAdminDashboard />;
 };
 
 export default AdminDashboard;
