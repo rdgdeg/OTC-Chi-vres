@@ -111,10 +111,46 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
   const [newGalleryImage, setNewGalleryImage] = useState('');
 
   useEffect(() => {
-    if (item) {
-      setFormData({ ...item });
-    }
-  }, [item]);
+    const loadFullItemData = async () => {
+      if (!item) return;
+      
+      // Déterminer la table source
+      let tableName = 'places';
+      if (categoryId === 'accommodations') {
+        tableName = 'accommodations';
+      } else if (categoryId === 'events') {
+        tableName = 'events';
+      } else if (item.type === 'walk') {
+        tableName = 'places';
+      }
+
+      try {
+        // Charger toutes les données de l'élément depuis la base
+        const { data, error } = await supabase
+          .from(tableName)
+          .select('*')
+          .eq('id', item.id)
+          .single();
+
+        if (error) {
+          console.error('Erreur lors du chargement des données complètes:', error);
+          // Fallback sur les données de base
+          setFormData({ ...item });
+          return;
+        }
+
+        if (data) {
+          // Charger toutes les données de la base
+          setFormData({ ...data });
+        }
+      } catch (err) {
+        console.error('Erreur:', err);
+        setFormData({ ...item });
+      }
+    };
+
+    loadFullItemData();
+  }, [item, categoryId]);
 
   if (!isOpen || !item) return null;
 
