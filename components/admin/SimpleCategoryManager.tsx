@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { CategoryContentService, ContentItem } from '../../services/admin/CategoryContentService';
 import UniversalSortManager from './UniversalSortManager';
+import EditItemModal from './EditItemModal';
 
 interface Category {
   id: string;
@@ -24,6 +25,10 @@ const SimpleCategoryManager: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [globalStats, setGlobalStats] = useState<Record<string, number>>({});
+  
+  // États pour la modale d'édition
+  const [editingItem, setEditingItem] = useState<ContentItem | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // Catégories basées sur la navigation du site
   const categories: Category[] = [
@@ -189,6 +194,70 @@ const SimpleCategoryManager: React.FC = () => {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  // Handlers pour les actions sur les items
+  const handleEditItem = (item: ContentItem) => {
+    setEditingItem(item);
+    setIsEditModalOpen(true);
+  };
+
+  const handleViewItem = (item: ContentItem) => {
+    // Ouvrir l'item dans un nouvel onglet selon son type
+    let url = '/';
+    
+    if (selectedCategory === 'accommodations') {
+      url = `/accommodations/${item.id}`;
+    } else if (selectedCategory === 'dining') {
+      url = `/dining/${item.id}`;
+    } else if (selectedCategory === 'heritage') {
+      url = `/heritage/${item.id}`;
+    } else if (selectedCategory === 'walks') {
+      url = `/walks/${item.id}`;
+    } else if (selectedCategory === 'events') {
+      url = `/events/${item.id}`;
+    }
+    
+    window.open(url, '_blank');
+  };
+
+  const handleDeleteItem = async (item: ContentItem) => {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer "${item.name}" ?`)) {
+      return;
+    }
+
+    try {
+      // Déterminer la table selon le type
+      let tableName = 'places';
+      if (selectedCategory === 'accommodations') {
+        tableName = 'accommodations';
+      } else if (selectedCategory === 'events') {
+        tableName = 'events';
+      } else if (selectedCategory === 'walks') {
+        tableName = 'walks';
+      } else if (selectedCategory === 'team') {
+        tableName = 'team_members';
+      }
+
+      await CategoryContentService.deleteItem(item.id, tableName);
+      
+      // Recharger la liste
+      if (selectedCategory) {
+        loadCategoryItems(selectedCategory);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+      alert('Erreur lors de la suppression');
+    }
+  };
+
+  const handleSaveItem = (updatedItem: ContentItem) => {
+    // Mettre à jour la liste locale
+    setItems(prevItems => 
+      prevItems.map(item => 
+        item.id === updatedItem.id ? updatedItem : item
+      )
+    );
   };
 
   if (!selectedCategory) {
@@ -432,13 +501,25 @@ const SimpleCategoryManager: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end space-x-2">
-                          <button className="text-blue-600 hover:text-blue-800 p-1">
+                          <button 
+                            onClick={() => handleViewItem(item)}
+                            className="text-blue-600 hover:text-blue-800 p-1"
+                            title="Voir sur le site"
+                          >
                             <Eye className="h-4 w-4" />
                           </button>
-                          <button className="text-blue-600 hover:text-blue-800 p-1">
+                          <button 
+                            onClick={() => handleEditItem(item)}
+                            className="text-blue-600 hover:text-blue-800 p-1"
+                            title="Modifier"
+                          >
                             <Edit3 className="h-4 w-4" />
                           </button>
-                          <button className="text-red-600 hover:text-red-800 p-1">
+                          <button 
+                            onClick={() => handleDeleteItem(item)}
+                            className="text-red-600 hover:text-red-800 p-1"
+                            title="Supprimer"
+                          >
                             <Trash2 className="h-4 w-4" />
                           </button>
                         </div>
@@ -468,10 +549,25 @@ const SimpleCategoryManager: React.FC = () => {
                       {item.view_count || 0} vues
                     </span>
                     <div className="flex space-x-1">
-                      <button className="text-blue-600 hover:text-blue-800 p-1">
+                      <button 
+                        onClick={() => handleViewItem(item)}
+                        className="text-blue-600 hover:text-blue-800 p-1"
+                        title="Voir sur le site"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      <button 
+                        onClick={() => handleEditItem(item)}
+                        className="text-blue-600 hover:text-blue-800 p-1"
+                        title="Modifier"
+                      >
                         <Edit3 className="h-4 w-4" />
                       </button>
-                      <button className="text-red-600 hover:text-red-800 p-1">
+                      <button 
+                        onClick={() => handleDeleteItem(item)}
+                        className="text-red-600 hover:text-red-800 p-1"
+                        title="Supprimer"
+                      >
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
@@ -482,6 +578,18 @@ const SimpleCategoryManager: React.FC = () => {
           )}
         </div>
       )}
+
+      {/* Modale d'édition */}
+      <EditItemModal
+        item={editingItem}
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingItem(null);
+        }}
+        onSave={handleSaveItem}
+        categoryId={selectedCategory || ''}
+      />
     </div>
   );
 };
