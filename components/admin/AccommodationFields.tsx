@@ -236,37 +236,7 @@ const AccommodationFields: React.FC<AccommodationFieldsProps> = ({
         </div>
       </div>
 
-      {/* Image principale */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Image principale
-        </label>
-        <div className="flex items-center space-x-4">
-          {formData.featured_image && (
-            <img
-              src={formData.featured_image}
-              alt="Image principale"
-              className="w-24 h-24 object-cover rounded-lg"
-            />
-          )}
-          <div>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="hidden"
-              id="featured-image-upload"
-            />
-            <label
-              htmlFor="featured-image-upload"
-              className="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-            >
-              <Upload className="h-4 w-4 mr-2" />
-              {uploadingImage ? 'Upload...' : 'Choisir une image'}
-            </label>
-          </div>
-        </div>
-      </div>
+      {/* Image principale - Géré dans les champs communs */}
 
       {/* Caractéristiques */}
       <div>
@@ -409,20 +379,7 @@ const AccommodationFields: React.FC<AccommodationFieldsProps> = ({
         </div>
       </div>
 
-      {/* Facebook */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          <Facebook className="h-4 w-4 inline mr-1" />
-          Facebook
-        </label>
-        <input
-          type="url"
-          value={formData.facebook || ''}
-          onChange={(e) => onChange('facebook', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-          placeholder="https://www.facebook.com/page"
-        />
-      </div>
+      {/* Facebook - Géré dans les champs communs */}
 
       {/* Politique d'annulation */}
       <div>
