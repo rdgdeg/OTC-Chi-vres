@@ -22,8 +22,10 @@ interface ExtendedContentItem extends ContentItem {
   slug?: string;
   lat?: number;
   lng?: number;
-  featured_image?: string;
+  imageUrl?: string; // Image principale (standardisé)
+  featured_image?: string; // Ancien champ (deprecated)
   gallery_images?: string[];
+  galleryImages?: string[]; // Alias camelCase
   tag_ids?: string[];
   meta_title?: string;
   meta_description?: string;
@@ -217,8 +219,8 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
         status: formData.status,
         lat: formData.lat,
         lng: formData.lng,
-        featured_image: formData.featured_image,
-        gallery_images: formData.gallery_images,
+        imageUrl: formData.imageUrl || formData.featured_image, // Utiliser imageUrl (standardisé)
+        galleryImages: formData.galleryImages || formData.gallery_images, // Utiliser galleryImages (camelCase)
         updated_at: new Date().toISOString()
       };
 
@@ -408,7 +410,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
         const result = e.target?.result as string;
         setFormData(prev => ({
           ...prev,
-          featured_image: result
+          imageUrl: result // Utiliser imageUrl au lieu de featured_image
         }));
         setUploadingImage(false);
       };
@@ -422,18 +424,23 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
 
   const addGalleryImage = () => {
     if (newGalleryImage.trim()) {
+      const currentGallery = formData.galleryImages || formData.gallery_images || [];
       setFormData(prev => ({
         ...prev,
-        gallery_images: [...(prev.gallery_images || []), newGalleryImage.trim()]
+        galleryImages: [...currentGallery, newGalleryImage.trim()],
+        gallery_images: [...currentGallery, newGalleryImage.trim()] // Garder la compatibilité
       }));
       setNewGalleryImage('');
     }
   };
 
   const removeGalleryImage = (index: number) => {
+    const currentGallery = formData.galleryImages || formData.gallery_images || [];
+    const newGallery = currentGallery.filter((_, i) => i !== index);
     setFormData(prev => ({
       ...prev,
-      gallery_images: prev.gallery_images?.filter((_, i) => i !== index) || []
+      galleryImages: newGallery,
+      gallery_images: newGallery // Garder la compatibilité
     }));
   };
 
@@ -624,9 +631,9 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               Image principale
             </label>
             <div className="flex items-center space-x-4">
-              {formData.featured_image && (
+              {(formData.imageUrl || formData.featured_image) && (
                 <img
-                  src={formData.featured_image}
+                  src={formData.imageUrl || formData.featured_image}
                   alt="Image principale"
                   className="w-32 h-32 object-cover rounded-lg border-2 border-gray-300"
                 />
@@ -659,7 +666,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               Galerie d'images
             </label>
             <div className="space-y-2">
-              {formData.gallery_images?.map((imageUrl: string, index: number) => (
+              {(formData.galleryImages || formData.gallery_images || []).map((imageUrl: string, index: number) => (
                 <div key={index} className="flex items-center space-x-2">
                   <img
                     src={imageUrl}
@@ -670,9 +677,11 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                     type="text"
                     value={imageUrl}
                     onChange={(e) => {
-                      const newGallery = [...(formData.gallery_images || [])];
+                      const currentGallery = formData.galleryImages || formData.gallery_images || [];
+                      const newGallery = [...currentGallery];
                       newGallery[index] = e.target.value;
-                      handleInputChange('gallery_images', newGallery);
+                      handleInputChange('galleryImages', newGallery);
+                      handleInputChange('gallery_images', newGallery); // Compatibilité
                     }}
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     placeholder="URL de l'image"
