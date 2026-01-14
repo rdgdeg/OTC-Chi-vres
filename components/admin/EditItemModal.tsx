@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, Eye, EyeOff, MapPin, Phone, Mail, Globe, Calendar } from 'lucide-react';
+import { X, Save, Eye, EyeOff, MapPin, Phone, Mail, Globe, Calendar, Upload, Plus, Trash2, Facebook, Users, Bed, Clock, Info } from 'lucide-react';
 import { ContentItem } from '../../services/admin/CategoryContentService';
 import { supabase } from '../../services/supabaseClient';
 
@@ -9,15 +9,35 @@ interface ExtendedContentItem extends ContentItem {
   phone?: string;
   email?: string;
   website?: string;
+  facebook?: string;
   price_range?: string;
+  price_details?: string;
   amenities?: string[] | string;
+  features?: string[];
   capacity?: number;
+  bedrooms?: number;
+  beds_description?: string;
+  village?: string;
+  check_in_time?: string;
+  check_out_time?: string;
+  house_rules?: string[];
+  cancellation_policy?: string;
+  min_stay?: number;
   start_date?: string;
   end_date?: string;
   location?: string;
   distance?: string;
   duration?: string;
   difficulty?: string;
+  lat?: number;
+  lng?: number;
+  featured_image?: string;
+  gallery_images?: string[];
+  excerpt?: string;
+  slug?: string;
+  tag_ids?: string[];
+  meta_title?: string;
+  meta_description?: string;
 }
 
 interface EditItemModalProps {
@@ -38,6 +58,13 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
   const [formData, setFormData] = useState<Partial<ExtendedContentItem>>({});
   const [loading, setSaving] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  
+  // États pour les listes dynamiques
+  const [newFeature, setNewFeature] = useState('');
+  const [newAmenity, setNewAmenity] = useState('');
+  const [newRule, setNewRule] = useState('');
+  const [newGalleryImage, setNewGalleryImage] = useState('');
 
   useEffect(() => {
     if (item) {
@@ -118,6 +145,106 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
     } finally {
       setSaving(false);
     }
+  };
+
+  // Fonctions pour gérer les listes dynamiques
+  const addFeature = () => {
+    if (newFeature.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        features: [...(prev.features || []), newFeature.trim()]
+      }));
+      setNewFeature('');
+    }
+  };
+
+  const removeFeature = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      features: prev.features?.filter((_, i) => i !== index) || []
+    }));
+  };
+
+  const addAmenity = () => {
+    if (newAmenity.trim()) {
+      const currentAmenities = Array.isArray(formData.amenities) 
+        ? formData.amenities 
+        : formData.amenities ? [formData.amenities] : [];
+      setFormData(prev => ({
+        ...prev,
+        amenities: [...currentAmenities, newAmenity.trim()]
+      }));
+      setNewAmenity('');
+    }
+  };
+
+  const removeAmenity = (index: number) => {
+    const currentAmenities = Array.isArray(formData.amenities) 
+      ? formData.amenities 
+      : formData.amenities ? [formData.amenities] : [];
+    setFormData(prev => ({
+      ...prev,
+      amenities: currentAmenities.filter((_, i) => i !== index)
+    }));
+  };
+
+  const addRule = () => {
+    if (newRule.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        house_rules: [...(prev.house_rules || []), newRule.trim()]
+      }));
+      setNewRule('');
+    }
+  };
+
+  const removeRule = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      house_rules: prev.house_rules?.filter((_, i) => i !== index) || []
+    }));
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    try {
+      // Pour l'instant, on utilise une URL temporaire
+      // TODO: Implémenter l'upload vers Supabase Storage
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setFormData(prev => ({
+          ...prev,
+          featured_image: result
+        }));
+        setUploadingImage(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Erreur lors de l\'upload:', error);
+      alert('Erreur lors de l\'upload de l\'image');
+      setUploadingImage(false);
+    }
+  };
+
+  const addGalleryImage = () => {
+    if (newGalleryImage.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        gallery_images: [...(prev.gallery_images || []), newGalleryImage.trim()]
+      }));
+      setNewGalleryImage('');
+    }
+  };
+
+  const removeGalleryImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      gallery_images: prev.gallery_images?.filter((_, i) => i !== index) || []
+    }));
   };
 
   const renderFormFields = () => {
