@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Admin Editing</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .step {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🔍 Test des modifications d'édition admin</h1>
+        
+        <div class="info status">
+            <strong>ℹ️ Information:</strong> Cette page teste si les modifications d'édition sont bien déployées.
+        </div>
+
+        <div class="step">
+            <h3>Étape 1: Vérifier le build</h3>
+            <p>Hash du build actuel: <code id="buildHash">Chargement...</code></p>
+            <p>Date du build: <strong>14 janvier 2026, 06:55</strong></p>
+        </div>
+
+        <div class="step">
+            <h3>Étape 2: Vérifier les fichiers</h3>
+            <div id="filesCheck">Vérification en cours...</div>
+        </div>
+
+        <div class="step">
+            <h3>Étape 3: Tester l'édition</h3>
+            <button onclick="testAdmin()">Ouvrir l'admin</button>
+            <button onclick="clearCache()">Vider le cache</button>
+            <button onclick="runDiagnostic()">Diagnostic complet</button>
+        </div>
+
+        <div class="step">
+            <h3>Résultats du diagnostic:</h3>
+            <pre id="results">Cliquez sur "Diagnostic complet" pour lancer les tests...</pre>
+        </div>
+
+        <div class="step">
+            <h3>📋 Checklist manuelle:</h3>
+            <ul>
+                <li>✅ Code poussé sur Git (commits: eb05b0e, 5fed716, 28d2ffa)</li>
+                <li>✅ Build réussi (14 janvier 2026, 06:55)</li>
+                <li>❓ Vercel a déployé la nouvelle version</li>
+                <li>❓ Cache du navigateur vidé</li>
+                <li>❓ Test d'édition effectué</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <h3>🆘 Si ça ne fonctionne pas:</h3>
+            <ol>
+                <li>Vider le cache du navigateur (Cmd+Shift+R ou Ctrl+Shift+R)</li>
+                <li>Vérifier que Vercel a bien déployé: <a href="https://vercel.com/dashboard" target="_blank">Dashboard Vercel</a></li>
+                <li>Tester en mode incognito</li>
+                <li>Vérifier la console du navigateur (F12) pour les erreurs</li>
+                <li>Redéployer manuellement: <code>vercel --prod</code></li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Détecter le hash du build
+        const scripts = document.querySelectorAll('script[src*="index"]');
+        if (scripts.length > 0) {
+            const src = scripts[0].src;
+            const match = src.match(/index-([^.]+)\.js/);
+            if (match) {
+                document.getElementById('buildHash').textContent = match[1];
+            }
+        } else {
+            document.getElementById('buildHash').textContent = 'Non détecté (page de test)';
+        }
+
+        // Vérifier les fichiers
+        async function checkFiles() {
+            const files = [
+                '/assets/index-DlkbKegR.js'
+            ];
+            
+            let html = '<ul>';
+            for (const file of files) {
+                try {
+                    const response = await fetch(file, { method: 'HEAD' });
+                    if (response.ok) {
+                        html += `<li class="success">✅ ${file} - OK</li>`;
+                    } else {
+                        html += `<li class="error">❌ ${file} - ${response.status}</li>`;
+                    }
+                } catch (error) {
+                    html += `<li class="error">❌ ${file} - Erreur: ${error.message}</li>`;
+                }
+            }
+            html += '</ul>';
+            document.getElementById('filesCheck').innerHTML = html;
+        }
+
+        function testAdmin() {
+            window.open('/admin', '_blank');
+        }
+
+        function clearCache() {
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(name => {
+                        caches.delete(name);
+                    });
+                });
+            }
+            localStorage.clear();
+            sessionStorage.clear();
+            alert('Cache vidé ! Rechargez la page (Cmd+Shift+R ou Ctrl+Shift+R)');
+        }
+
+        function runDiagnostic() {
+            const results = [];
+            
+            results.push('🔍 DIAGNOSTIC COMPLET\n');
+            results.push('='.repeat(50));
+            results.push('');
+            
+            // Informations système
+            results.push('📱 Système:');
+            results.push(`   Navigateur: ${navigator.userAgent}`);
+            results.push(`   En ligne: ${navigator.onLine ? 'Oui' : 'Non'}`);
+            results.push(`   Date/Heure: ${new Date().toLocaleString()}`);
+            results.push('');
+            
+            // Vérifier React
+            results.push('⚛️ React:');
+            results.push(`   Chargé: ${typeof React !== 'undefined' ? 'Oui ✅' : 'Non ❌'}`);
+            results.push('');
+            
+            // Vérifier l'URL
+            results.push('📍 Navigation:');
+            results.push(`   URL: ${window.location.href}`);
+            results.push(`   Page admin: ${window.location.pathname.includes('/admin') ? 'Oui ✅' : 'Non ❌'}`);
+            results.push('');
+            
+            // Vérifier l'authentification
+            results.push('🔐 Authentification:');
+            const hasAuth = localStorage.getItem('supabase.auth.token') !== null;
+            results.push(`   Token présent: ${hasAuth ? 'Oui ✅' : 'Non ❌'}`);
+            results.push('');
+            
+            // Instructions
+            results.push('📋 PROCHAINES ÉTAPES:');
+            results.push('');
+            results.push('1. Cliquer sur "Ouvrir l\'admin"');
+            results.push('2. Aller dans "Contenu"');
+            results.push('3. Choisir "Où dormir"');
+            results.push('4. Cliquer sur l\'icône ✏️ d\'un hébergement');
+            results.push('5. Une modale devrait s\'ouvrir avec le formulaire');
+            results.push('');
+            results.push('Si la modale ne s\'ouvre pas:');
+            results.push('- Ouvrir la console (F12)');
+            results.push('- Chercher des erreurs en rouge');
+            results.push('- Vider le cache et recharger');
+            results.push('- Vérifier le déploiement Vercel');
+            
+            document.getElementById('results').textContent = results.join('\n');
+        }
+
+        // Lancer la vérification des fichiers au chargement
+        checkFiles();
+    </script>
+</body>
+</html>
