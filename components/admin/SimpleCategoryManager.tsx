@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Home, Bed, Utensils, Camera, MapPin, Calendar,
-  Users, Plus, Edit3, Eye, Trash2,
+  Users, Plus, Edit3, Eye, Trash2, FileText,
   ChevronRight, List, Grid, Search, ArrowUpDown
 } from 'lucide-react';
 import { CategoryContentService, ContentItem } from '../../services/admin/CategoryContentService';
@@ -80,15 +80,23 @@ const SimpleCategoryManager: React.FC = () => {
       types: ['event', 'festival', 'manifestation'],
       color: 'bg-red-500'
     },
-    /*
     {
       id: 'team',
-      name: 'Équipe',
+      name: 'Notre Équipe',
       icon: Users,
       description: 'Membres de l\'équipe, contacts',
       types: ['team_member', 'contact'],
       color: 'bg-indigo-500'
     },
+    {
+      id: 'blog',
+      name: 'Blog / Actualités',
+      icon: FileText,
+      description: 'Articles, actualités, blog',
+      types: ['article', 'news', 'blog_post'],
+      color: 'bg-pink-500'
+    }
+    /*
     {
       id: 'pages',
       name: 'Pages',

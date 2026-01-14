@@ -27,7 +27,7 @@ const NAV_ITEMS: NavItem[] = [
     children: [
       { label: 'Expériences', path: '/experiences' },
       { label: 'Agenda', path: '/agenda' },
-      { label: 'Nos Commerçants', path: '/commercants' },
+      // { label: 'Nos Commerçants', path: '/commercants' }, // Désactivé temporairement
     ]
   },
   { 
@@ -103,10 +103,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </div>
               ))}
               
-              <Link to="/boutique" className="text-primary hover:text-secondary transition-colors flex items-center border-l pl-4 ml-2 border-slate-200 font-bold uppercase text-sm">
+              {/* Boutique désactivée temporairement */}
+              {/* <Link to="/boutique" className="text-primary hover:text-secondary transition-colors flex items-center border-l pl-4 ml-2 border-slate-200 font-bold uppercase text-sm">
                  <ShoppingBag size={18} className="mr-2" />
                  <span>Boutique</span>
-              </Link>
+              </Link> */}
             </nav>
 
             {/* Mobile Menu Button */}

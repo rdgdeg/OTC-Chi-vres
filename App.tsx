@@ -46,13 +46,14 @@ function App() {
                 <Route path="/hebergements/:slug" element={<AccommodationDetail />} />
                 <Route path="/hebergement" element={<Accommodations />} /> {/* Redirection pour compatibilité */}
                 <Route path="/restaurants" element={<Dining />} />
-                <Route path="/commercants" element={<Merchants />} />
+                {/* Routes désactivées temporairement */}
+                {/* <Route path="/commercants" element={<Merchants />} /> */}
+                {/* <Route path="/boutique" element={<Shop />} /> */}
                 <Route path="/experiences" element={<Experiences />} />
                 <Route path="/agenda" element={<Agenda />} />
                 <Route path="/events" element={<Events />} />
                 <Route path="/evenements" element={<Events />} />
                 <Route path="/blog" element={<Blog />} />
-                <Route path="/boutique" element={<Shop />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/equipe" element={<Team />} />
                 <Route path="/crossage" element={<Crossage />} />

@@ -29,6 +29,7 @@ export class CategoryContentService {
     walks: ['walks'],
     events: ['events'],
     team: ['team_members'],
+    blog: ['articles'], // Blog/Actualités
     pages: ['homepage_blocks', 'page_content']
   };
 

@@ -7,6 +7,8 @@ import RestaurantFields from './RestaurantFields';
 import HeritageFields from './HeritageFields';
 import WalkFields from './WalkFields';
 import EventFields from './EventFields';
+import TeamFields from './TeamFields';
+import BlogFields from './BlogFields';
 
 // Interface étendue pour le formulaire avec tous les champs possibles
 interface ExtendedContentItem extends ContentItem {
@@ -82,6 +84,28 @@ interface ExtendedContentItem extends ContentItem {
   languages?: string[];
   guided_tours?: boolean;
   accessible_pmr?: boolean;
+  
+  // Équipe
+  role?: string;
+  position?: string;
+  bio?: string;
+  skills?: string;
+  display_order?: number;
+  is_visible?: boolean;
+  sort_order?: number;
+  
+  // Blog/Articles
+  title?: string;
+  content?: string;
+  summary?: string;
+  author?: string;
+  author_name?: string;
+  category_id?: string;
+  published_at?: string;
+  view_count?: number;
+  is_featured?: boolean;
+  allow_comments?: boolean;
+  tags?: string[];
 }
 
 interface EditItemModalProps {
@@ -172,6 +196,10 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
         tableName = 'accommodations';
       } else if (categoryId === 'events') {
         tableName = 'events';
+      } else if (categoryId === 'team') {
+        tableName = 'team_members';
+      } else if (categoryId === 'blog') {
+        tableName = 'articles';
       } else if (item.type === 'walk') {
         tableName = 'places';
       }
@@ -262,6 +290,31 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
           guided_tours: formData.guided_tours,
           accessible_pmr: formData.accessible_pmr,
           practical_info: formData.practical_info
+        });
+      } else if (tableName === 'team_members') {
+        Object.assign(updateData, {
+          role: formData.role,
+          position: formData.position,
+          bio: formData.bio,
+          skills: formData.skills,
+          sort_order: formData.sort_order,
+          display_order: formData.display_order,
+          is_visible: formData.is_visible
+        });
+      } else if (tableName === 'articles') {
+        Object.assign(updateData, {
+          title: formData.title,
+          content: formData.content,
+          excerpt: formData.excerpt,
+          summary: formData.summary,
+          author: formData.author,
+          author_name: formData.author_name,
+          category: formData.category,
+          category_id: formData.category_id,
+          published_at: formData.published_at,
+          tags: formData.tags,
+          is_featured: formData.is_featured,
+          allow_comments: formData.allow_comments
         });
       }
 
@@ -736,6 +789,32 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
         <div className="border-t pt-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Informations patrimoine / musée</h3>
           <HeritageFields
+            formData={formData}
+            onChange={handleInputChange}
+          />
+        </div>
+      );
+    }
+
+    // Équipe
+    if (categoryId === 'team' || item?.type === 'team_member') {
+      return (
+        <div className="border-t pt-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Informations membre de l'équipe</h3>
+          <TeamFields
+            formData={formData}
+            onChange={handleInputChange}
+          />
+        </div>
+      );
+    }
+
+    // Blog / Articles
+    if (categoryId === 'blog' || item?.type === 'article') {
+      return (
+        <div className="border-t pt-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Informations article</h3>
+          <BlogFields
             formData={formData}
             onChange={handleInputChange}
           />
