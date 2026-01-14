@@ -23,78 +23,20 @@ const Team: React.FC = () => {
       const { data, error } = await supabase
         .from('team_members')
         .select('*')
-        .order('order', { ascending: true });
+        .eq('status', 'published') // Seulement les membres publiés
+        .order('sort_order', { ascending: true }); // Tri par sort_order
 
       if (error) {
         console.error('Error fetching team members:', error);
-        // Fallback to default data if table doesn't exist yet
-        setTeamMembers([
-          {
-            id: 'team-1',
-            name: "Marie Dubois",
-            role: "Directrice",
-            email: "marie.dubois@otchievres.be",
-            phone: "068/ 64 59 61",
-            description: "Passionnée par le patrimoine local, Marie coordonne l'ensemble des activités de l'Office du Tourisme.",
-            imageUrl: "https://picsum.photos/id/1005/400/400",
-            order: 1
-          },
-          {
-            id: 'team-2',
-            name: "Sophie Martin",
-            role: "Responsable Communication",
-            email: "sophie.martin@otchievres.be",
-            phone: "068/ 64 59 62",
-            description: "Sophie gère la communication et les réseaux sociaux pour promouvoir notre belle région.",
-            imageUrl: "https://picsum.photos/id/1005/400/400",
-            order: 2
-          },
-          {
-            id: 'team-3',
-            name: "Pierre Leroy",
-            role: "Guide Touristique",
-            email: "pierre.leroy@otchievres.be",
-            phone: "068/ 64 59 63",
-            description: "Guide expérimenté, Pierre vous fera découvrir les secrets et l'histoire de Chièvres.",
-            imageUrl: "https://picsum.photos/id/1005/400/400",
-            order: 3
-          },
-          {
-            id: 'team-4',
-            name: "Julie Renard",
-            role: "Accueil et Information",
-            email: "julie.renard@otchievres.be",
-            phone: "068/ 64 59 64",
-            description: "Julie vous accueille et vous conseille pour organiser votre séjour dans la région.",
-            imageUrl: "https://picsum.photos/id/1005/400/400",
-            order: 4
-          },
-          {
-            id: 'team-5',
-            name: "Thomas Bernard",
-            role: "Coordinateur Événements",
-            email: "thomas.bernard@otchievres.be",
-            phone: "068/ 64 59 65",
-            description: "Thomas organise les événements culturels et festifs tout au long de l'année.",
-            imageUrl: "https://picsum.photos/id/1005/400/400",
-            order: 5
-          },
-          {
-            id: 'team-6',
-            name: "Isabelle Petit",
-            role: "Chargée de Projets",
-            email: "isabelle.petit@otchievres.be",
-            phone: "068/ 64 59 66",
-            description: "Isabelle développe de nouveaux projets touristiques pour valoriser notre territoire.",
-            imageUrl: "https://picsum.photos/id/1005/400/400",
-            order: 6
-          }
-        ]);
+        setTeamMembers([]);
       } else {
-        setTeamMembers(data || []);
+        // Filtrer les membres visibles
+        const visibleMembers = (data || []).filter(member => member.is_visible !== false);
+        setTeamMembers(visibleMembers);
       }
     } catch (error) {
       console.error('Error fetching team members:', error);
+      setTeamMembers([]);
     } finally {
       setLoading(false);
     }
@@ -105,7 +47,7 @@ const Team: React.FC = () => {
       // Update database with new image URL
       const { error } = await supabase
         .from('team_members')
-        .update({ imageUrl: newImageUrl })
+        .update({ featured_image: newImageUrl })
         .eq('id', memberId);
 
       if (error) {
@@ -116,7 +58,7 @@ const Team: React.FC = () => {
       // Update local state
       setTeamMembers(prev => 
         prev.map(member => 
-          member.id === memberId ? { ...member, imageUrl: newImageUrl } : member
+          member.id === memberId ? { ...member, featured_image: newImageUrl } : member
         )
       );
       
@@ -162,53 +104,79 @@ const Team: React.FC = () => {
 
         {/* Team Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {teamMembers.map((member) => (
-            <div 
-              key={member.id}
-              className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-100 hover:shadow-xl transition-shadow duration-300"
-            >
-              {/* Photo */}
-              <EditableImage
-                src={member.imageUrl || 'https://picsum.photos/id/1005/400/400'}
-                alt={member.name}
-                onImageUpdate={(newUrl) => handleImageUpdate(member.id, newUrl)}
-                folder="team"
-                aspectRatio="square"
-                editable={canEdit}
-              />
+          {teamMembers.length === 0 ? (
+            <div className="col-span-full text-center py-12">
+              <p className="text-slate-600 text-lg">
+                Aucun membre de l'équipe à afficher pour le moment.
+              </p>
+            </div>
+          ) : (
+            teamMembers.map((member) => (
+              <div 
+                key={member.id}
+                className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-100 hover:shadow-xl transition-shadow duration-300"
+              >
+                {/* Photo */}
+                <EditableImage
+                  src={member.featured_image || member.imageUrl || 'https://picsum.photos/id/1005/400/400'}
+                  alt={member.name}
+                  onImageUpdate={(newUrl) => handleImageUpdate(member.id, newUrl)}
+                  folder="team"
+                  aspectRatio="square"
+                  editable={canEdit}
+                />
 
-              {/* Info */}
-              <div className="p-5 sm:p-6">
-                <h3 className="text-lg sm:text-xl font-bold text-slate-800 mb-1">
-                  {member.name}
-                </h3>
-                <p className="text-primary font-semibold text-sm sm:text-base mb-3 sm:mb-4">
-                  {member.role}
-                </p>
-                <p className="text-slate-600 text-sm sm:text-base mb-4 sm:mb-5 leading-relaxed">
-                  {member.description}
-                </p>
+                {/* Info */}
+                <div className="p-5 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-800 mb-1">
+                    {member.name}
+                  </h3>
+                  <p className="text-primary font-semibold text-sm sm:text-base mb-3 sm:mb-4">
+                    {member.role || member.position}
+                  </p>
+                  <p className="text-slate-600 text-sm sm:text-base mb-4 sm:mb-5 leading-relaxed">
+                    {member.bio || member.description}
+                  </p>
 
-                {/* Contact */}
-                <div className="space-y-2 border-t border-slate-100 pt-4">
-                  <a 
-                    href={`mailto:${member.email}`}
-                    className="flex items-center gap-2 text-slate-600 hover:text-primary transition-colors text-sm group touch-manipulation"
-                  >
-                    <Mail className="w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform" />
-                    <span className="break-all">{member.email}</span>
-                  </a>
-                  <a 
-                    href={`tel:${member.phone.replace(/\s/g, '')}`}
-                    className="flex items-center gap-2 text-slate-600 hover:text-primary transition-colors text-sm group touch-manipulation"
-                  >
-                    <Phone className="w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform" />
-                    <span>{member.phone}</span>
-                  </a>
+                  {/* Compétences / Spécialités */}
+                  {member.skills && (
+                    <div className="mb-4 pb-4 border-b border-slate-100">
+                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
+                        Compétences
+                      </p>
+                      <p className="text-slate-600 text-sm leading-relaxed">
+                        {member.skills}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Contact */}
+                  {(member.email || member.phone) && (
+                    <div className="space-y-2 border-t border-slate-100 pt-4">
+                      {member.email && (
+                        <a 
+                          href={`mailto:${member.email}`}
+                          className="flex items-center gap-2 text-slate-600 hover:text-primary transition-colors text-sm group touch-manipulation"
+                        >
+                          <Mail className="w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                          <span className="break-all">{member.email}</span>
+                        </a>
+                      )}
+                      {member.phone && (
+                        <a 
+                          href={`tel:${member.phone.replace(/\s/g, '')}`}
+                          className="flex items-center gap-2 text-slate-600 hover:text-primary transition-colors text-sm group touch-manipulation"
+                        >
+                          <Phone className="w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                          <span>{member.phone}</span>
+                        </a>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
 
         {/* Call to Action */}
