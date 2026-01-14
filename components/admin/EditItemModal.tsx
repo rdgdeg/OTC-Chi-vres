@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Save, Eye, EyeOff, MapPin, Phone, Mail, Globe, Calendar, Upload, Plus, Trash2, Facebook, Users, Bed, Clock, Info } from 'lucide-react';
 import { ContentItem } from '../../services/admin/CategoryContentService';
 import { supabase } from '../../services/supabaseClient';
+import AccommodationFields from './AccommodationFields';
 
 // Interface étendue pour le formulaire avec tous les champs possibles
 interface ExtendedContentItem extends ContentItem {
@@ -293,6 +294,32 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
           />
         </div>
 
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Description courte (excerpt)
+          </label>
+          <textarea
+            value={formData.excerpt || ''}
+            onChange={(e) => handleInputChange('excerpt', e.target.value)}
+            rows={2}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Description courte pour les listes..."
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Slug (URL)
+          </label>
+          <input
+            type="text"
+            value={formData.slug || ''}
+            onChange={(e) => handleInputChange('slug', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="mon-hebergement"
+          />
+        </div>
+
         {/* Informations de contact */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -348,6 +375,53 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <Facebook className="inline h-4 w-4 mr-1" />
+              Facebook
+            </label>
+            <input
+              type="url"
+              value={formData.facebook || ''}
+              onChange={(e) => handleInputChange('facebook', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="https://www.facebook.com/page"
+            />
+          </div>
+        </div>
+
+        {/* Coordonnées GPS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <MapPin className="inline h-4 w-4 mr-1" />
+              Latitude (GPS)
+            </label>
+            <input
+              type="number"
+              step="0.000001"
+              value={formData.lat || ''}
+              onChange={(e) => handleInputChange('lat', e.target.value ? parseFloat(e.target.value) : undefined)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="50.5897"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <MapPin className="inline h-4 w-4 mr-1" />
+              Longitude (GPS)
+            </label>
+            <input
+              type="number"
+              step="0.000001"
+              value={formData.lng || ''}
+              onChange={(e) => handleInputChange('lng', e.target.value ? parseFloat(e.target.value) : undefined)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="3.8014"
+            />
+          </div>
         </div>
 
         {/* Champs spécifiques selon le type */}
@@ -361,49 +435,24 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
       return (
         <div className="border-t pt-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Informations hébergement</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Gamme de prix
-              </label>
-              <select
-                value={formData.price_range || ''}
-                onChange={(e) => handleInputChange('price_range', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">Non spécifié</option>
-                <option value="€">€ - Économique</option>
-                <option value="€€">€€ - Modéré</option>
-                <option value="€€€">€€€ - Élevé</option>
-                <option value="€€€€">€€€€ - Luxe</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Capacité
-              </label>
-              <input
-                type="number"
-                value={formData.capacity || ''}
-                onChange={(e) => handleInputChange('capacity', parseInt(e.target.value))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Équipements
-              </label>
-              <input
-                type="text"
-                value={Array.isArray(formData.amenities) ? formData.amenities.join(', ') : formData.amenities || ''}
-                onChange={(e) => handleInputChange('amenities', e.target.value.split(', ').filter(Boolean))}
-                placeholder="WiFi, Parking, Piscine..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-          </div>
+          <AccommodationFields
+            formData={formData}
+            onChange={handleInputChange}
+            newFeature={newFeature}
+            setNewFeature={setNewFeature}
+            addFeature={addFeature}
+            removeFeature={removeFeature}
+            newAmenity={newAmenity}
+            setNewAmenity={setNewAmenity}
+            addAmenity={addAmenity}
+            removeAmenity={removeAmenity}
+            newRule={newRule}
+            setNewRule={setNewRule}
+            addRule={addRule}
+            removeRule={removeRule}
+            handleImageUpload={handleImageUpload}
+            uploadingImage={uploadingImage}
+          />
         </div>
       );
     }
