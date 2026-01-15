@@ -52,6 +52,11 @@
 │   ├── 📖 GUIDE-GALERIE-IMAGES.md     ← Guide complet
 │   └── 🔄 GUIDE-RAFRAICHISSEMENT.md   ← Voir vos modifications
 │
+├── 📄 Pages & Bannières (NOUVEAU!)
+│   ├── ⚡ QUICK-START-PAGES-BANNIERES.md  ← Démarrage rapide (3 min)
+│   ├── 📖 GUIDE-GESTION-PAGES-BANNIERES.md ← Guide complet
+│   └── 📋 RESUME-GESTIONNAIRE-PAGES-BANNIERES.md ← Résumé technique
+│
 └── 📱 Mobile (NOUVEAU!)
     ├── 🎯 MOBILE-OPTIMIZATIONS.md      ← Guide complet des optimisations
     ├── 🧪 MOBILE-TESTING-GUIDE.md      ← Checklist de tests mobile
@@ -97,11 +102,18 @@ Pour utiliser ton propre token :
 → Voir [`QUICK-START.md`](QUICK-START.md) section Personnalisation
 
 #### ...modifier les textes des pages
-1. Admin → "Gestion des Pages"
+1. Admin → "Pages & Bannières"
 2. Sélectionner une page
 3. Modifier les champs
 4. Sauvegarder
-→ Voir [`QUICK-START.md`](QUICK-START.md) section Personnalisation
+→ Voir [`QUICK-START-PAGES-BANNIERES.md`](QUICK-START-PAGES-BANNIERES.md)
+
+#### ...modifier les bannières d'information
+1. Admin → "Pages & Bannières" → "Bannières"
+2. Activer et rédiger le message
+3. Choisir le type (info, alerte, etc.)
+4. Sauvegarder
+→ Voir [`QUICK-START-PAGES-BANNIERES.md`](QUICK-START-PAGES-BANNIERES.md)
 
 #### ...déployer en production
 1. `npm run build`
