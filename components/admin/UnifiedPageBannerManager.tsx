@@ -4,11 +4,11 @@ import {
   ChevronRight, Image, Type, FileText, Settings,
   AlertCircle, CheckCircle, X
 } from 'lucide-react';
-import BannerManager from '../BannerManager';
+import PageStructureManager from './PageStructureManager';
 import PageContentManager from '../PageContentManager';
 import { usePageContent, PageContent } from '../../contexts/PageContentContext';
 
-type ViewMode = 'overview' | 'banners' | 'pages' | 'page-detail';
+type ViewMode = 'overview' | 'structure' | 'pages' | 'page-detail';
 
 interface Message {
   type: 'success' | 'error' | 'info';
@@ -101,10 +101,8 @@ const UnifiedPageBannerManager: React.FC = () => {
           />
         )}
 
-        {viewMode === 'banners' && (
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <BannerManager />
-          </div>
+        {viewMode === 'structure' && (
+          <PageStructureManager />
         )}
 
         {viewMode === 'pages' && (
@@ -137,26 +135,26 @@ const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate, pages
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Carte Bannières */}
+        {/* Carte Structure des Pages */}
         <div
-          onClick={() => onNavigate('banners')}
+          onClick={() => onNavigate('structure')}
           className="bg-white rounded-lg shadow-sm border p-6 cursor-pointer hover:shadow-md transition-shadow group"
         >
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center space-x-3 mb-3">
                 <div className="p-3 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                  <Bell className="h-6 w-6 text-blue-600" />
+                  <Image className="h-6 w-6 text-blue-600" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Bannières d'information
+                  Structure & Bannières
                 </h3>
               </div>
               <p className="text-gray-600 mb-4">
-                Gérez les bannières d'information qui s'affichent en haut de toutes les pages du site.
+                Modifiez les bannières (info + hero), images de fond et textes des pages.
               </p>
               <div className="flex items-center text-blue-600 font-medium">
-                Gérer les bannières
+                Gérer la structure
                 <ChevronRight className="h-4 w-4 ml-1" />
               </div>
             </div>
@@ -201,18 +199,18 @@ const OverviewDashboard: React.FC<OverviewDashboardProps> = ({ onNavigate, pages
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
           <div>
-            <h4 className="font-medium mb-2">📢 Bannières</h4>
+            <h4 className="font-medium mb-2">🎨 Structure & Bannières</h4>
             <ul className="space-y-1 text-blue-700">
-              <li>• Affichage en haut de toutes les pages</li>
-              <li>• Idéal pour les annonces importantes</li>
-              <li>• Plusieurs types : info, alerte, succès...</li>
-              <li>• Peut être fermée par les visiteurs</li>
+              <li>• Bannière d'info en haut du site</li>
+              <li>• Grande bannière Hero (page d'accueil)</li>
+              <li>• Images de fond et textes</li>
+              <li>• Boutons d'action (CTA)</li>
             </ul>
           </div>
           <div>
-            <h4 className="font-medium mb-2">📄 Pages</h4>
+            <h4 className="font-medium mb-2">📄 Contenu des Pages</h4>
             <ul className="space-y-1 text-blue-700">
-              <li>• Modifiez titres, sous-titres et descriptions</li>
+              <li>• Modifiez titres et descriptions</li>
               <li>• Changez les images de bannière</li>
               <li>• Optimisez le référencement (SEO)</li>
               <li>• Aperçu en temps réel</li>
