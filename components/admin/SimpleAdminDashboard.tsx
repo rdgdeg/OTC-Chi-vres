@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import SimpleCategoryManager from './SimpleCategoryManager';
 import UnifiedPageBannerManager from './UnifiedPageBannerManager';
+import HomeBannerManager from './HomeBannerManager';
 import { 
   BarChart3, Settings, Users, Image, FileText, 
-  Layout, Home, LogOut, Menu, X
+  Layout, Home, LogOut, Menu, X, ImageIcon
 } from 'lucide-react';
 
 interface AdminSection {
@@ -15,10 +16,17 @@ interface AdminSection {
 }
 
 const SimpleAdminDashboard: React.FC = () => {
-  const [activeSection, setActiveSection] = useState('pages');
+  const [activeSection, setActiveSection] = useState('home');
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const sections: AdminSection[] = [
+    {
+      id: 'home',
+      name: 'Page d\'accueil',
+      icon: Home,
+      component: HomeBannerManager,
+      description: 'Bannière et contenu de la page d\'accueil'
+    },
     {
       id: 'pages',
       name: 'Pages & Bannières',
