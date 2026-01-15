@@ -389,17 +389,12 @@ const Museums: React.FC = () => {
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 h-[300px] sm:h-[350px] md:h-[400px] rounded-xl sm:rounded-2xl overflow-hidden shadow-xl bg-slate-100">
-                      {/* Main Image (Large) - Editable */}
+                      {/* Main Image (Large) */}
                       <div className="col-span-2 row-span-2">
-                        <EditableImage
+                        <img
                           src={museum.imageUrl}
                           alt={museum.name}
-                          onImageUpdate={async (newUrl) => {
-                            await updateItem('museum', { ...museum, imageUrl: newUrl });
-                          }}
-                          folder="museums"
-                          className="h-full cursor-pointer"
-                          editable={canEdit}
+                          className="h-full w-full object-cover"
                         />
                       </div>
 
@@ -481,8 +476,6 @@ const Museums: React.FC = () => {
                    </h3>
                    <p className="text-slate-600 text-sm sm:text-base leading-relaxed text-justify">
                       {selectedMuseum.description}
-                      <br/><br/>
-                      L'expérience offerte par {selectedMuseum.name} est unique en son genre. Que vous soyez passionné d'histoire, amateur d'art ou simplement curieux, ce lieu vous transportera à travers les époques. Les collections sont régulièrement mises à jour et des guides passionnés sont souvent disponibles pour enrichir votre visite.
                    </p>
                 </div>
 
@@ -565,10 +558,6 @@ const Museums: React.FC = () => {
 
                     {/* Actions / Map Placeholder */}
                     <div className="bg-slate-50 rounded-xl p-4 sm:p-6 border border-slate-100 flex flex-col items-center text-center justify-center">
-                        <h4 className="font-bold text-slate-800 mb-2 text-sm sm:text-base">Planifier votre visite</h4>
-                        <p className="text-xs sm:text-sm text-slate-500 mb-4 sm:mb-6">
-                            Consultez l'itinéraire et préparez votre venue dès maintenant.
-                        </p>
                         <a 
                           href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedMuseum.name + ' ' + selectedMuseum.address)}`}
                           target="_blank"
